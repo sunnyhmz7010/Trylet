@@ -1,0 +1,228 @@
+:where(.oil-git) .diff-result .code-diff-viewport {
+  overflow-x: hidden;
+  overflow-anchor: none;
+  scrollbar-gutter: stable;
+}
+
+:where(.oil-git) .diff-result .code-diff-viewport .code-spacer {
+  width: 100%;
+  min-width: 0;
+}
+
+:where(.oil-git) .diff-result .code-diff-viewport .virtual-code-row {
+  box-sizing: border-box;
+  display: flex;
+  left: 0;
+  width: 100%;
+  min-width: 0;
+  height: auto;
+  line-height: 24px;
+  align-items: flex-start;
+}
+
+:where(.oil-git) .diff-result .code-diff-viewport .code-row {
+  white-space: normal;
+}
+:where(.oil-git) .diff-result .code-diff-viewport .code-line-measure {
+  position: static;
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  min-width: 0;
+  min-height: 24px;
+  height: auto;
+}
+:where(.oil-git) .diff-result .code-line-slot.add {
+  background: var(--add-bg);
+}
+:where(.oil-git) .diff-result .code-line-slot.remove {
+  background: var(--remove-bg);
+}
+
+:where(.oil-git) .diff-result .code-diff-viewport .line-number {
+  box-sizing: border-box;
+  flex: 0 0 36px;
+  white-space: nowrap;
+}
+
+:where(.oil-git) .diff-result .code-diff-viewport .code-text {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 24px;
+}
+
+:where(.oil-git) .diff-result .raw-patch-viewport {
+  height: clamp(150px, 40vh, 480px);
+  min-height: 0;
+  flex: 0 0 auto;
+}
+
+:where(.oil-git) .diff-result .code-diff-viewport.raw-code-viewport {
+  height: clamp(150px, 40vh, 480px);
+  min-height: 0;
+  flex: 0 0 auto;
+}
+
+:where(.oil-git) .diff-result .split-side .line-number {
+  flex-basis: 42px;
+}
+
+:where(.oil-git) .diff-result .split-editor.code-diff-split {
+  grid-template-columns:
+    minmax(0, var(--diff-left-track, 1fr)) 6px
+    minmax(0, var(--diff-right-track, 1fr));
+  column-gap: 0;
+}
+
+:where(.oil-git) .diff-result .code-diff-split > .split-side:first-of-type {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+:where(.oil-git) .diff-result .code-diff-split > .split-side:last-of-type {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+:where(.oil-git) .diff-result .code-diff-divider {
+  grid-column: 2;
+  grid-row: 1;
+  width: 6px;
+  min-height: 0;
+  cursor: col-resize;
+  touch-action: none;
+  user-select: none;
+  z-index: 1;
+  background: transparent;
+  transition: background-color var(--fast);
+}
+
+:where(.oil-git) .diff-result .code-diff-divider:hover,
+:where(.oil-git) .diff-result .code-diff-divider:focus-visible,
+:where(.oil-git) .diff-result .code-diff-split[data-resizing="true"] .code-diff-divider {
+  background: var(--selection);
+}
+
+:where(.oil-git) .diff-result .code-diff-split[data-resizing="true"],
+:where(.oil-git) .diff-result .code-diff-split[data-resizing="true"] * {
+  cursor: col-resize;
+  user-select: none;
+}
+
+:where(.oil-git) .diff-result .patch {
+  overflow-x: hidden;
+}
+
+:where(.oil-git) .diff-result .patch .code-row {
+  width: 100%;
+  min-width: 0;
+  white-space: normal;
+}
+
+:where(.oil-git) .diff-result .patch .code-text {
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* In-diff search */
+:where(.oil-git) .diff-result .diff-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  background: var(--toolbar);
+  border-bottom: 1px solid var(--line);
+}
+
+/* Collapsed search renders no visible bar — only a zero-footprint marker so
+   the Cmd/Ctrl+F first-owner logic can still find this diff in DOM order. */
+:where(.oil-git) .diff-result .diff-search-marker {
+  display: none;
+}
+
+:where(.oil-git) .diff-result .diff-search > svg {
+  flex: 0 0 auto;
+  color: var(--faint);
+}
+
+:where(.oil-git) .diff-result .diff-search-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  font: 13px var(--font);
+  padding: 4px 8px;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  outline: 0;
+}
+
+:where(.oil-git) .diff-result .diff-search-input::placeholder {
+  color: var(--faint);
+}
+
+:where(.oil-git) .diff-result .diff-search-count {
+  flex: 0 0 auto;
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+:where(.oil-git) .diff-result .diff-search-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  color: var(--muted);
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+:where(.oil-git) .diff-result .diff-search-btn svg {
+  color: inherit;
+}
+
+:where(.oil-git) .diff-result .diff-search-btn:hover:not(:disabled),
+:where(.oil-git) .diff-result .diff-search-btn:focus-visible {
+  color: var(--text);
+  background: var(--selection);
+}
+
+:where(.oil-git) .diff-result .diff-search-btn:disabled {
+  color: var(--faint);
+  cursor: default;
+}
+
+:where(.oil-git) .diff-result .diff-search-clear {
+  color: var(--faint);
+}
+
+:where(.oil-git) .diff-result .code-line-slot[data-search="match"] {
+  box-shadow: inset 0 0 0 1px var(--search-match);
+}
+
+:where(.oil-git) .diff-result .code-line-slot[data-search="current"] {
+  box-shadow:
+    inset 3px 0 0 0 var(--search-current),
+    inset 0 0 0 1px var(--search-current);
+}
+
+:where(.oil-git) .diff-result .code-text mark {
+  color: var(--search-match-ink);
+  background: var(--search-match);
+  border-radius: 2px;
+}
+
+:where(.oil-git) .diff-result .code-text mark.diff-search-hit-current {
+  color: var(--search-current-ink);
+  background: var(--search-current);
+}

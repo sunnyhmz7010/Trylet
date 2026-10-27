@@ -1,0 +1,92 @@
+:where(.oil-git) .changes-tree .change-directory {
+  min-width: 0;
+}
+
+:where(.oil-git) .changes-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+}
+
+:where(.oil-git) .changes-filter input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  padding: 6px 0;
+  background: transparent;
+  font: 13px var(--font);
+  color: var(--text);
+}
+
+:where(.oil-git) .changes-filter input::placeholder {
+  color: var(--muted);
+}
+
+:where(.oil-git) .changes-filter input::-webkit-search-cancel-button,
+:where(.oil-git) .changes-filter input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+:where(.oil-git) .changes-filter-note {
+  padding: 8px 12px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+:where(.oil-git) .changes-tree mark {
+  background: var(--selected-bg);
+  color: var(--text);
+  font-weight: inherit;
+}
+
+:where(.oil-git) .changes-tree .change-directory-heading {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 9px 7px calc(18px + var(--change-tree-indent, 0px));
+  border-radius: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: left;
+}
+
+:where(.oil-git) .changes-tree .change-directory-heading > span {
+  min-width: 0;
+  overflow: hidden;
+  flex: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:where(.oil-git) .changes-tree .change-directory-heading > svg {
+  transform: rotate(90deg);
+  transition: transform var(--fast);
+}
+
+:where(.oil-git) .changes-tree .change-directory-heading[aria-expanded="false"] > svg {
+  transform: none;
+}
+
+:where(.oil-git) .changes-tree .source-file {
+  padding-left: calc(18px + var(--change-tree-indent, 0px));
+}
+
+@media (max-width: 900px) {
+  :where(.oil-git) .persistent-sidebar .changes-tree .source-file {
+    padding-left: calc(12px + var(--change-tree-indent, 0px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.oil-git) .changes-tree .change-directory-heading > svg {
+    transition: none;
+  }
+}

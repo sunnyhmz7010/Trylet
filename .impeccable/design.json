@@ -1,0 +1,580 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-27T16:40:59Z",
+  "title": "Design System: Trylet",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "操作紫",
+        "tonalRamp": [
+          "oklch(15.00% 0.2301 276.97)",
+          "oklch(26.43% 0.2301 276.97)",
+          "oklch(37.86% 0.2301 276.97)",
+          "oklch(49.29% 0.2301 276.97)",
+          "oklch(60.71% 0.2301 276.97)",
+          "oklch(72.14% 0.2301 276.97)",
+          "oklch(83.57% 0.2301 276.97)",
+          "oklch(95.00% 0.2301 276.97)"
+        ]
+      },
+      "primary-foreground": {
+        "role": "neutral",
+        "displayName": "主动作文字",
+        "tonalRamp": [
+          "oklch(15.00% 0.0000 89.88)",
+          "oklch(26.43% 0.0000 89.88)",
+          "oklch(37.86% 0.0000 89.88)",
+          "oklch(49.29% 0.0000 89.88)",
+          "oklch(60.71% 0.0000 89.88)",
+          "oklch(72.14% 0.0000 89.88)",
+          "oklch(83.57% 0.0000 89.88)",
+          "oklch(95.00% 0.0000 89.88)"
+        ]
+      },
+      "background": {
+        "role": "neutral",
+        "displayName": "框架浅灰",
+        "tonalRamp": [
+          "oklch(15.00% 0.0027 286.35)",
+          "oklch(26.43% 0.0027 286.35)",
+          "oklch(37.86% 0.0027 286.35)",
+          "oklch(49.29% 0.0027 286.35)",
+          "oklch(60.71% 0.0027 286.35)",
+          "oklch(72.14% 0.0027 286.35)",
+          "oklch(83.57% 0.0027 286.35)",
+          "oklch(95.00% 0.0027 286.35)"
+        ]
+      },
+      "card": {
+        "role": "neutral",
+        "displayName": "工作面白",
+        "tonalRamp": [
+          "oklch(15.00% 0.0000 89.88)",
+          "oklch(26.43% 0.0000 89.88)",
+          "oklch(37.86% 0.0000 89.88)",
+          "oklch(49.29% 0.0000 89.88)",
+          "oklch(60.71% 0.0000 89.88)",
+          "oklch(72.14% 0.0000 89.88)",
+          "oklch(83.57% 0.0000 89.88)",
+          "oklch(95.00% 0.0000 89.88)"
+        ]
+      },
+      "secondary": {
+        "role": "neutral",
+        "displayName": "悬停灰",
+        "tonalRamp": [
+          "oklch(15.00% 0.0053 286.30)",
+          "oklch(26.43% 0.0053 286.30)",
+          "oklch(37.86% 0.0053 286.30)",
+          "oklch(49.29% 0.0053 286.30)",
+          "oklch(60.71% 0.0053 286.30)",
+          "oklch(72.14% 0.0053 286.30)",
+          "oklch(83.57% 0.0053 286.30)",
+          "oklch(95.00% 0.0053 286.30)"
+        ]
+      },
+      "foreground": {
+        "role": "neutral",
+        "displayName": "近黑正文",
+        "tonalRamp": [
+          "oklch(15.00% 0.0096 285.62)",
+          "oklch(26.43% 0.0096 285.62)",
+          "oklch(37.86% 0.0096 285.62)",
+          "oklch(49.29% 0.0096 285.62)",
+          "oklch(60.71% 0.0096 285.62)",
+          "oklch(72.14% 0.0096 285.62)",
+          "oklch(83.57% 0.0096 285.62)",
+          "oklch(95.00% 0.0096 285.62)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "次级灰字",
+        "tonalRamp": [
+          "oklch(15.00% 0.0126 285.94)",
+          "oklch(26.43% 0.0126 285.94)",
+          "oklch(37.86% 0.0126 285.94)",
+          "oklch(49.29% 0.0126 285.94)",
+          "oklch(60.71% 0.0126 285.94)",
+          "oklch(72.14% 0.0126 285.94)",
+          "oklch(83.57% 0.0126 285.94)",
+          "oklch(95.00% 0.0126 285.94)"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "细线灰",
+        "tonalRamp": [
+          "oklch(15.00% 0.0067 286.27)",
+          "oklch(26.43% 0.0067 286.27)",
+          "oklch(37.86% 0.0067 286.27)",
+          "oklch(49.29% 0.0067 286.27)",
+          "oklch(60.71% 0.0067 286.27)",
+          "oklch(72.14% 0.0067 286.27)",
+          "oklch(83.57% 0.0067 286.27)",
+          "oklch(95.00% 0.0067 286.27)"
+        ]
+      },
+      "active-fill": {
+        "role": "primary",
+        "displayName": "淡紫反馈",
+        "tonalRamp": [
+          "oklch(15.00% 0.0323 289.59)",
+          "oklch(26.43% 0.0323 289.59)",
+          "oklch(37.86% 0.0323 289.59)",
+          "oklch(49.29% 0.0323 289.59)",
+          "oklch(60.71% 0.0323 289.59)",
+          "oklch(72.14% 0.0323 289.59)",
+          "oklch(83.57% 0.0323 289.59)",
+          "oklch(95.00% 0.0323 289.59)"
+        ]
+      },
+      "destructive": {
+        "role": "error",
+        "displayName": "危险状态",
+        "tonalRamp": [
+          "oklch(15.00% 0.1801 25.44)",
+          "oklch(26.43% 0.1801 25.44)",
+          "oklch(37.86% 0.1801 25.44)",
+          "oklch(49.29% 0.1801 25.44)",
+          "oklch(60.71% 0.1801 25.44)",
+          "oklch(72.14% 0.1801 25.44)",
+          "oklch(83.57% 0.1801 25.44)",
+          "oklch(95.00% 0.1801 25.44)"
+        ]
+      },
+      "success": {
+        "role": "success",
+        "displayName": "成功状态",
+        "tonalRamp": [
+          "oklch(15.00% 0.1272 154.31)",
+          "oklch(26.43% 0.1272 154.31)",
+          "oklch(37.86% 0.1272 154.31)",
+          "oklch(49.29% 0.1272 154.31)",
+          "oklch(60.71% 0.1272 154.31)",
+          "oklch(72.14% 0.1272 154.31)",
+          "oklch(83.57% 0.1272 154.31)",
+          "oklch(95.00% 0.1272 154.31)"
+        ]
+      },
+      "primary-dark": {
+        "role": "primary",
+        "displayName": "暗色操作紫",
+        "tonalRamp": [
+          "oklch(15.00% 0.1351 285.04)",
+          "oklch(26.43% 0.1351 285.04)",
+          "oklch(37.86% 0.1351 285.04)",
+          "oklch(49.29% 0.1351 285.04)",
+          "oklch(60.71% 0.1351 285.04)",
+          "oklch(72.14% 0.1351 285.04)",
+          "oklch(83.57% 0.1351 285.04)",
+          "oklch(95.00% 0.1351 285.04)"
+        ]
+      },
+      "primary-foreground-dark": {
+        "role": "neutral",
+        "displayName": "暗色主动作文字",
+        "tonalRamp": [
+          "oklch(15.00% 0.0355 293.23)",
+          "oklch(26.43% 0.0355 293.23)",
+          "oklch(37.86% 0.0355 293.23)",
+          "oklch(49.29% 0.0355 293.23)",
+          "oklch(60.71% 0.0355 293.23)",
+          "oklch(72.14% 0.0355 293.23)",
+          "oklch(83.57% 0.0355 293.23)",
+          "oklch(95.00% 0.0355 293.23)"
+        ]
+      },
+      "background-dark": {
+        "role": "neutral",
+        "displayName": "暗色框架",
+        "tonalRamp": [
+          "oklch(15.00% 0.0077 285.74)",
+          "oklch(26.43% 0.0077 285.74)",
+          "oklch(37.86% 0.0077 285.74)",
+          "oklch(49.29% 0.0077 285.74)",
+          "oklch(60.71% 0.0077 285.74)",
+          "oklch(72.14% 0.0077 285.74)",
+          "oklch(83.57% 0.0077 285.74)",
+          "oklch(95.00% 0.0077 285.74)"
+        ]
+      },
+      "card-dark": {
+        "role": "neutral",
+        "displayName": "暗色工作面",
+        "tonalRamp": [
+          "oklch(15.00% 0.0074 285.87)",
+          "oklch(26.43% 0.0074 285.87)",
+          "oklch(37.86% 0.0074 285.87)",
+          "oklch(49.29% 0.0074 285.87)",
+          "oklch(60.71% 0.0074 285.87)",
+          "oklch(72.14% 0.0074 285.87)",
+          "oklch(83.57% 0.0074 285.87)",
+          "oklch(95.00% 0.0074 285.87)"
+        ]
+      },
+      "secondary-dark": {
+        "role": "neutral",
+        "displayName": "暗色悬停面",
+        "tonalRamp": [
+          "oklch(15.00% 0.0089 285.87)",
+          "oklch(26.43% 0.0089 285.87)",
+          "oklch(37.86% 0.0089 285.87)",
+          "oklch(49.29% 0.0089 285.87)",
+          "oklch(60.71% 0.0089 285.87)",
+          "oklch(72.14% 0.0089 285.87)",
+          "oklch(83.57% 0.0089 285.87)",
+          "oklch(95.00% 0.0089 285.87)"
+        ]
+      },
+      "foreground-dark": {
+        "role": "neutral",
+        "displayName": "暗色正文",
+        "tonalRamp": [
+          "oklch(15.00% 0.0053 286.30)",
+          "oklch(26.43% 0.0053 286.30)",
+          "oklch(37.86% 0.0053 286.30)",
+          "oklch(49.29% 0.0053 286.30)",
+          "oklch(60.71% 0.0053 286.30)",
+          "oklch(72.14% 0.0053 286.30)",
+          "oklch(83.57% 0.0053 286.30)",
+          "oklch(95.00% 0.0053 286.30)"
+        ]
+      },
+      "muted-dark": {
+        "role": "neutral",
+        "displayName": "暗色次级文字",
+        "tonalRamp": [
+          "oklch(15.00% 0.0141 286.06)",
+          "oklch(26.43% 0.0141 286.06)",
+          "oklch(37.86% 0.0141 286.06)",
+          "oklch(49.29% 0.0141 286.06)",
+          "oklch(60.71% 0.0141 286.06)",
+          "oklch(72.14% 0.0141 286.06)",
+          "oklch(83.57% 0.0141 286.06)",
+          "oklch(95.00% 0.0141 286.06)"
+        ]
+      },
+      "border-dark": {
+        "role": "neutral",
+        "displayName": "暗色细线",
+        "tonalRamp": [
+          "oklch(15.00% 0.0121 285.75)",
+          "oklch(26.43% 0.0121 285.75)",
+          "oklch(37.86% 0.0121 285.75)",
+          "oklch(49.29% 0.0121 285.75)",
+          "oklch(60.71% 0.0121 285.75)",
+          "oklch(72.14% 0.0121 285.75)",
+          "oklch(83.57% 0.0121 285.75)",
+          "oklch(95.00% 0.0121 285.75)"
+        ]
+      },
+      "active-fill-dark": {
+        "role": "primary",
+        "displayName": "暗色激活面",
+        "tonalRamp": [
+          "oklch(15.00% 0.0474 286.87)",
+          "oklch(26.43% 0.0474 286.87)",
+          "oklch(37.86% 0.0474 286.87)",
+          "oklch(49.29% 0.0474 286.87)",
+          "oklch(60.71% 0.0474 286.87)",
+          "oklch(72.14% 0.0474 286.87)",
+          "oklch(83.57% 0.0474 286.87)",
+          "oklch(95.00% 0.0474 286.87)"
+        ]
+      },
+      "destructive-dark": {
+        "role": "error",
+        "displayName": "暗色危险状态",
+        "tonalRamp": [
+          "oklch(15.00% 0.1187 20.05)",
+          "oklch(26.43% 0.1187 20.05)",
+          "oklch(37.86% 0.1187 20.05)",
+          "oklch(49.29% 0.1187 20.05)",
+          "oklch(60.71% 0.1187 20.05)",
+          "oklch(72.14% 0.1187 20.05)",
+          "oklch(83.57% 0.1187 20.05)",
+          "oklch(95.00% 0.1187 20.05)"
+        ]
+      },
+      "success-dark": {
+        "role": "success",
+        "displayName": "暗色成功状态",
+        "tonalRamp": [
+          "oklch(15.00% 0.1334 156.06)",
+          "oklch(26.43% 0.1334 156.06)",
+          "oklch(37.86% 0.1334 156.06)",
+          "oklch(49.29% 0.1334 156.06)",
+          "oklch(60.71% 0.1334 156.06)",
+          "oklch(72.14% 0.1334 156.06)",
+          "oklch(83.57% 0.1334 156.06)",
+          "oklch(95.00% 0.1334 156.06)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "title": {
+        "displayName": "设置页与对话框标题",
+        "purpose": "标题用半粗字重建立层级，不构建展示型字体系统。"
+      },
+      "section": {
+        "displayName": "设置分区",
+        "purpose": "和正文同字号，以半粗区分。"
+      },
+      "body": {
+        "displayName": "界面正文",
+        "purpose": "根字号与常规界面文字。"
+      },
+      "label": {
+        "displayName": "字段与操作标签",
+        "purpose": "语言、表单标签与底部操作。"
+      },
+      "caption": {
+        "displayName": "辅助说明",
+        "purpose": "环境、保存状态与表单帮助。"
+      },
+      "code": {
+        "displayName": "代码",
+        "purpose": "单文件编辑，较宽行距。"
+      },
+      "terminal": {
+        "displayName": "终端",
+        "purpose": "交互输入和输出，较紧行距。"
+      }
+    },
+    "shadows": [
+      {
+        "name": "control",
+        "value": "0 1px 2px 0 #0000000d",
+        "purpose": "输入、选择和描边按钮的轻微下缘。"
+      },
+      {
+        "name": "popover",
+        "value": "0 4px 6px -1px #0000001a, 0 2px 4px -2px #0000001a",
+        "purpose": "菜单覆盖关系。"
+      },
+      {
+        "name": "dialog",
+        "value": "0 10px 15px -3px #0000001a, 0 4px 6px -4px #0000001a",
+        "purpose": "对话框覆盖关系。"
+      }
+    ],
+    "motion": [
+      {
+        "name": "control-transition",
+        "value": "150ms cubic-bezier(.4,0,.2,1)",
+        "purpose": "构建产物中通用控件状态转换。"
+      },
+      {
+        "name": "ball-transition",
+        "value": "background 120ms, color 120ms",
+        "purpose": "静止悬浮球的悬停状态反馈。"
+      },
+      {
+        "name": "reduced-motion",
+        "value": "prefers-reduced-motion: reduce",
+        "purpose": "通用动效缩至 .01ms；悬浮球关闭转换。"
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "compact-window",
+        "value": "570px"
+      }
+    ],
+    "evidence": {
+      "mode": "source-and-reviewed-screenshots",
+      "visualVerification": "本次仅按已批准的 Trylet 名称、第一轮 A 图标与品牌源码同步记录，不代表新品牌的完整 GUI 验收。以下保留改名前 Trylet 的历史证据：独立 finish review 曾逐张查看 .impeccable/review/dpi-sync/ 中 11 张截图及 .impeccable/review/editor-720.png，确认这 12 张浅色截图范围内未见实质视觉问题。原生验证在同一块 2560×1600px 显示器上实际切换 100%、125%、150%、200% 缩放并恢复 150%，覆盖悬浮球圆形外观与主窗口；球前端视口为 48×48px，原生物理外接矩形依次为 48×48、60×60、72×72、96×96px。500×380px、720×560px、1100×700px 窗口通过原生 SetSize 隔离探针核验，终端分别回传 65×6、97×8、151×8 字符网格，并有中文输入证据。历史检查未覆盖窗口边缘手势、多物理显示器跨屏拖拽、深色主题、完整交互与性能。",
+      "brandApproval": "用户确认统一使用 Trylet 英文名，不设中文名；批准 ../../outputs/brand-exploration-20261028/name-and-icon-concepts.png 的 A 列，旧中文候选标题已取消。T 与向前箭头共用 frontend/src/brand.svg 的单一 polygon；build/make-icon.ps1 从该 glyph 生成应用、启动状态、托盘和 EXE 的方块白标资源，圆形悬浮球保留 48 DIP 外壳，内边距改为 7.5px。",
+      "sources": [
+        "frontend/src/styles.css",
+        "frontend/src/ball.css",
+        "frontend/src/ball.ts",
+        "frontend/src/brand.svg",
+        "build/make-icon.ps1",
+        "build/icon.svg",
+        "build/icon.png",
+        "build/icon.ico",
+        "../../outputs/brand-exploration-20261028/name-and-icon-concepts.png",
+        "../../outputs/brand-exploration-20261028/trylet-app.svg",
+        "../../outputs/brand-exploration-20261028/trylet-glyph.svg",
+        "frontend/src/App.tsx",
+        "frontend/src/SettingsDialog.tsx",
+        "frontend/src/PublishDialog.tsx",
+        "frontend/src/Editor.tsx",
+        "frontend/src/Terminal.tsx",
+        "frontend/src/components/ui",
+        "main.go",
+        "frontend/ball.html",
+        "frontend/src/GitPanel.tsx",
+        "frontend/src/git/App.tsx",
+        "frontend/src/git/theme.tsx",
+        "frontend/src/git/themes.css",
+        "frontend/src/git/styles.css",
+        "frontend/src/git/preferences.ts",
+        "internal/trylet/store.go",
+        ".impeccable/review/editor-720.png",
+        ".impeccable/review/git-720.png",
+        ".impeccable/review/history-720.png",
+        ".impeccable/review/settings-720.png",
+        ".impeccable/review/terminal-720.png",
+        ".impeccable/review/dpi-sync/ball-100.png",
+        ".impeccable/review/dpi-sync/ball-125.png",
+        ".impeccable/review/dpi-sync/ball-150.png",
+        ".impeccable/review/dpi-sync/ball-200.png",
+        ".impeccable/review/dpi-sync/main-100.png",
+        ".impeccable/review/dpi-sync/main-125.png",
+        ".impeccable/review/dpi-sync/main-150.png",
+        ".impeccable/review/dpi-sync/main-200.png",
+        ".impeccable/review/dpi-sync/editor-500-150.png",
+        ".impeccable/review/dpi-sync/terminal-500-150.png",
+        ".impeccable/review/dpi-sync/git-500-150.png",
+        "../dpi-final-v4-results.jsonl"
+      ],
+      "notCanonized": [
+        "10px 辅助文字在未覆盖场景下的可读性与 CodeMirror 深色固定色尚待视觉核验。",
+        "浮层 animate-in/fade/zoom 类在当前构建 CSS 中没有对应规则，不记作已实现动画。"
+      ]
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "底栏运行按钮的实际紧凑规格；对话框确认复用相同主色。",
+      "html": "<button class=\"ds-btn-primary\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><polygon points=\"6 3 20 12 6 21 6 3\" fill=\"currentColor\"/></svg>运行<span class=\"ds-shortcut\">Ctrl ↵</span></button>",
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:6px;font-family:\"Segoe UI\", \"Microsoft YaHei UI\", sans-serif;font-weight:500;white-space:nowrap;cursor:pointer;transition:all 150ms cubic-bezier(.4,0,.2,1);height:30px;padding:0 11px;border:0;background:var(--primary,#4f46e5);color:var(--primary-foreground,#fff);font-size:12px}.ds-btn-primary:hover{background:color-mix(in oklab,var(--primary,#4f46e5) 90%,transparent)}.ds-shortcut{font-size:10px;opacity:.65;font-weight:400;margin-left:5px}.ds-btn-primary:focus-visible{outline:2px solid var(--primary,#4f46e5);outline-offset:2px;box-shadow:0 0 0 3px color-mix(in oklab,var(--primary,#4f46e5) 50%,transparent)}.ds-btn-primary:disabled{pointer-events:none;opacity:.5}@media(prefers-reduced-motion:reduce){[class^=\"ds-\"],[class*=\" ds-\"]{animation-duration:.01ms!important;transition-duration:.01ms!important}}"
+    },
+    {
+      "name": "Outline Action",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "发布与次要操作采用细边框和轻微下缘阴影。",
+      "html": "<button class=\"ds-btn-outline\">发布</button>",
+      "css": ".ds-btn-outline{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:6px;font-family:\"Segoe UI\", \"Microsoft YaHei UI\", sans-serif;font-weight:500;white-space:nowrap;cursor:pointer;transition:all 150ms cubic-bezier(.4,0,.2,1);height:30px;padding:0 11px;border:1px solid var(--border,#e3e3e8);background:var(--background,#f4f4f6);color:var(--foreground,#1c1c21);font-size:12px;box-shadow:0 1px 2px 0 #0000000d}.ds-btn-outline:hover{background:var(--secondary,#ededf1)}.ds-btn-outline:focus-visible{outline:2px solid var(--primary,#4f46e5);outline-offset:2px;box-shadow:0 1px 2px 0 #0000000d,0 0 0 3px color-mix(in oklab,var(--primary,#4f46e5) 50%,transparent)}.ds-btn-outline:disabled{pointer-events:none;opacity:.5}@media(prefers-reduced-motion:reduce){[class^=\"ds-\"],[class*=\" ds-\"]{animation-duration:.01ms!important;transition-duration:.01ms!important}}"
+    },
+    {
+      "name": "Ghost Action",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "设置中的重新检测使用轻量小按钮；尺寸按 13px 根字号解析。",
+      "html": "<button class=\"ds-btn-ghost\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8\"/><path d=\"M21 3v5h-5\"/><path d=\"M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16\"/><path d=\"M8 16H3v5\"/></svg>重新检测</button>",
+      "css": ".ds-btn-ghost{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:6px;font-family:\"Segoe UI\", \"Microsoft YaHei UI\", sans-serif;font-weight:500;white-space:nowrap;cursor:pointer;transition:all 150ms cubic-bezier(.4,0,.2,1);height:26px;padding:0 8.125px;gap:4.875px;border:0;background:transparent;color:var(--foreground,#1c1c21);font-size:11.375px;line-height:16.25px}.ds-btn-ghost:hover{background:var(--secondary,#ededf1)}.ds-btn-ghost:focus-visible{outline:2px solid var(--primary,#4f46e5);outline-offset:2px;box-shadow:0 0 0 3px color-mix(in oklab,var(--primary,#4f46e5) 50%,transparent)}.ds-btn-ghost:disabled{pointer-events:none;opacity:.5}@media(prefers-reduced-motion:reduce){[class^=\"ds-\"],[class*=\" ds-\"]{animation-duration:.01ms!important;transition-duration:.01ms!important}}"
+    },
+    {
+      "name": "Destructive Action",
+      "kind": "button",
+      "refersTo": "button-destructive",
+      "description": "运行中将主动作切换为停止。",
+      "html": "<button class=\"ds-btn-destructive\"><svg width=\"11\" height=\"11\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"6\" y=\"6\" width=\"12\" height=\"12\" fill=\"currentColor\"/></svg>停止</button>",
+      "css": ".ds-btn-destructive{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:6px;font-family:\"Segoe UI\", \"Microsoft YaHei UI\", sans-serif;font-weight:500;white-space:nowrap;cursor:pointer;transition:all 150ms cubic-bezier(.4,0,.2,1);height:30px;padding:0 11px;border:0;background:var(--destructive,#c43535);color:#fff;font-size:12px}.ds-btn-destructive:hover{background:color-mix(in oklab,var(--destructive,#c43535) 90%,transparent)}.ds-btn-destructive:focus-visible{outline:2px solid var(--primary,#4f46e5);outline-offset:2px;box-shadow:0 0 0 3px color-mix(in oklab,var(--destructive,#c43535) 20%,transparent)}.ds-btn-destructive:disabled{pointer-events:none;opacity:.5}@media(prefers-color-scheme:dark){.ds-btn-destructive{background:#b91c1c}}@media(prefers-reduced-motion:reduce){[class^=\"ds-\"],[class*=\" ds-\"]{animation-duration:.01ms!important;transition-duration:.01ms!important}}"
+    },
+    {
+      "name": "Link Action",
+      "kind": "button",
+      "refersTo": "button-link",
+      "description": "创建令牌等轻量外部入口，悬停显示下划线。",
+      "html": "<button class=\"ds-btn-link\">创建细粒度令牌<svg width=\"11\" height=\"11\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M15 3h6v6\"/><path d=\"M10 14 21 3\"/><path d=\"M21 14v7H3V3h7\"/></svg></button>",
+      "css": ".ds-btn-link{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:6px;font-family:\"Segoe UI\", \"Microsoft YaHei UI\", sans-serif;font-weight:500;white-space:nowrap;cursor:pointer;transition:all 150ms cubic-bezier(.4,0,.2,1);height:26px;padding:0 8.125px;gap:4.875px;border:0;background:transparent;color:var(--primary,#4f46e5);font-size:11.375px;line-height:16.25px;text-underline-offset:3.25px}.ds-btn-link:hover{text-decoration:underline}.ds-btn-link:focus-visible{outline:2px solid var(--primary,#4f46e5);outline-offset:2px;box-shadow:0 0 0 3px color-mix(in oklab,var(--primary,#4f46e5) 50%,transparent)}.ds-btn-link:disabled{pointer-events:none;opacity:.5}@media(prefers-reduced-motion:reduce){[class^=\"ds-\"],[class*=\" ds-\"]{animation-duration:.01ms!important;transition-duration:.01ms!important}}"
+    },
+    {
+      "name": "Labeled Input",
+      "kind": "input",
+      "refersTo": "field-input",
+      "description": "设置与发布的标准输入字段，保留标签、说明及焦点状态。",
+      "html": "<label class=\"ds-field\"><span>默认仓库</span><input class=\"ds-input\" placeholder=\"owner/practise-daily\" /><small>选择保存练习的 GitHub 仓库。</small></label>",
+      "css": ".ds-field{display:flex;flex-direction:column;gap:7px;color:var(--foreground,#1c1c21);font-family:\"Segoe UI\", \"Microsoft YaHei UI\", sans-serif;font-size:12px;font-weight:500;min-width:0}.ds-input{height:33px;padding:3.25px 9.75px;border:1px solid var(--border,#e3e3e8);border-radius:6px;background:transparent;color:var(--foreground,#1c1c21);font-family:\"Segoe UI\", \"Microsoft YaHei UI\", sans-serif;font-size:12px;font-weight:400;box-shadow:0 1px 2px 0 #0000000d;transition:color 150ms cubic-bezier(.4,0,.2,1),box-shadow 150ms cubic-bezier(.4,0,.2,1)}.ds-input::placeholder{color:var(--muted,#63636b)}.ds-input:focus-visible{border-color:var(--primary,#4f46e5)}.ds-input:focus-visible{outline:2px solid var(--primary,#4f46e5);outline-offset:2px;box-shadow:0 1px 2px 0 #0000000d,0 0 0 3px color-mix(in oklab,var(--primary,#4f46e5) 50%,transparent)}.ds-input:disabled{pointer-events:none;opacity:.5}.ds-input[aria-invalid=true]{border-color:var(--destructive,#c43535)}.ds-field small{color:var(--muted,#63636b);font-size:11px;line-height:1.65;font-weight:400}@media(prefers-reduced-motion:reduce){[class^=\"ds-\"],[class*=\" ds-\"]{animation-duration:.01ms!important;transition-duration:.01ms!important}}"
+    },
+    {
+      "name": "Workspace Navigation",
+      "kind": "nav",
+      "refersTo": "app-navigation",
+      "description": "三个文件夹状、仅图标的 editor / Git / settings 标签；当前页白底紫色图标，置顶与收起位于右侧。实现支持方向键、Home 与 End 切换。 公共导航沿用主窗口外观；Git 内部主题、语言和布局变量仅作用于 .oil-git。",
+      "html": "<header class=\"ds-navigation\"><div class=\"ds-tabs\" role=\"tablist\" aria-label=\"工作区\"><button class=\"ds-folder-tab\" role=\"tab\" aria-label=\"编辑器\" title=\"编辑器\" aria-selected=\"true\" tabindex=\"0\"><svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m18 16 4-4-4-4\"/><path d=\"m6 8-4 4 4 4\"/><path d=\"m14.5 4-5 16\"/></svg></button><button class=\"ds-folder-tab\" role=\"tab\" aria-label=\"Git\" title=\"Git\" aria-selected=\"false\" tabindex=\"-1\"><svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><line x1=\"6\" x2=\"6\" y1=\"3\" y2=\"15\"/><circle cx=\"18\" cy=\"6\" r=\"3\"/><circle cx=\"6\" cy=\"18\" r=\"3\"/><path d=\"M18 9a9 9 0 0 1-9 9\"/></svg></button><button class=\"ds-folder-tab\" role=\"tab\" aria-label=\"设置\" title=\"设置\" aria-selected=\"false\" tabindex=\"-1\"><svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 7h-9\"/><path d=\"M14 17H5\"/><circle cx=\"17\" cy=\"17\" r=\"3\"/><circle cx=\"7\" cy=\"7\" r=\"3\"/></svg></button></div><span class=\"ds-navigation-spacer\"></span><button class=\"ds-window-icon\" aria-label=\"置顶窗口\" title=\"置顶窗口\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 17v5\"/><path d=\"M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z\"/></svg></button><button class=\"ds-window-icon\" aria-label=\"收起窗口\" title=\"收起窗口\"><svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/></svg></button></header>",
+      "css": ".ds-navigation{display:flex;align-items:center;gap:4px;height:43px;min-height:43px;padding:5px 12px 0;background:var(--background,#f4f4f6);color:var(--muted,#63636b);font-family:\"Segoe UI\",\"Microsoft YaHei UI\",sans-serif;font-size:13px;user-select:none}.ds-tabs{display:flex;align-self:stretch;align-items:flex-end;gap:5px}.ds-folder-tab{position:relative;display:grid;place-items:center;width:49px;height:31px;padding:0;border:1px solid var(--border,#e3e3e8);border-bottom:0;border-radius:7px 7px 0 0;background:var(--secondary,#ededf1);color:var(--muted,#63636b);cursor:pointer}.ds-folder-tab::before{content:\"\";position:absolute;top:-5px;left:-1px;width:22px;height:5px;border:1px solid var(--border,#e3e3e8);border-bottom:0;border-radius:4px 4px 0 0;background:inherit}.ds-folder-tab:hover{color:var(--foreground,#1c1c21);background:var(--background,#f4f4f6)}.ds-folder-tab[aria-selected=true]{background:var(--card,#fff);color:var(--primary,#4f46e5);height:34px}.ds-folder-tab:focus-visible{outline:2px solid var(--primary,#4f46e5);outline-offset:-3px}.ds-navigation-spacer{flex:1;min-width:4px;height:100%}.ds-window-icon{display:inline-grid;place-items:center;flex:0 0 29px;width:29px;height:29px;padding:0;border:0;border-radius:5px;background:transparent;color:var(--muted,#63636b);cursor:pointer}.ds-window-icon:hover{background:var(--secondary,#ededf1);color:var(--foreground,#1c1c21)}.ds-window-icon.ds-active{color:var(--primary,#4f46e5);background:#e9e7ff}.ds-window-icon:focus-visible{outline:2px solid var(--primary,#4f46e5);outline-offset:2px}@media(prefers-color-scheme:dark){.ds-window-icon.ds-active{background:#33314c}}"
+    },
+    {
+      "name": "Editor Toolbar",
+      "kind": "nav",
+      "refersTo": "toolbar",
+      "description": "编辑器页内的语言与草稿工具栏；窗口级标签和置顶、收起位于上方公共导航。",
+      "html": "<nav class=\"ds-toolbar\"><button class=\"ds-language\">自动 · Python<svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m6 9 6 6 6-6\"/></svg></button><button class=\"ds-draft\"><span>未命名练习</span><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m6 9 6 6 6-6\"/></svg></button></nav>",
+      "css": ".ds-toolbar{display:flex;align-items:center;gap:9px;height:41px;padding:0 12px;background:var(--background,#f4f4f6);color:var(--muted,#63636b);font-family:\"Segoe UI\",\"Microsoft YaHei UI\",sans-serif;font-size:13px}.ds-language{display:inline-flex;align-items:center;justify-content:space-between;gap:10px;min-width:113px;height:30px;padding:0 9px;background:var(--card,#fff);color:var(--foreground,#1c1c21);border:1px solid var(--border,#e3e3e8);border-radius:6px;font:500 12px \"Segoe UI\",\"Microsoft YaHei UI\",sans-serif;box-shadow:0 1px 2px 0 #0000000d}.ds-draft{display:inline-flex;align-items:center;gap:6px;min-width:0;height:30px;padding:0 6px;background:transparent;color:var(--muted,#63636b);border:0;border-radius:5px;font:400 13px \"Segoe UI\",\"Microsoft YaHei UI\",sans-serif;cursor:pointer}.ds-draft span{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ds-draft:hover{background:var(--secondary,#ededf1);color:var(--foreground,#1c1c21)}.ds-toolbar button:focus-visible{outline:2px solid var(--primary,#4f46e5);outline-offset:2px}.ds-toolbar button:disabled{pointer-events:none;opacity:.5}@media(max-width:570px){.ds-draft span{max-width:100px}}@media(prefers-reduced-motion:reduce){.ds-toolbar button{animation-duration:.01ms!important;transition-duration:.01ms!important}}"
+    },
+    {
+      "name": "Runtime Group",
+      "kind": "card",
+      "refersTo": "runtime-card",
+      "description": "设置中的运行环境组，通过细边框分区，不使用独立阴影。",
+      "html": "<section class=\"ds-runtime\"><div class=\"ds-runtime-label\">Python</div><select class=\"ds-native-select\" aria-label=\"Python 运行环境\"><option>自动选择</option></select></section>",
+      "css": ".ds-runtime{padding:10px;border:1px solid var(--border,#e3e3e8);border-radius:7px;color:var(--foreground,#1c1c21);font-family:\"Segoe UI\", \"Microsoft YaHei UI\", sans-serif}.ds-runtime-label{font-size:12px;font-weight:500}.ds-native-select{margin-top:8px;height:32px;width:100%;min-width:0;padding:0 8px;border:1px solid var(--border,#e3e3e8);border-radius:6px;background:var(--card,#fff);color:var(--foreground,#1c1c21);font:400 12px \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif}@media(prefers-reduced-motion:reduce){[class^=\"ds-\"],[class*=\" ds-\"]{animation-duration:.01ms!important;transition-duration:.01ms!important}}"
+    },
+    {
+      "name": "Settings Page",
+      "kind": "custom",
+      "refersTo": "settings-page",
+      "description": "第三个页面中的白色设置工作面，标题和取消/保存区固定，正文独立滚动；不使用模态遮罩或浮层阴影。",
+      "html": "<section class=\"ds-settings\" aria-label=\"设置页示例\"><header class=\"ds-settings-heading\"><h2>设置</h2><p>使用这台电脑已有的环境，保持练习简单。</p></header><div class=\"ds-settings-body\"><label class=\"ds-settings-field\"><span>全局唤出快捷键</span><input class=\"ds-settings-input\" value=\"Ctrl+Alt+Space\" /><small>留空可关闭；若已被其他程序占用，会保留原来的快捷键。</small></label></div><footer class=\"ds-settings-footer\"><button class=\"ds-settings-cancel\">取消</button><button class=\"ds-settings-save\">保存设置</button></footer></section>",
+      "css": ".ds-settings{display:flex;flex:1;min-height:0;flex-direction:column;width:100%;overflow:hidden;border:1px solid var(--border,#e3e3e8);border-radius:0 9px 9px 9px;background:var(--card,#fff);color:var(--foreground,#1c1c21);font-family:\"Segoe UI\",\"Microsoft YaHei UI\",sans-serif}.ds-settings-heading{padding:19px 22px 15px;border-bottom:1px solid var(--border,#e3e3e8)}.ds-settings-heading h2{margin:0 0 4px;font-size:16px;font-weight:600;letter-spacing:0}.ds-settings-heading p{margin:0;font-size:12px;line-height:1.6;color:var(--muted,#63636b)}.ds-settings-body{flex:1;min-height:0;overflow-y:auto;padding:18px 22px;font-size:13px;font-weight:400}.ds-settings-footer{display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:13px 22px;border-top:1px solid var(--border,#e3e3e8);background:var(--card,#fff)}.ds-settings-save,.ds-settings-cancel{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:6px;font-family:\"Segoe UI\", \"Microsoft YaHei UI\", sans-serif;font-weight:500;white-space:nowrap;cursor:pointer;transition:all 150ms cubic-bezier(.4,0,.2,1);height:29.25px;padding:6.5px 13px;font-size:11.375px;line-height:16.25px}.ds-settings-save{border:0;background:var(--primary,#4f46e5);color:var(--primary-foreground,#fff)}.ds-settings-save:hover{background:color-mix(in oklab,var(--primary,#4f46e5) 90%,transparent)}.ds-settings-cancel{border:1px solid var(--border,#e3e3e8);background:var(--background,#f4f4f6);color:var(--foreground,#1c1c21);box-shadow:0 1px 2px 0 #0000000d}.ds-settings-cancel:hover{background:var(--secondary,#ededf1)}.ds-settings-save:focus-visible{outline:2px solid var(--primary,#4f46e5);outline-offset:2px;box-shadow:0 0 0 3px color-mix(in oklab,var(--primary,#4f46e5) 50%,transparent)}.ds-settings-save:disabled{pointer-events:none;opacity:.5}.ds-settings-cancel:focus-visible{outline:2px solid var(--primary,#4f46e5);outline-offset:2px;box-shadow:0 1px 2px 0 #0000000d,0 0 0 3px color-mix(in oklab,var(--primary,#4f46e5) 50%,transparent)}.ds-settings-cancel:disabled{pointer-events:none;opacity:.5}@media(max-width:570px){.ds-settings-heading,.ds-settings-body{padding-left:16px;padding-right:16px}}@media(prefers-reduced-motion:reduce){[class^=\"ds-\"],[class*=\" ds-\"]{animation-duration:.01ms!important;transition-duration:.01ms!important}}.ds-settings-field{display:flex;flex-direction:column;gap:7px;color:var(--foreground,#1c1c21);font-family:\"Segoe UI\", \"Microsoft YaHei UI\", sans-serif;font-size:12px;font-weight:500;min-width:0}.ds-settings-input{height:33px;padding:3.25px 9.75px;border:1px solid var(--border,#e3e3e8);border-radius:6px;background:transparent;color:var(--foreground,#1c1c21);font-family:\"Segoe UI\", \"Microsoft YaHei UI\", sans-serif;font-size:12px;font-weight:400;box-shadow:0 1px 2px 0 #0000000d;transition:color 150ms cubic-bezier(.4,0,.2,1),box-shadow 150ms cubic-bezier(.4,0,.2,1)}.ds-settings-input::placeholder{color:var(--muted,#63636b)}.ds-settings-input:focus-visible{border-color:var(--primary,#4f46e5)}.ds-settings-input:focus-visible{outline:2px solid var(--primary,#4f46e5);outline-offset:2px;box-shadow:0 1px 2px 0 #0000000d,0 0 0 3px color-mix(in oklab,var(--primary,#4f46e5) 50%,transparent)}.ds-settings-input:disabled{pointer-events:none;opacity:.5}.ds-settings-input[aria-invalid=true]{border-color:var(--destructive,#c43535)}.ds-settings-field small{color:var(--muted,#63636b);font-size:11px;line-height:1.65;font-weight:400}@media(prefers-reduced-motion:reduce){[class^=\"ds-\"],[class*=\" ds-\"]{animation-duration:.01ms!important;transition-duration:.01ms!important}}"
+    },
+    {
+      "name": "Dialog Shell",
+      "kind": "custom",
+      "refersTo": "dialog",
+      "description": "发布保留模态外壳：标题、滚动正文与底部提交区；设置已移入第三个页面，不宣称 fade/zoom 动效已实现。",
+      "html": "<section class=\"ds-dialog\" aria-label=\"发布对话框示例\"><header class=\"ds-dialog-heading\"><h2>发布到 GitHub</h2><p>选择保存的位置，把这份练习留在仓库里。</p></header><div class=\"ds-dialog-body\">最终路径</div><footer class=\"ds-dialog-footer\"><button class=\"ds-dialog-cancel\">取消</button><button class=\"ds-dialog-save\">推送到 GitHub</button></footer></section>",
+      "css": ".ds-dialog{display:flex;flex-direction:column;width:min(600px,calc(100vw - 32px));max-height:calc(100dvh - 28px);overflow:hidden;border:1px solid var(--border,#e3e3e8);border-radius:12px;background:var(--background,#f4f4f6);color:var(--foreground,#1c1c21);font-family:\"Segoe UI\", \"Microsoft YaHei UI\", sans-serif;box-shadow:0 10px 15px -3px #0000001a,0 4px 6px -4px #0000001a}.ds-dialog-heading{padding:19px 22px 15px;border-bottom:1px solid var(--border,#e3e3e8)}.ds-dialog-heading h2{margin:0;font-size:16px;font-weight:600;letter-spacing:0}.ds-dialog-heading p{margin:5px 0 0;font-size:12px;line-height:1.6;color:var(--muted,#63636b)}.ds-dialog-body{min-height:0;overflow-y:auto;padding:18px 22px;font-size:13px;font-weight:600}.ds-dialog-footer{display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:13px 22px;border-top:1px solid var(--border,#e3e3e8);background:var(--card,#fff)}.ds-dialog-save,.ds-dialog-cancel{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:6px;font-family:\"Segoe UI\", \"Microsoft YaHei UI\", sans-serif;font-weight:500;white-space:nowrap;cursor:pointer;transition:all 150ms cubic-bezier(.4,0,.2,1);height:29.25px;padding:6.5px 13px;font-size:11.375px;line-height:16.25px}.ds-dialog-save{border:0;background:var(--primary,#4f46e5);color:var(--primary-foreground,#fff)}.ds-dialog-save:hover{background:color-mix(in oklab,var(--primary,#4f46e5) 90%,transparent)}.ds-dialog-cancel{border:1px solid var(--border,#e3e3e8);background:var(--background,#f4f4f6);color:var(--foreground,#1c1c21);box-shadow:0 1px 2px 0 #0000000d}.ds-dialog-cancel:hover{background:var(--secondary,#ededf1)}.ds-dialog-save:focus-visible{outline:2px solid var(--primary,#4f46e5);outline-offset:2px;box-shadow:0 0 0 3px color-mix(in oklab,var(--primary,#4f46e5) 50%,transparent)}.ds-dialog-save:disabled{pointer-events:none;opacity:.5}.ds-dialog-cancel:focus-visible{outline:2px solid var(--primary,#4f46e5);outline-offset:2px;box-shadow:0 1px 2px 0 #0000000d,0 0 0 3px color-mix(in oklab,var(--primary,#4f46e5) 50%,transparent)}.ds-dialog-cancel:disabled{pointer-events:none;opacity:.5}@media(max-width:570px){.ds-dialog-heading,.ds-dialog-body{padding-left:16px;padding-right:16px}}@media(prefers-reduced-motion:reduce){[class^=\"ds-\"],[class*=\" ds-\"]{animation-duration:.01ms!important;transition-duration:.01ms!important}}"
+    },
+    {
+      "name": "Floating Ball",
+      "kind": "custom",
+      "refersTo": "floating-ball",
+      "description": "48 DIP 圆形代码入口，采用批准的 A 版 T 箭头实心 glyph，内边距 7.5px，颜色继承既有交互状态；原生不透明窗口以椭圆区域裁剪。四档 DPI 外形核验为改名前的历史证据，不代表新标志已重新验收。",
+      "html": "<button class=\"ds-ball\" aria-label=\"打开 Trylet\"><svg viewBox=\"0 0 32 32\" aria-hidden=\"true\" focusable=\"false\"><polygon fill=\"currentColor\" points=\"6,6 22,6 28,12 22,18 22,12 18,12 18,26 12,26 12,12 6,12\"/></svg></button>",
+      "css": ".ds-ball{display:grid;place-items:center;width:48px;height:48px;padding:7.5px;border:1px solid #d7d5ee;border-radius:50%;background:#f4f4f6;color:#4f46e5;cursor:pointer;outline:none;transition:background 120ms,color 120ms}.ds-ball svg{width:100%;height:100%;pointer-events:none}.ds-ball:hover{background:#e9e7ff;color:#4338ca}.ds-ball:active{background:#ddd9ff}.ds-ball:focus-visible{border:2px solid #4f46e5}@media(prefers-color-scheme:dark){.ds-ball{background:#232327;border-color:#464250;color:#b5b0ff}.ds-ball:hover{background:#343043}}@media(prefers-reduced-motion:reduce){.ds-ball{transition:none}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "随手打开的练习窗口",
+    "overview": "Trylet 是围绕单文件代码编辑与本地 Git 只读浏览的紧凑桌面工具，统一使用这一英文名，不设中文名。已确认的 Magpie 视觉承诺是浅灰框架、白色工作面、细边框、紧凑控件和克制阴影；文字、代码与操作本身构成界面，无需图片式装饰。\n\n视觉重心留给代码。顶部以三个文件夹状、仅图标的标签切换编辑器、Git 与设置；语言和草稿留在编辑器页内工具栏，窗口操作在公共导航右侧。主要动作使用紫色，设置在第三个页面完成，发布继续使用对话框；两者都保留标题、可滚动正文和明确提交区。沿用 Windows 界面字体是操作界面的实际选择；它承担正文与标签，不作为展示型标题系统。\n\n品牌采用用户批准的第一轮 A 图标：T 与向前箭头组成同一实心标志。紫色圆角方块白标用于应用识别，圆形悬浮球沿用浅灰底与随状态变色的标志；从悬浮球唤出、编辑并本机运行，到 Git 浏览与主动发布的既有操作路径不变。",
+    "keyCharacteristics": [
+      "浅灰框架包住白色工作面，以细线建立层级。",
+      "小型圆角控件，公共导航采用仅图标的文件夹标签，主动作以紫色聚焦。",
+      "界面字体与等宽代码字体分工，密度服从短时编辑与运行。",
+      "悬浮球保持静止，仅在交互状态变化时反馈。",
+      "Trylet 名称与 T 箭头统一品牌识别，方块应用图标和圆形悬浮球共用同一形状。"
+    ],
+    "rules": [
+      {
+        "name": "The Action Color Rule",
+        "body": "紫色用于品牌识别、可执行操作、焦点与已激活状态；环境就绪、失败信息继续使用各自的状态色。",
+        "section": "colors"
+      },
+      {
+        "name": "The Code First Rule",
+        "body": "正文和工具文字服务代码阅读，不增加独立的展示标题来争夺工作区。",
+        "section": "typography"
+      },
+      {
+        "name": "The Quiet Surface Rule",
+        "body": "用灰白面和细线组织静止区域；阴影用于控件与浮层，不把每个分组都抬成卡片。",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do 延续浅灰框架、白色工作面和细边框的 Magpie 视觉承诺。",
+      "Do 用主色、状态色及明确文字分别表达操作、就绪和失败。",
+      "Do 保留紧凑工具栏与宽松代码行距之间的层级。",
+      "Do 复用字段、对话框和轻量菜单，让状态变化留在相关控件附近。",
+      "Do 保留键盘焦点与减少动效的系统偏好。",
+      "Do 统一使用 Trylet 英文名及批准的 A 版 T 箭头，共用权威 glyph 生成品牌资源。"
+    ],
+    "donts": [
+      "Don't 用额外展示标题或图片装饰挤压单文件编辑的主体。",
+      "Don't 给所有分组增加阴影或把普通按钮改成圆形入口。",
+      "Don't 将尚未视觉核验的深色代码色、极小辅助文字或浮层动画当作新表面的默认规范。"
+    ]
+  }
+}

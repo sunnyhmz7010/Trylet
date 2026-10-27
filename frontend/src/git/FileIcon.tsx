@@ -1,0 +1,2 @@
+import { FileCode2, FileImage, File, FileAudio, FileVideo } from "lucide-react";
+export function FileIcon({path,size=16}:{path:string;size?:number}) { const ext=path.split(".").pop()?.toLowerCase()??""; const Icon=/^(png|jpe?g|gif|webp|svg|ico)$/.test(ext)?FileImage:/^(mp3|wav|ogg|flac)$/.test(ext)?FileAudio:/^(mp4|webm|mov)$/.test(ext)?FileVideo:/^(py|c|cpp|h|ts|tsx|js|json|md|go|rs|css|html)$/.test(ext)?FileCode2:File; return <Icon className="file-icon" size={size} aria-hidden="true"/>; }

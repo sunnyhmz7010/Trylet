@@ -1,0 +1,61 @@
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: #f4f4f6;
+}
+#ball {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 7.5px;
+  border: 1px solid #d7d5ee;
+  border-radius: 50%;
+  background: #f4f4f6;
+  color: #4f46e5;
+  cursor: pointer;
+  outline: none;
+  box-sizing: border-box;
+  transition:
+    background 120ms,
+    color 120ms;
+  user-select: none;
+  --wails-draggable: drag;
+}
+#ball:hover {
+  background: #e9e7ff;
+  color: #4338ca;
+}
+#ball:active {
+  background: #ddd9ff;
+}
+#ball:focus-visible {
+  border: 2px solid #4f46e5;
+}
+#ball svg {
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+@media (prefers-color-scheme: dark) {
+  html,
+  body {
+    background: #232327;
+  }
+  #ball {
+    background: #232327;
+    border-color: #464250;
+    color: #b5b0ff;
+  }
+  #ball:hover {
+    background: #343043;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #ball {
+    transition: none;
+  }
+}

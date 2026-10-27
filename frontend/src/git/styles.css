@@ -1,0 +1,1972 @@
+:where(.oil-git) * {
+  box-sizing: border-box;
+}
+:where(.oil-git) body {
+  margin: 0;
+}
+:where(.oil-git) button,
+:where(.oil-git) select {
+  font: inherit;
+  color: inherit;
+}
+:where(.oil-git) button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+:where(.oil-git) :focus,
+:where(.oil-git) :focus-visible {
+  outline: none;
+}
+:where(.oil-git) button:hover:not(:disabled) {
+  background: var(--hover);
+}
+:where(.oil-git) h1,
+:where(.oil-git) h2,
+:where(.oil-git) h3,
+:where(.oil-git) p {
+  margin: 0;
+}
+:where(.oil-git) svg {
+  flex-shrink: 0;
+}
+:where(.oil-git) select {
+  cursor: pointer;
+}
+:where(.oil-git) kbd {
+  font: 11px var(--mono);
+  color: var(--muted);
+}
+:where(.oil-git).app {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+:where(.oil-git) .toolbar-spacer {
+  flex: 1;
+}
+:where(.oil-git) .icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  color: var(--muted);
+}
+:where(.oil-git) .copy-button {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+  flex: 0 0 24px;
+  box-sizing: border-box;
+  padding: 4px;
+  border: 0;
+  background: transparent;
+  border-radius: 4px;
+}
+:where(.oil-git) .copy-button:hover:not(:disabled),
+:where(.oil-git) .copy-button:focus-visible {
+  background: var(--selected-bg);
+  color: var(--text);
+}
+:where(.oil-git) .copy-button[data-status="copied"] {
+  color: var(--added);
+}
+:where(.oil-git) .copy-button[data-status="error"] {
+  color: var(--error-fg);
+}
+:where(.oil-git) .copy-quiet {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity var(--fast),
+    visibility 0s linear var(--fast),
+    background-color var(--fast),
+    color var(--fast);
+}
+:where(.oil-git) .commit-row:hover .copy-quiet,
+:where(.oil-git) .commit-row:focus-within .copy-quiet,
+:where(.oil-git) .details-header:hover .copy-quiet,
+:where(.oil-git) .details-header:focus-within .copy-quiet,
+:where(.oil-git) .graph-viewport:focus-visible .keyboard-row .copy-quiet,
+:where(.oil-git) .copy-quiet[data-status="copied"],
+:where(.oil-git) .copy-quiet[data-status="error"] {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+:where(.oil-git) .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+:where(.oil-git) .file-heading-line,
+:where(.oil-git) .commit-metadata-heading,
+:where(.oil-git) .copy-value {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+:where(.oil-git) .commit-row-author {
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted);
+  font-size: 11px;
+  flex-shrink: 0;
+}
+:where(.oil-git) .commit-author-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+:where(.oil-git) .commit-author-line strong {
+  color: var(--text);
+  font-weight: 500;
+}
+:where(.oil-git) .author-email {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+}
+:where(.oil-git) .line-attribution {
+  flex-shrink: 0;
+  padding: 10px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  max-height: 190px;
+  overflow: auto;
+  font-size: 11px;
+}
+:where(.oil-git) .line-attribution > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--muted);
+}
+:where(.oil-git) .line-attribution header strong {
+  font-weight: 500;
+}
+:where(.oil-git) .line-attribution .icon-button {
+  width: 24px;
+  height: 24px;
+}
+:where(.oil-git) .line-attribution .error-text button {
+  margin-left: 8px;
+  color: var(--text);
+}
+:where(.oil-git) .line-author-content {
+  display: grid;
+  gap: 6px;
+}
+:where(.oil-git) .line-author-content > div {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+:where(.oil-git) .line-author-content span,
+:where(.oil-git) .line-author-content time,
+:where(.oil-git) .line-author-content code {
+  color: var(--muted);
+}
+:where(.oil-git) .line-author-content p {
+  overflow-wrap: anywhere;
+}
+:where(.oil-git) .diff-result .code-diff-viewport .line-origin-button {
+  font: inherit;
+  line-height: inherit;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+:where(.oil-git) .diff-result .code-diff-viewport .line-origin-button:hover {
+  color: var(--accent);
+  background: var(--selected-bg);
+}
+:where(.oil-git) .file-heading-line strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+:where(.oil-git) .commit-metadata-heading {
+  justify-content: space-between;
+}
+:where(.oil-git) .copy-value {
+  display: inline-flex;
+  margin-right: 8px;
+}
+:where(.oil-git) .commit-references dd > .copy-button {
+  vertical-align: middle;
+  margin-left: 6px;
+}
+:where(.oil-git) .commit-title-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+:where(.oil-git) .commit-title-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+:where(.oil-git) .commit-select {
+  text-align: left;
+  display: block;
+  flex: 0 1 auto;
+  min-width: 0;
+  padding: 0;
+  background: transparent;
+}
+:where(.oil-git) .commit-select:hover:not(:disabled) {
+  background: transparent;
+}
+:where(.oil-git) .commit-select .commit-title {
+  display: block;
+}
+:where(.oil-git) .commit-row:hover {
+  background: var(--hover);
+}
+:where(.oil-git) .graph-viewport {
+  overflow: auto;
+  flex: 1;
+  min-height: 0;
+}
+:where(.oil-git) .graph-content {
+  position: relative;
+  min-width: 100%;
+}
+:where(.oil-git) .graph-lines {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+:where(.oil-git) .graph-viewport:focus-visible .keyboard-row {
+  background: var(--selection);
+}
+:where(.oil-git) .history-bottom > span {
+  margin-right: auto;
+}
+:where(.oil-git) .history-bottom button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  padding: 7px 9px;
+  font-size: 12px;
+  border-radius: 4px;
+}
+:where(.oil-git) .history-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+  color: var(--muted);
+  text-align: center;
+}
+:where(.oil-git) .history-empty span {
+  font-size: 12px;
+}
+:where(.oil-git) .history-empty svg {
+  opacity: 0.55;
+}
+:where(.oil-git) .history-error {
+  color: var(--error-fg);
+  font-size: 12px;
+  padding: 8px 0 12px;
+}
+:where(.oil-git) .history-error button {
+  color: var(--accent);
+  margin-left: 10px;
+}
+:where(.oil-git) .resize-handle:hover,
+:where(.oil-git) .resize-handle:focus-visible {
+  background: var(--selection);
+}
+:where(.oil-git) .resizing {
+  user-select: none;
+  cursor: col-resize;
+}
+:where(.oil-git) .commit-metadata {
+  margin-top: 7px;
+}
+:where(.oil-git) .file-row.active {
+  background: var(--hover);
+}
+:where(.oil-git) .file-name small {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+:where(.oil-git) .file-status {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: 122px;
+  flex-shrink: 0;
+}
+:where(.oil-git) .conflict-text {
+  color: var(--error-fg) !important;
+}
+:where(.oil-git) .diff-result {
+  min-height: 100%;
+  padding: 9px 0 18px;
+}
+:where(.oil-git) .code-row {
+  display: flex;
+  white-space: pre;
+  min-width: max-content;
+  min-height: 22px;
+}
+:where(.oil-git) .code-row.add {
+  color: var(--add-fg);
+  background: var(--add-bg);
+}
+:where(.oil-git) .code-row.remove {
+  color: var(--remove-fg);
+  background: var(--remove-bg);
+}
+:where(.oil-git) .code-row.hunk {
+  color: var(--hunk-fg);
+  background: var(--hunk-bg);
+}
+:where(.oil-git) .code-row.meta {
+  color: var(--faint);
+}
+:where(.oil-git) .code-text {
+  padding: 0 11px;
+}
+:where(.oil-git) .detail-message {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.8;
+  padding: 20px 22px;
+  overflow-wrap: anywhere;
+}
+:where(.oil-git) .detail-message button {
+  display: block;
+  padding: 6px 0;
+  margin-top: 6px;
+  color: var(--accent);
+}
+:where(.oil-git) .error-text {
+  color: var(--error-fg);
+}
+:where(.oil-git) .inline-note,
+:where(.oil-git) .diff-caption {
+  padding: 12px 22px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+}
+:where(.oil-git) .conflict-block {
+  padding: 8px 0 18px;
+}
+:where(.oil-git) .conflict-block h3 {
+  padding: 8px 22px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--error-fg);
+}
+:where(.oil-git) .conflict-block h3 span {
+  font-size: 11px;
+  margin-left: 9px;
+  color: var(--muted);
+}
+:where(.oil-git) .conflict-label {
+  font-size: 12px;
+  padding: 10px 22px;
+  color: var(--added);
+  background: var(--add-bg);
+}
+:where(.oil-git) .conflict-label.incoming {
+  color: var(--remote-fg);
+  background: var(--remote-bg);
+}
+:where(.oil-git) .conflict-label span {
+  overflow-wrap: anywhere;
+}
+:where(.oil-git) .conflict-block details > summary,
+:where(.oil-git) .raw-diff > summary {
+  padding: 12px 22px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--muted);
+}
+:where(.oil-git) .stash-list {
+  padding: 8px 22px;
+  overflow: auto;
+}
+:where(.oil-git) .stash-item {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+  line-height: 1.8;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+:where(.oil-git) .stash-item code {
+  font: 11px var(--mono);
+  color: var(--modified);
+}
+:where(.oil-git) .stash-item p {
+  margin-top: 6px;
+}
+:where(.oil-git) .error-banner {
+  padding: 11px 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  line-height: 1.8;
+  flex-shrink: 0;
+  background: var(--error-bg);
+  color: var(--error-fg);
+  border-bottom: 1px solid var(--error-bg);
+}
+:where(.oil-git) .error-banner > div {
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+:where(.oil-git) .error-diagnostic {
+  margin-top: 3px;
+}
+:where(.oil-git) .error-diagnostic summary {
+  cursor: pointer;
+  color: inherit;
+}
+:where(.oil-git) .error-diagnostic span {
+  display: block;
+  margin-top: 3px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+:where(.oil-git) .error-banner button {
+  border: 1px solid var(--error-bg);
+  border-radius: 4px;
+  padding: 3px 9px;
+  flex-shrink: 0;
+}
+:where(.oil-git) .primary:hover:not(:disabled) {
+  background: var(--accent);
+}
+:where(.oil-git) .welcome-actions {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+:where(.oil-git) .welcome-actions > button:not(.primary) {
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 10px 15px;
+}
+:where(.oil-git) .subtle {
+  font-size: 12px;
+  color: var(--muted);
+}
+:where(.oil-git) .welcome-recents {
+  width: 320px;
+  max-width: 100%;
+  margin-top: 10px;
+}
+:where(.oil-git) .welcome-recent-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+:where(.oil-git) .welcome-recent-open {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  gap: 12px;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 8px;
+  border-radius: 5px;
+  text-align: left;
+}
+:where(.oil-git) .welcome-recent-open strong {
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 450;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+:where(.oil-git) .welcome-recent-remove {
+  width: 30px;
+  min-width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  color: var(--muted);
+}
+:where(.oil-git) .welcome-recent-remove:hover:not(:disabled) {
+  color: var(--error-fg);
+}
+:where(.oil-git) .welcome-recent-error {
+  padding: 8px;
+  color: var(--error-fg);
+  font-size: 12px;
+}
+:where(.oil-git) .welcome-recents span {
+  font-size: 12px;
+  color: var(--muted);
+}
+@media (max-width: 900px) {
+  :where(.oil-git) .details {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+  :where(.oil-git) .details-header {
+    padding: 16px 24px;
+  }
+  :where(.oil-git) .file-list {
+    max-height: 30%;
+  }
+}
+:where(.oil-git) .sync-indicator {
+  position: absolute;
+  inset: auto 0 -2px;
+  height: 2px;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 20;
+}
+:where(.oil-git) .sync-indicator::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 35%;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  animation: repository-sync 1.4s ease-in-out infinite;
+}
+@keyframes repository-sync {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(286%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :where(.oil-git) .copy-quiet {
+    transition: none;
+  }
+  :where(.oil-git) .sync-indicator::after {
+    animation: none;
+    transform: none;
+    width: 100%;
+    background: var(--accent);
+  }
+}
+/* 自绘桌面组件：统一运动、层级与信息密度。 */
+:where(.oil-git) button {
+  cursor: pointer;
+  border: 0;
+  background: none;
+  transition:
+    background-color var(--fast),
+    color var(--fast),
+    border-color var(--fast);
+}
+:where(.oil-git) .toolbar {
+  position: relative;
+  height: 60px;
+  min-height: 60px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--toolbar);
+}
+:where(.oil-git).mac .toolbar {
+  padding-left: 96px;
+}
+:where(.oil-git) .toolbar-divider {
+  height: 17px;
+  width: 1px;
+  background: var(--line);
+  flex-shrink: 0;
+}
+:where(.oil-git) .current-branch {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--lane-0);
+  font: 12px var(--mono);
+  max-width: 240px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 12px;
+}
+:where(.oil-git) .quiet-button {
+  font-size: 12px;
+  color: var(--muted);
+  padding: 7px 9px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 5px;
+}
+:where(.oil-git) .project-dropdown {
+  max-width: 32%;
+  border-color: transparent !important;
+  background: none !important;
+}
+:where(.oil-git) .project-dropdown > span {
+  font-size: 14px;
+  font-weight: 550;
+}
+:where(.oil-git) .tree-dropdown {
+  max-width: 180px;
+}
+:where(.oil-git) .dropdown-trigger > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+:where(.oil-git) .dropdown-trigger > svg:first-child {
+  color: var(--muted);
+}
+:where(.oil-git) .dropdown-trigger > svg:last-child {
+  margin-left: 3px;
+  color: var(--faint);
+  transition: transform var(--motion) var(--ease);
+}
+:where(.oil-git) .dropdown-trigger.is-open {
+  background: var(--raised);
+}
+:where(.oil-git) .dropdown-trigger.is-open > svg:last-child {
+  transform: rotate(180deg);
+}
+:where(.oil-git) .overlay-root {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+}
+:where(.oil-git) .overlay-root.is-open {
+  pointer-events: auto;
+}
+:where(.oil-git) .overlay-dismiss {
+  position: absolute;
+  inset: 0;
+}
+:where(.oil-git) .overlay-root.is-open .dropdown-popup {
+  opacity: 1;
+  transform: none;
+}
+:where(.oil-git) .menu-search {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 14px;
+  color: var(--faint);
+}
+:where(.oil-git) .menu-search input {
+  font: 13px var(--font);
+  background: none;
+  border: 0;
+  outline: 0 !important;
+  color: var(--text);
+  width: 100%;
+  min-width: 0;
+}
+:where(.oil-git) .menu-search input::placeholder {
+  color: var(--faint);
+}
+:where(.oil-git) .menu-options {
+  overflow: auto;
+  padding: 5px;
+  min-height: 0;
+}
+:where(.oil-git) .menu-group {
+  font-size: 11px;
+  color: var(--muted);
+  padding: 14px 10px 6px;
+}
+:where(.oil-git) .menu-option {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  padding: 10px 10px;
+  border-radius: 5px;
+  color: var(--text);
+  min-width: 0;
+  margin-block: 2px;
+}
+:where(.oil-git) .menu-option-row {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  margin-block: 2px;
+}
+:where(.oil-git) .menu-option-row > .menu-option {
+  width: 0;
+  flex: 1;
+  margin-block: 0;
+}
+:where(.oil-git) .menu-option-remove {
+  width: 34px;
+  min-width: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  color: var(--muted);
+}
+:where(.oil-git) .menu-option-remove:hover:not(:disabled) {
+  color: var(--error-fg);
+}
+:where(.oil-git) .menu-option > span {
+  flex: 1;
+  min-width: 0;
+}
+:where(.oil-git) .menu-option strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 450;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+:where(.oil-git) .menu-option small {
+  display: block;
+  font: 10px/1.6 var(--mono);
+  color: var(--muted);
+  margin-top: 4px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+:where(.oil-git) .menu-option[data-active="true"]:not(:disabled) {
+  background: var(--hover);
+}
+:where(.oil-git) .menu-option[aria-selected="true"] {
+  color: var(--text);
+}
+:where(.oil-git) .menu-option > svg {
+  color: var(--accent);
+}
+:where(.oil-git) .menu-empty {
+  color: var(--muted);
+  font-size: 13px;
+  padding: 18px 10px;
+  text-align: center;
+}
+:where(.oil-git) .menu-message {
+  flex-shrink: 0;
+  padding: 10px 14px;
+  color: var(--error-fg);
+  font-size: 12px;
+}
+:where(.oil-git) .history-panel {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 22px 28px 0;
+}
+:where(.oil-git) .commit-row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  text-align: left;
+  padding-right: 18px;
+  border-radius: 6px;
+  gap: 5px;
+  transition: background-color var(--fast);
+}
+:where(.oil-git) .commit-title {
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+:where(.oil-git) .ref {
+  font: 11px var(--mono);
+  padding: 1px 6px;
+  background: var(--selected-bg);
+  color: var(--text);
+  border-radius: 4px;
+  white-space: nowrap;
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+  font-size: 10px;
+  line-height: 1.6;
+  border: 1px solid var(--line);
+}
+:where(.oil-git) .ref.remote {
+  background: var(--remote-bg);
+  color: var(--remote-fg);
+  border-color: var(--line);
+}
+:where(.oil-git) .ref.tag {
+  background: var(--tag-bg);
+  color: var(--tag-fg);
+  border-color: var(--line);
+}
+:where(.oil-git) .head-mark {
+  color: var(--faint);
+  font: 11px var(--mono);
+  white-space: nowrap;
+  font-size: 10px;
+}
+:where(.oil-git) .commit-refs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  overflow: hidden;
+}
+:where(.oil-git) .history-bottom {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 10px;
+  color: var(--faint);
+}
+:where(.oil-git) .count-bubble {
+  min-width: 17px;
+  text-align: center;
+  padding: 1px 4px;
+  font: 10px var(--mono);
+  border-radius: 4px;
+  background: var(--surface);
+}
+:where(.oil-git) .workspace {
+  display: grid;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr) 0px minmax(0, 0px);
+}
+:where(.oil-git) .resizing .workspace {
+  transition: none;
+}
+:where(.oil-git) .resize-handle {
+  width: 6px;
+  flex-shrink: 0;
+  cursor: col-resize;
+  border-left: 1px solid var(--line);
+  background: transparent;
+  border: 0;
+  transition: background-color var(--fast);
+}
+:where(.oil-git) .resize-handle:hover {
+  background: var(--selection);
+}
+:where(.oil-git) .detail-shell {
+  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
+  opacity: 0;
+  transform: translateX(12px);
+  transition:
+    opacity 180ms var(--ease),
+    transform var(--motion) var(--ease);
+  background: var(--bg);
+}
+:where(.oil-git) .workspace[data-expanded="true"] .detail-shell {
+  opacity: 1;
+  transform: none;
+}
+:where(.oil-git) .workspace[data-expanded="false"] > .detail-shell {
+  display: none;
+}
+:where(.oil-git) .workspace[data-expanded="false"] > .resize-handle {
+  visibility: hidden;
+  pointer-events: none;
+}
+:where(.oil-git) .details {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+:where(.oil-git) .detail-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+:where(.oil-git) .details-header {
+  min-height: 61px;
+  padding: 17px 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-shrink: 0;
+}
+:where(.oil-git) .detail-title-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+:where(.oil-git) .details-header h2 {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  min-width: 0;
+  flex: 0 1 auto;
+}
+:where(.oil-git) .details-header .icon-button:not(.copy-button) {
+  margin-top: -3px;
+  margin-right: -5px;
+  width: 27px;
+  height: 27px;
+}
+:where(.oil-git) .commit-context {
+  padding: 15px 20px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.8;
+  flex-shrink: 0;
+  max-height: 280px;
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+:where(.oil-git) .commit-metadata-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+:where(.oil-git) .commit-metadata-toggle > svg {
+  flex-shrink: 0;
+  transition: transform 200ms var(--ease);
+}
+:where(.oil-git) .commit-metadata-toggle[aria-expanded="true"] > svg {
+  transform: rotate(90deg);
+}
+:where(.oil-git) .commit-metadata-card {
+  margin-top: 8px;
+  padding: 14px;
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 12px;
+}
+:where(.oil-git) .commit-metadata-card dl {
+  margin: 0;
+}
+:where(.oil-git) .commit-identity {
+  display: grid;
+  gap: 6px;
+}
+:where(.oil-git) .commit-identity > div {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 8px;
+}
+:where(.oil-git) .commit-references {
+  display: grid;
+  gap: 10px;
+  padding-top: 14px;
+}
+:where(.oil-git) .commit-metadata-card dt {
+  color: var(--muted);
+  font-size: 11px;
+}
+:where(.oil-git) .commit-metadata-card dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+:where(.oil-git) .commit-metadata-card code {
+  font: 11px/1.8 var(--mono);
+  overflow-wrap: anywhere;
+}
+:where(.oil-git) .commit-references dd code + code {
+  margin-left: 10px;
+}
+:where(.oil-git) .file-list {
+  overflow: auto;
+  min-height: 0;
+  max-height: 35%;
+  padding: 7px 11px 11px;
+  flex-shrink: 1;
+}
+:where(.oil-git) .file-row {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  text-align: left;
+  border-radius: 5px;
+  padding: 12px 9px;
+  margin-block: 2px;
+}
+:where(.oil-git) .file-name {
+  font: 13px/1.7 var(--mono);
+  overflow-wrap: anywhere;
+  min-width: 0;
+  flex: 1;
+  font-size: 12px;
+}
+:where(.oil-git) .badge {
+  font-size: 10px;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: var(--tag-bg);
+  color: var(--modified);
+  white-space: nowrap;
+  line-height: 1.6;
+}
+:where(.oil-git) .diff-top {
+  padding: 14px 20px 11px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+:where(.oil-git) .diff-tabs {
+  display: flex;
+  gap: 0;
+  position: relative;
+  align-self: flex-start;
+  padding: 3px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+:where(.oil-git) .diff-tabs button {
+  font-size: 11px;
+  padding: 5px 11px;
+  border: 0;
+  border-radius: 3px;
+  color: var(--muted);
+}
+:where(.oil-git) .diff-tabs button[aria-pressed="true"] {
+  background: var(--selected-bg);
+  color: var(--text);
+  border-color: var(--line);
+  border: 0;
+  box-shadow: 0 1px 3px #0002;
+}
+:where(.oil-git) .diff-path {
+  flex: 1;
+  min-width: 0;
+  font: 12px var(--mono);
+  overflow-wrap: anywhere;
+  color: var(--muted);
+  font-size: 11px;
+}
+:where(.oil-git) .diff-scroll {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+  background: var(--editor);
+}
+:where(.oil-git) .patch {
+  overflow-x: auto;
+  max-width: 100%;
+  font: 12px/1.85 var(--mono);
+  tab-size: 2;
+  padding: 6px 0;
+  font-size: 12px;
+  line-height: 1.9;
+}
+:where(.oil-git) .diff-caption {
+  font-size: 11px;
+}
+:where(.oil-git) .details .detail-message {
+  font-size: 12px;
+}
+:where(.oil-git) .welcome {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 40px;
+  gap: 22px;
+  animation: content-in 300ms var(--ease);
+}
+:where(.oil-git) .primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  padding: 12px 20px;
+  border-radius: 7px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 1px 0 #ffffff22 inset;
+  transition:
+    background-color var(--fast),
+    transform var(--fast);
+}
+:where(.oil-git) .welcome-mark {
+  margin-bottom: 4px;
+}
+:where(.oil-git) .welcome h1 {
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+:where(.oil-git) .welcome > p {
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--muted);
+  max-width: 440px;
+  text-align: center;
+}
+:where(.oil-git) .icon-button:hover:not(:disabled) {
+  color: var(--text);
+  background: var(--hover);
+}
+@keyframes content-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (max-width: 1040px) {
+  :where(.oil-git).mac .toolbar {
+    padding-left: 90px;
+  }
+  :where(.oil-git) .toolbar {
+    gap: 9px;
+    padding: 0 20px;
+    padding-right: 19px;
+  }
+  :where(.oil-git) .current-branch {
+    max-width: 170px;
+  }
+  :where(.oil-git) .tree-dropdown {
+    max-width: 145px;
+  }
+  :where(.oil-git) .project-dropdown {
+    max-width: 27%;
+  }
+  :where(.oil-git) .history-panel {
+    padding: 22px 20px 0;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+@media (max-width: 900px) {
+  :where(.oil-git) .current-branch {
+    max-width: 130px;
+  }
+  :where(.oil-git) .project-dropdown {
+    max-width: 29%;
+  }
+  :where(.oil-git) .tree-dropdown {
+    max-width: 135px;
+  }
+  :where(.oil-git) .quiet-button {
+    padding: 7px 4px;
+    font-size: 11px;
+  }
+  :where(.oil-git) .quiet-button svg {
+    display: none;
+  }
+  :where(.oil-git) .toolbar {
+    gap: 7px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :where(.oil-git) .graph-viewport {
+    scroll-behavior: auto;
+  }
+}
+:where(.oil-git) .overlay-root[data-active="false"] {
+  pointer-events: none;
+}
+:where(.oil-git) :root {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Microsoft YaHei", sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  --mono: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 14px;
+  --fast: 140ms;
+  --motion: 240ms;
+  --ease: cubic-bezier(0.2, 0.75, 0.25, 1);
+  --font:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Microsoft YaHei", sans-serif;
+}
+/* 工作区采用源代码管理分组与左右差异；两侧代码独立横向滚动、纵向同步。 */
+:where(.oil-git) .change-group-heading {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 7px;
+  padding: 10px 9px;
+  text-align: left;
+  color: var(--text);
+}
+:where(.oil-git) .change-group-heading strong {
+  font-size: 12px;
+  font-weight: 550;
+  flex: 1;
+}
+:where(.oil-git) .change-group-heading > span {
+  font: 10px var(--mono);
+  background: var(--surface);
+  min-width: 18px;
+  padding: 2px 5px;
+  text-align: center;
+  border-radius: 6px;
+  color: var(--muted);
+}
+:where(.oil-git) .change-group-heading > svg {
+  transform: rotate(90deg);
+  transition: transform var(--fast);
+}
+:where(.oil-git) .change-group-heading[aria-expanded="false"] > svg {
+  transform: none;
+}
+:where(.oil-git) .change-group-fold {
+  overflow: hidden;
+}
+:where(.oil-git) .change-group-fold[data-animated="true"] {
+  transition: height 200ms var(--ease);
+}
+:where(.oil-git) .change-group-fold > div {
+  transition:
+    opacity 150ms var(--ease),
+    transform 200ms var(--ease);
+}
+:where(.oil-git) .change-group-fold[data-expanded="false"] > div {
+  opacity: 0;
+  transform: translateY(-3px);
+}
+:where(.oil-git) .source-file {
+  display: flex;
+  width: 100%;
+  min-height: 34px;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 9px 7px 18px;
+  text-align: left;
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--text);
+  margin-block: 2px;
+}
+:where(.oil-git) .source-file > svg {
+  color: var(--faint);
+}
+:where(.oil-git) .source-file-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+:where(.oil-git) .source-status {
+  margin-left: auto;
+  font: 11px var(--mono);
+  color: var(--modified);
+  flex-shrink: 0;
+}
+:where(.oil-git) .source-status.added {
+  color: var(--added);
+}
+:where(.oil-git) .source-status.conflict {
+  color: var(--error-fg);
+}
+:where(.oil-git) .changes-editor {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: var(--editor);
+}
+:where(.oil-git) .editor-heading > div:first-child {
+  flex: 1;
+  min-width: 0;
+}
+:where(.oil-git) .editor-heading strong {
+  font: 12px var(--mono);
+  color: var(--text);
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+:where(.oil-git) .editor-heading > div > span {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+:where(.oil-git) .editor-heading .diff-tabs {
+  align-self: center;
+  flex-shrink: 0;
+}
+:where(.oil-git) .working-diff {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+:where(.oil-git) .editor-empty,
+:where(.oil-git) .source-clean {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: var(--faint);
+  font-size: 12px;
+}
+:where(.oil-git) .editor-empty {
+  flex: 1;
+}
+:where(.oil-git) .source-clean {
+  padding: 40px 15px;
+}
+:where(.oil-git) .virtual-diff {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+:where(.oil-git) .code-viewport {
+  min-height: 0;
+  overflow: auto;
+  flex: 1;
+  font: 12px/24px var(--mono);
+  tab-size: 2;
+}
+:where(.oil-git) .code-spacer {
+  position: relative;
+  min-width: 100%;
+  width: max-content;
+}
+:where(.oil-git) .virtual-code-row {
+  position: absolute;
+  min-width: 100%;
+  height: 24px;
+  line-height: 24px;
+}
+:where(.oil-git) .split-side {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+:where(.oil-git) .split-side:first-child .split-label {
+  color: var(--modified);
+}
+:where(.oil-git) .split-side .code-row.spacer {
+  background: var(--editor-header);
+}
+:where(.oil-git) .split-side .line-number {
+  width: 42px;
+  min-width: 42px;
+}
+:where(.oil-git) .working-diff .diff-result:not(.virtual-diff) {
+  padding-top: 10px;
+}
+:where(.oil-git) .diff-scroll .virtual-diff {
+  height: 100%;
+}
+:where(.oil-git) .virtual-diff > .inline-note {
+  flex-shrink: 0;
+}
+@media (max-width: 900px) {
+  :where(.oil-git) .editor-heading {
+    padding: 14px 16px;
+    flex-wrap: wrap;
+  }
+  :where(.oil-git) .editor-heading .diff-tabs button {
+    font-size: 10px;
+    padding: 4px 8px;
+  }
+  :where(.oil-git) .changes-tree {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+  :where(.oil-git) .source-file {
+    padding-left: 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :where(.oil-git) .change-group-fold,
+  :where(.oil-git) .change-group-heading > svg {
+    transition: none;
+  }
+  :where(.oil-git) .working-diff {
+    animation: none;
+  }
+}
+:where(.oil-git) .split-editor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  flex: 1;
+  min-height: 0;
+  column-gap: 8px;
+  background: var(--editor-header);
+}
+:where(.oil-git) .dropdown-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 7px 9px;
+  min-width: 0;
+  max-width: 240px;
+  font-size: 12px;
+  background: var(--surface);
+  color: var(--text);
+  white-space: nowrap;
+  border: 0;
+}
+:where(.oil-git) .dropdown-popup {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  box-shadow:
+    0 12px 32px #0004,
+    0 2px 8px #0002;
+  opacity: 0;
+  transition: opacity var(--fast);
+  outline: 0;
+  max-width: calc(100vw - 24px);
+  border: 0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+:where(.oil-git) .diff-area {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 160px;
+  border: 0;
+}
+:where(.oil-git) .line-number {
+  display: inline-block;
+  width: 36px;
+  min-width: 36px;
+  text-align: right;
+  padding-right: 7px;
+  color: var(--faint);
+  user-select: none;
+  border: 0;
+}
+:where(.oil-git) .source-file.selected {
+  background: var(--selection);
+  color: var(--text);
+}
+:where(.oil-git) .commit-row.selected {
+  background: var(--hover);
+}
+:where(.oil-git) .changes-tree {
+  background: var(--sidebar);
+  overflow: auto;
+  padding: 12px 8px;
+  padding-top: 16px;
+  overflow-anchor: none;
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+}
+:where(.oil-git) .editor-heading {
+  min-height: 44px;
+  padding: 6px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--editor-header);
+}
+:where(.oil-git) .split-label {
+  height: 24px;
+  min-height: 24px;
+  padding: 6px 17px;
+  font-size: 10px;
+  color: var(--faint);
+  background: var(--editor-header);
+}
+/* 同一仓库的工作区常驻左侧，右侧保持源码与分支各自的浏览位置。 */
+:where(.oil-git) .repository-workbench {
+  display: grid;
+  grid-template-columns: var(--sidebar-width, 250px) minmax(0, 1fr);
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+:where(.oil-git) .sidebar-resize-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--sidebar-width, 250px) - 3px);
+  z-index: 4;
+}
+:where(.oil-git) .history-panel {
+  position: relative;
+}
+:where(.oil-git) .detail-pending {
+  position: absolute;
+  top: 8px;
+  right: 18px;
+  z-index: 2;
+  max-width: calc(100% - 36px);
+}
+:where(.oil-git) .detail-pending .read-status {
+  padding: 6px 10px;
+  background: var(--surface);
+  border-radius: 5px;
+}
+:where(.oil-git) .persistent-sidebar {
+  background: var(--sidebar);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+:where(.oil-git) .sidebar-heading {
+  height: 40px;
+  min-height: 40px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+:where(.oil-git) .sidebar-heading h1 {
+  font-size: 12px;
+  font-weight: 550;
+  flex: 1;
+  color: var(--muted);
+}
+:where(.oil-git) .sidebar-heading > span {
+  font: 10px var(--mono);
+  color: var(--faint);
+}
+:where(.oil-git) .persistent-sidebar .changes-tree {
+  flex: 1;
+  min-height: 0;
+  padding-top: 3px;
+}
+:where(.oil-git) .operation-status {
+  padding: 4px 20px 13px;
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+:where(.oil-git) .repository-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: var(--bg);
+}
+:where(.oil-git) .viewbar {
+  height: 40px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 18px 0 0;
+  background: var(--sidebar);
+}
+:where(.oil-git) .view-tabs {
+  position: relative;
+  display: grid;
+  flex-shrink: 0;
+  grid-template-columns: 1fr 1fr;
+  height: 100%;
+  padding: 0;
+  gap: 0;
+  background: transparent;
+  isolation: isolate;
+}
+:where(.oil-git) .view-tabs > i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 50%;
+  background: var(--bg);
+  transform: translateX(100%);
+  transition: transform var(--motion) var(--ease);
+  z-index: -1;
+}
+:where(.oil-git) .view-tabs[data-view="source"] > i {
+  transform: none;
+}
+:where(.oil-git) .view-tabs > button {
+  padding: 0 18px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 12px;
+  border-radius: 0;
+}
+:where(.oil-git) .view-tabs > button[aria-selected="true"] {
+  color: var(--selected-fg);
+}
+:where(.oil-git) .view-tabs > button:hover:not(:disabled) {
+  background: transparent;
+  color: var(--selected-fg);
+}
+:where(.oil-git) .view-source,
+:where(.oil-git) .view-history {
+  display: none;
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+}
+:where(.oil-git) .view-source.active,
+:where(.oil-git) .view-history.active {
+  display: flex;
+}
+:where(.oil-git) .view-source > .changes-editor,
+:where(.oil-git) .view-history > .workspace {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+:where(.oil-git) .view-history .history-panel {
+  padding-top: 12px;
+}
+:where(.oil-git) .view-source .editor-heading {
+  min-height: 44px;
+  background: var(--editor-header);
+}
+:where(.oil-git) .view-source .working-diff {
+  background: var(--editor);
+}
+:where(.oil-git) .workspace[data-expanded="true"] {
+  grid-template-columns: minmax(0, 1fr) 6px minmax(
+      0,
+      var(--detail-width, 420px)
+    );
+}
+:where(.oil-git) .view-history .details-header {
+  min-height: 58px;
+}
+:where(.oil-git) .viewbar .dropdown-trigger {
+  max-width: 240px;
+}
+:where(.oil-git) .view-history .details {
+  background: var(--bg);
+}
+@media (max-width: 1040px) {
+  :where(.oil-git) .repository-workbench {
+    grid-template-columns: var(--sidebar-width, 250px) minmax(0, 1fr);
+  }
+  :where(.oil-git) .viewbar {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  :where(.oil-git) .sidebar-heading {
+    padding-left: 17px;
+    padding-right: 17px;
+  }
+  :where(.oil-git) .view-history .history-panel {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  :where(.oil-git) .viewbar .dropdown-trigger {
+    max-width: 190px;
+  }
+}
+@media (max-width: 900px) {
+  :where(.oil-git) .repository-workbench {
+    grid-template-columns: var(--sidebar-width, 250px) minmax(0, 1fr);
+  }
+  :where(.oil-git) .viewbar {
+    padding-left: 0;
+    padding-right: 15px;
+  }
+  :where(.oil-git) .view-tabs > button {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  :where(.oil-git) .viewbar .dropdown-trigger {
+    max-width: 170px;
+  }
+  :where(.oil-git) .persistent-sidebar .source-file {
+    padding-left: 12px;
+  }
+  :where(.oil-git) .view-history .history-panel {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  :where(.oil-git) .view-source .editor-heading {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :where(.oil-git) .view-tabs > i {
+    transition: none;
+  }
+}
+:where(.oil-git) .ref {
+  display: inline-flex;
+  max-width: min(320px, 100%);
+}
+:where(.oil-git) .ref-prefix {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+:where(.oil-git) .ref-suffix {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+:where(.oil-git) .file-icon {
+  object-fit: contain;
+  flex-shrink: 0;
+  align-self: center;
+}
+:where(.oil-git) .file-row .file-icon {
+  margin-top: 2px;
+  align-self: flex-start;
+}
+:where(.oil-git) .theme-dropdown {
+  max-width: 115px;
+  flex-shrink: 0;
+}
+:where(.oil-git) .ref {
+  border: 0;
+}
+:where(.oil-git) .diff-tabs {
+  background: var(--surface);
+}
+:where(.oil-git) .view-tabs > button[aria-selected="true"],
+:where(.oil-git) .view-tabs > button:hover:not(:disabled) {
+  color: var(--selected-fg);
+}
+:where(.oil-git) .menu-option[aria-selected="true"] {
+  color: var(--accent);
+}
+:where(.oil-git) .icon-button:hover:not(:disabled) {
+  color: var(--accent);
+}
+:where(.oil-git) .primary:hover:not(:disabled) {
+  background: var(--accent);
+  filter: brightness(1.05);
+}
+:where(.oil-git) .primary {
+  box-shadow: none;
+}
+:where(.oil-git) .diff-tabs {
+  border: 0;
+}
+:where(.oil-git) .source-file,
+:where(.oil-git) .editor-heading strong,
+:where(.oil-git) .sidebar-heading h1 {
+  color: var(--text);
+}
+:where(.oil-git) .editor-heading > div > span,
+:where(.oil-git) .menu-group,
+:where(.oil-git) .menu-option small,
+:where(.oil-git) .split-label {
+  color: var(--muted);
+}
+:where(.oil-git) .code-row.meta,
+:where(.oil-git) .line-number,
+:where(.oil-git) .head-mark {
+  color: var(--faint);
+}
+:where(.oil-git) .sidebar-heading > span,
+:where(.oil-git) .source-status {
+  color: var(--muted);
+}
+:where(.oil-git) .source-status {
+  color: var(--modified);
+}
+:where(.oil-git) .code-row.add {
+  background: var(--add-bg);
+  color: var(--add-fg);
+}
+:where(.oil-git) .code-row.remove {
+  background: var(--remove-bg);
+  color: var(--remove-fg);
+}
+:where(.oil-git) .dropdown-trigger,
+:where(.oil-git) .menu-option {
+  color: var(--text);
+}
+:where(.oil-git) .split-side:first-child .split-label {
+  color: var(--muted);
+}
+:where(.oil-git) .theme-dropdown > span {
+  font-size: 12px;
+}
+:where(.oil-git).app {
+  color: var(--text);
+  background: var(--bg);
+}
+:where(.oil-git) body {
+  background: var(--bg);
+}
+:where(.oil-git) .toolbar,
+:where(.oil-git) .persistent-sidebar,
+:where(.oil-git) .repository-main,
+:where(.oil-git) .changes-editor {
+  transition:
+    background-color var(--fast),
+    color var(--fast);
+}
+@media (max-width: 900px) {
+  :where(.oil-git) .theme-dropdown {
+    max-width: 90px;
+  }
+  :where(.oil-git) .theme-dropdown > svg:first-child {
+    display: none;
+  }
+  :where(.oil-git) .toolbar .current-branch {
+    max-width: 100px;
+  }
+}
+:where(.oil-git) .workspace {
+  grid-template-rows: minmax(0, 1fr);
+}
+:where(.oil-git) .history-panel {
+  min-height: 0;
+  overflow: hidden;
+}
+:where(.oil-git).app[data-compact-details="true"] .workspace[data-expanded="true"] {
+  grid-template-columns: minmax(0, 1fr);
+}
+:where(.oil-git).app[data-compact-details="true"]
+  .workspace[data-expanded="true"]
+  > .history-panel,
+:where(.oil-git).app[data-compact-details="true"]
+  .workspace[data-expanded="true"]
+  > .resize-handle {
+  display: none;
+}
+:where(.oil-git).app[data-compact-details="true"]
+  .workspace[data-expanded="true"]
+  > .detail-shell {
+  grid-column: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  :where(.oil-git) .change-group-fold[data-animated="true"],
+  :where(.oil-git) .change-group-fold > div,
+  :where(.oil-git) .commit-metadata-toggle > svg,
+  :where(.oil-git) .detail-shell {
+    transition: none;
+  }
+  :where(.oil-git) .detail-content {
+    animation: none;
+  }
+}
+
+:where(.oil-git) .repository-workbench[data-view="history"] .source-file.selected {
+  background: var(--hover);
+}
+
+:where(.oil-git) html {
+  background: var(--bg, #282c34);
+}
+:where(.oil-git) .read-status {
+  padding: 16px 20px;
+  font-size: 12px;
+  color: var(--muted);
+  background: var(--bg);
+}
+:where(.oil-git).app > .read-status {
+  position: absolute;
+  top: 62px;
+  right: 20px;
+  z-index: 20;
+}
+:where(.oil-git) .history-panel {
+  position: relative;
+}
+:where(.oil-git) .history-panel > .read-status {
+  position: absolute;
+  right: 10px;
+  top: 8px;
+  z-index: 3;
+}
+:where(.oil-git) .working-diff {
+  position: relative;
+}
+:where(.oil-git) .working-diff > .read-status {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  z-index: 3;
+  background: var(--editor);
+  padding: 5px 8px;
+}
+
+:where(.oil-git) .code-viewport::-webkit-scrollbar,
+:where(.oil-git) .diff-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+:where(.oil-git) .code-viewport::-webkit-scrollbar-thumb,
+:where(.oil-git) .diff-scroll::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 4px;
+}
+:where(.oil-git) .code-viewport::-webkit-scrollbar-thumb:hover,
+:where(.oil-git) .diff-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
+:where(.oil-git) .code-viewport::-webkit-scrollbar-corner,
+:where(.oil-git) .diff-scroll::-webkit-scrollbar-corner {
+  background: var(--editor);
+}

@@ -1,0 +1,65 @@
+:where(.oil-git) .lfs-diff {
+  padding: 16px;
+  color: var(--text);
+}
+:where(.oil-git) .lfs-diff h3,
+:where(.oil-git) .lfs-diff h4,
+:where(.oil-git) .lfs-diff p {
+  margin: 0;
+}
+:where(.oil-git) .lfs-diff h3 {
+  font-size: 14px;
+  font-weight: 600;
+}
+:where(.oil-git) .lfs-conflict-state {
+  margin-left: 10px;
+  color: var(--modified);
+  font-size: 12px;
+  font-weight: 500;
+}
+:where(.oil-git) .unconfirmed-diff {
+  padding: 12px 16px;
+}
+:where(.oil-git) .lfs-diff header p,
+:where(.oil-git) .lfs-note {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+:where(.oil-git) .lfs-sides {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 10px;
+  margin: 18px 0;
+}
+:where(.oil-git) .lfs-side {
+  min-width: 0;
+  padding: 14px;
+  border-radius: 10px;
+  background: var(--surface);
+  font-size: 12px;
+}
+:where(.oil-git) .lfs-side h4 {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+}
+:where(.oil-git) .lfs-side dl {
+  margin: 14px 0 0;
+}
+:where(.oil-git) .lfs-side dt {
+  margin-top: 12px;
+  color: var(--muted);
+}
+:where(.oil-git) .lfs-side dd {
+  margin: 5px 0 0;
+}
+:where(.oil-git) .lfs-side code {
+  font: 11px/1.6 var(--mono);
+  overflow-wrap: anywhere;
+}
+:where(.oil-git) .lfs-side > p {
+  margin-top: 14px;
+  color: var(--muted);
+}
