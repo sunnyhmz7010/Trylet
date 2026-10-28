@@ -52,17 +52,29 @@ export default function TerminalView({ onReady, onInput, onResize }: Props) {
     let disposed = false
     let inputVersion = 0
     let pasting = false
+    const pasteClipboard = () => {
+      const version = inputVersion
+      void Clipboard.Text().then((text) => {
+        if (disposed || version !== inputVersion) return
+        terminal.focus()
+        pasting = true
+        try { terminal.paste(text) } finally { pasting = false }
+      }).catch((failure) => {
+        if (!disposed && version === inputVersion)
+          terminal.writeln(`\r\n[粘贴失败：${errorText(failure)}]`)
+      })
+    }
+    const contextMenu = (event: MouseEvent) => {
+      event.preventDefault()
+      event.stopPropagation()
+      pasteClipboard()
+    }
+    // 在捕获阶段拦截，避免 xterm 的右键处理移动输入区或重复粘贴。
+    const container = mount.current!
+    container.addEventListener('contextmenu', contextMenu, true)
     const input = terminal.onData((data) => {
       if (data === '\x16' && !pasting) {
-        const version = inputVersion
-        void Clipboard.Text().then((text) => {
-          if (disposed || version !== inputVersion) return
-          pasting = true
-          try { terminal.paste(text) } finally { pasting = false }
-        }).catch((failure) => {
-          if (!disposed && version === inputVersion)
-            terminal.writeln(`\r\n[粘贴失败：${errorText(failure)}]`)
-        })
+        pasteClipboard()
       } else {
         callbacks.current.onInput(data)
       }
@@ -84,6 +96,7 @@ export default function TerminalView({ onReady, onInput, onResize }: Props) {
     })
     return () => {
       disposed = true
+      container.removeEventListener('contextmenu', contextMenu, true)
       input.dispose()
       observer.disconnect()
       window.removeEventListener('trylet:theme-changed', theme)
