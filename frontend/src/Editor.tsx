@@ -5,6 +5,7 @@ import { placeholder } from '@codemirror/view'
 import { cpp } from '@codemirror/lang-cpp'
 import { python } from '@codemirror/lang-python'
 import { codeHighlighting, codeTheme } from './codeAppearance'
+import { copyHighlightedHTML } from './editorClipboard'
 
 type Props = {
   value: string
@@ -51,11 +52,14 @@ export default function Editor({ value, language, locked, onChange }: Props) {
       }),
     })
     view.current = instance
+    const copy = (event: ClipboardEvent) => copyHighlightedHTML(event, instance)
+    instance.dom.addEventListener('copy', copy)
     const theme = () => instance.dispatch({ effects: themeConfig.current.reconfigure(codeTheme()) })
     window.addEventListener('trylet:theme-changed', theme)
     instance.focus()
     return () => {
       window.removeEventListener('trylet:theme-changed', theme)
+      instance.dom.removeEventListener('copy', copy)
       instance.destroy()
       view.current = null
     }
