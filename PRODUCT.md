@@ -5,7 +5,7 @@
 ## Platform
 web
 
-Windows 10/11 x64 桌面应用，使用系统 WebView2。
+Windows 10/11 x64、ARM64 桌面应用，使用系统 WebView2。Actions 分别在对应架构的 Windows 运行器上构建、测试和打包。
 
 ## Stack
 用户确认：Wails 3、Go、React、TypeScript、Vite、CodeMirror 6、按需 shadcn/ui、xterm.js 和 ConPTY。

@@ -11,8 +11,16 @@ permissions:
 
 jobs:
   windows:
-    name: Windows Release (amd64)
-    runs-on: windows-latest
+    name: Windows Release (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: windows-latest
+          - arch: arm64
+            runner: windows-11-arm
     timeout-minutes: 30
     defaults:
       run:
@@ -55,12 +63,8 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: Trylet-windows-amd64
-          path: |
-            release/windows/Trylet.exe
-            release/windows/Trylet-portable.zip
-            release/windows/Trylet-source.zip
-            release/windows/Trylet-SHA256SUMS.txt
+          name: Trylet-windows-${{ matrix.arch }}
+          path: release/windows/
           if-no-files-found: error
 
       - name: Upload files to release
@@ -69,10 +73,11 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
-        run: >-
-          gh release upload "$env:RELEASE_TAG"
-          release/windows/Trylet.exe
-          release/windows/Trylet-portable.zip
-          release/windows/Trylet-source.zip
-          release/windows/Trylet-SHA256SUMS.txt
-          --clobber
+        run: |
+          $files = @(
+            'release/windows/Trylet-windows-${{ matrix.arch }}.exe',
+            'release/windows/Trylet-windows-${{ matrix.arch }}-portable.zip',
+            'release/windows/Trylet-windows-${{ matrix.arch }}-SHA256SUMS.txt'
+          )
+          if ('${{ matrix.arch }}' -eq 'amd64') { $files += 'release/windows/Trylet-source.zip' }
+          gh release upload "$env:RELEASE_TAG" @files --clobber
