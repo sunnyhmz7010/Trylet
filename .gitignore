@@ -2,6 +2,7 @@
 /frontend/dist/
 /frontend/*.tsbuildinfo
 /bin/
+/release/
 /Trylet.json
 /.Trylet-runtime/
 /.Trylet-save-*

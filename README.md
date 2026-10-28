@@ -43,7 +43,9 @@ cd Trylet
 .\build.ps1 -Run
 ```
 
-构建产物为 `bin\Trylet.exe`。当前仓库尚未发布 GitHub Release。
+构建产物为 `bin\Trylet.exe`。也可在 [GitHub Actions 的 CD 工作流](https://github.com/sunnyhmz7010/Trylet/actions/workflows/cd.yml)点击 **Run workflow**，构建完成后下载 `Trylet-windows-amd64` 产物。
+
+发布 GitHub Release 时，CD 会自动构建 Windows x64 版本并附加 `Trylet.exe`、便携 ZIP、源码 ZIP 和 SHA256 校验文件。使用仓库自带的 `GITHUB_TOKEN`，无需配置额外令牌。
 
 ## 📖 使用说明
 
@@ -107,6 +109,8 @@ npm --prefix frontend run build
 ```
 
 先构建以生成 Go 嵌入的前端资源。模拟 GitHub API 测试只监听回环地址，不读取真实令牌或写入真实仓库。
+
+构建后运行 `.\build\package-release.ps1`，可在本地生成与 Actions 相同的 `release\windows` 交付文件。CD 复用 `build.ps1`，并在打包前执行 Go 测试、`go vet` 和前端测试。
 
 ## 🔐 安全报告
 

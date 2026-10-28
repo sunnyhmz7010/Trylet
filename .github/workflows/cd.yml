@@ -1,0 +1,78 @@
+name: CD
+
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    name: Windows Release (amd64)
+    runs-on: windows-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Setup Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+
+      - name: Build Windows executable
+        run: .\build.ps1
+
+      - name: Test Go
+        run: go test -count=1 ./...
+
+      - name: Check Go
+        run: go vet ./...
+
+      - name: Test frontend
+        run: npm --prefix frontend test
+
+      - name: Package portable Windows release
+        run: .\build\package-release.ps1
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: Trylet-windows-amd64
+          path: |
+            release/windows/Trylet.exe
+            release/windows/Trylet-portable.zip
+            release/windows/Trylet-source.zip
+            release/windows/Trylet-SHA256SUMS.txt
+          if-no-files-found: error
+
+      - name: Upload files to release
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: >-
+          gh release upload "$env:RELEASE_TAG"
+          release/windows/Trylet.exe
+          release/windows/Trylet-portable.zip
+          release/windows/Trylet-source.zip
+          release/windows/Trylet-SHA256SUMS.txt
+          --clobber
