@@ -218,7 +218,8 @@ input:focus-visible {
   padding-top: 0;
 }
 .editor-mount .cm-activeLine {
-  background: var(--background);
+  /* 当前行位于选区上方，使用透明叠色，避免遮住选中内容（包括空行）。 */
+  background: color-mix(in srgb, var(--foreground) 4%, transparent);
 }
 .editor-mount .cm-activeLineGutter {
   background: transparent;
