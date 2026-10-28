@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-28T05:01:33Z",
+  "generatedAt": "2026-10-28T07:44:13Z",
   "title": "Design System: Trylet",
   "extensions": {
     "colorMeta": {
@@ -451,7 +451,8 @@
       "notCanonized": [
         "本轮未测试系统动态主题、500×380px 最小高度、多屏及未覆盖场景下的极小辅助文字可读性；历史 DPI 结果仅为历史证据。",
         "浮层 animate-in/fade/zoom 类在当前构建 CSS 中没有对应规则，不记作已实现动画。"
-      ]
+      ],
+      "clipboardVerification": "本轮本机 Word 对照与复制统计验证通过；混合文本 16 / 15，120 万字符 1,200,000 / 600,000，复制图片后恢复圆形图标。验证构建仅临时显示任务栏入口；未将点击拖动的自动化尝试计为验证通过。"
     }
   },
   "components": [
@@ -547,9 +548,17 @@
       "name": "Floating Ball",
       "kind": "custom",
       "refersTo": "floating-ball",
-      "description": "48 DIP 圆形代码入口，采用批准的 A 版 T 箭头实心 glyph，内边距 7.5px，颜色继承既有交互状态；原生不透明窗口以椭圆区域裁剪。四档 DPI 外形核验为改名前的历史证据，不代表新标志已重新验收。",
+      "description": "48 DIP 圆形入口；复制非文本内容后恢复此状态，复制文本后展开为字符统计胶囊。沿用批准的 T 箭头、浅色与暗色交互状态。",
       "html": "<button class=\"ds-ball\" aria-label=\"打开 Trylet\"><svg viewBox=\"0 0 32 32\" aria-hidden=\"true\" focusable=\"false\"><polygon fill=\"currentColor\" points=\"6,6 22,6 28,12 22,18 22,12 18,12 18,26 12,26 12,12 6,12\"/></svg></button>",
-      "css": ".ds-ball{display:grid;place-items:center;width:48px;height:48px;padding:7.5px;border:1px solid #d7d5ee;border-radius:50%;background:#f4f4f6;color:#4f46e5;cursor:pointer;outline:none;transition:background 120ms,color 120ms}.ds-ball svg{width:100%;height:100%;pointer-events:none}.ds-ball:hover{background:#e9e7ff;color:#4338ca}.ds-ball:active{background:#ddd9ff}.ds-ball:focus-visible{border:2px solid #4f46e5}:host-context([data-theme=\"dark\"]) .ds-ball{background:#232327;border-color:#464250;color:#b5b0ff}:host-context([data-theme=\"dark\"]) .ds-ball:hover{background:#343043}@media(prefers-reduced-motion:reduce){.ds-ball{transition:none}}"
+      "css": ".ds-ball{box-sizing:border-box;display:grid;place-items:center;width:48px;height:48px;padding:7.5px;border:1px solid #d7d5ee;border-radius:50%;background:#f4f4f6;color:#4f46e5;cursor:pointer;outline:none;transition:background 120ms,color 120ms}.ds-ball svg{width:100%;height:100%;pointer-events:none}.ds-ball:hover{background:#e9e7ff;color:#4338ca}.ds-ball:active{background:#ddd9ff}.ds-ball:focus-visible{border:2px solid #4f46e5}:host-context([data-theme=\"dark\"]) .ds-ball{background:#232327;border-color:#464250;color:#b5b0ff}:host-context([data-theme=\"dark\"]) .ds-ball:hover{background:#343043}@media(prefers-reduced-motion:reduce){.ds-ball{transition:none}}"
+    },
+    {
+      "name": "Floating Character Count",
+      "kind": "custom",
+      "refersTo": "floating-ball-counts",
+      "description": "192×48 DIP 复制字符统计；右侧图标位置不变，左侧两行显示计空格与不计空格。示例采用已验证的 16 / 15 统计值。",
+      "html": "<button class=\"ds-ball-count\" aria-label=\"计空格 16，不计空格 15。打开 Trylet\"><span class=\"ds-ball-count-numbers\"><span>计空格</span><b>16</b><span>不计空格</span><b>15</b></span><span class=\"ds-ball-count-icon\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\" aria-hidden=\"true\" focusable=\"false\"><polygon fill=\"currentColor\" points=\"6,6 22,6 28,12 22,18 22,12 18,12 18,26 12,26 12,12 6,12\"/></svg></span></button>",
+      "css": ".ds-ball-count{box-sizing:border-box;display:flex;align-items:center;justify-content:flex-end;gap:10px;width:192px;height:48px;padding:7.5px;border:1px solid #d7d5ee;border-radius:24px;background:#f4f4f6;color:#4f46e5;cursor:pointer;outline:none;transition:background 120ms,color 120ms}.ds-ball-count svg{width:100%;height:100%;pointer-events:none}.ds-ball-count:hover{background:#e9e7ff;color:#4338ca}.ds-ball-count:active{background:#ddd9ff}.ds-ball-count:focus-visible{border:2px solid #4f46e5}:host-context([data-theme=\"dark\"]) .ds-ball-count{background:#232327;border-color:#464250;color:#b5b0ff}:host-context([data-theme=\"dark\"]) .ds-ball-count:hover{background:#343043}@media(prefers-reduced-motion:reduce){.ds-ball-count{transition:none}}.ds-ball-count-icon{display:flex;flex:0 0 31px;height:31px;pointer-events:none}.ds-ball-count-numbers{display:grid;flex:1;grid-template-columns:auto 1fr;gap:1px 8px;padding-left:6px;font:11px/15px \"Segoe UI\",\"Microsoft YaHei UI\",sans-serif;white-space:nowrap;pointer-events:none}.ds-ball-count-numbers span{text-align:left;opacity:.8}.ds-ball-count-numbers b{font-size:12px;font-variant-numeric:tabular-nums;text-align:right}"
     }
   ],
   "narrative": {

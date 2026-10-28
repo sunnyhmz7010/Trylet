@@ -9,6 +9,11 @@ import type {} from "../github.com/wailsapp/wails/v3/internal/eventdata.js";
 import "../github.com/wailsapp/wails/v3/internal/eventcreate.js";
 
 /**
+ * Name of the custom event "trylet:clipboard-count".
+ */
+export const TryletClipboardCount = "trylet:clipboard-count";
+
+/**
  * Name of the custom event "trylet:git-changed".
  */
 export const TryletGitChanged = "trylet:git-changed";

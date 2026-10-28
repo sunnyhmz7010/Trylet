@@ -7,11 +7,15 @@ import type { Events } from "@wailsio/runtime";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import type * as main$0 from "../../../../../trylet/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import type * as trylet$0 from "../../../../../trylet/internal/trylet/models.js";
 
 declare module "@wailsio/runtime" {
     namespace Events {
         interface CustomEvents {
+            "trylet:clipboard-count": main$0.ClipboardCount;
             "trylet:git-changed": string;
             "trylet:run": trylet$0.RunEvent;
         }

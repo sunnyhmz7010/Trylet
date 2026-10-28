@@ -1,11 +1,24 @@
-import { Appearance, SyncBallDPI, ToggleEditor } from '../bindings/trylet/desktop'
+import { Appearance, RefreshClipboard, SyncBallDPI, ToggleEditor } from '../bindings/trylet/desktop'
 import brandGlyph from './brand.svg?raw'
 import './ball.css'
 import { Events } from '@wailsio/runtime'
 import { watchAppearance } from './appearance'
 
 const ball = document.querySelector<HTMLButtonElement>('#ball')!
-ball.innerHTML = brandGlyph
+ball.innerHTML = `<span id="ball-counts" hidden><span>计空格</span><b id="with-spaces"></b><span>不计空格</span><b id="without-spaces"></b></span><span class="ball-icon">${brandGlyph}</span>`
+const counts = document.querySelector<HTMLElement>('#ball-counts')!
+const withSpaces = document.querySelector<HTMLElement>('#with-spaces')!
+const withoutSpaces = document.querySelector<HTMLElement>('#without-spaces')!
+Events.On('trylet:clipboard-count', ({ data }) => {
+  ball.classList.toggle('counting', data.hasText)
+  counts.hidden = !data.hasText
+  withSpaces.textContent = data.withSpaces.toLocaleString('zh-CN')
+  withoutSpaces.textContent = data.withoutSpaces.toLocaleString('zh-CN')
+  const summary = data.hasText ? `上次复制的字符数：计空格 ${withSpaces.textContent}，不计空格 ${withoutSpaces.textContent}。` : ''
+  ball.title = data.error || `${summary}Trylet · 点击打开，拖动移动`
+  ball.setAttribute('aria-label', `${summary}打开 Trylet`)
+})
+void RefreshClipboard().catch((error: unknown) => { ball.title = `统计剪贴板失败：${String(error)}` })
 let stopAppearance = watchAppearance('system')
 let appearanceVersion = 0
 const applyAppearance = (value: string) => { stopAppearance(); stopAppearance = watchAppearance(value) }

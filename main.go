@@ -10,8 +10,10 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sync"
 	"time"
+	"unsafe"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 	"github.com/wailsapp/wails/v3/pkg/events"
@@ -31,6 +33,7 @@ var instanceID = "trylet.desktop"
 func init() {
 	application.RegisterEvent[trylet.RunEvent]("trylet:run")
 	application.RegisterEvent[string]("trylet:git-changed")
+	application.RegisterEvent[ClipboardCount]("trylet:clipboard-count")
 }
 
 type Desktop struct {
@@ -46,6 +49,9 @@ type Desktop struct {
 	ready         bool
 	showRequested bool
 	moveTimer     *time.Timer
+	ballExpanded  bool
+	clipboardWake chan struct{}
+	clipboardStop chan struct{}
 }
 
 func main() {
@@ -75,7 +81,7 @@ func main() {
 		startupError(err)
 		return
 	}
-	desktop := &Desktop{store: store}
+	desktop := &Desktop{store: store, clipboardWake: make(chan struct{}, 1), clipboardStop: make(chan struct{})}
 	runner := trylet.NewRunner(runtimeDir, func(event trylet.RunEvent) {
 		desktop.mu.Lock()
 		editor := desktop.editor
@@ -102,12 +108,22 @@ func main() {
 	}
 	app := application.New(application.Options{
 		Name: "Trylet", Description: "随手写，立即运行。", Icon: appIcon, LogLevel: slog.LevelWarn,
-		Windows:        application.WindowsOptions{DisableQuitOnLastWindowClosed: true, WebviewUserDataPath: filepath.Join(runtimeDir, "webview2")},
+		Windows: application.WindowsOptions{
+			DisableQuitOnLastWindowClosed: true, WebviewUserDataPath: filepath.Join(runtimeDir, "webview2"),
+			WndProcInterceptor: func(_ uintptr, msg uint32, _, _ uintptr) (uintptr, bool) {
+				if msg == w32.WM_CLIPBOARDUPDATE {
+					desktop.RefreshClipboard()
+				}
+				return 0, false
+			},
+		},
 		Logger:         slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelWarn})),
 		Services:       []application.Service{application.NewService(service), application.NewService(desktop), application.NewService(gitReader)},
 		Assets:         application.AssetOptions{Handler: application.AssetFileServerFS(webAssets)},
 		SingleInstance: &application.SingleInstanceOptions{UniqueID: instanceID, OnSecondInstanceLaunch: func(application.SecondInstanceData) { desktop.ShowEditor() }},
 		OnShutdown: func() {
+			close(desktop.clipboardStop)
+			w32.RemoveClipboardFormatListener(w32.HWND(desktop.ball.NativeWindow()))
 			gitReader.Close()
 			if id := runner.ActiveID(); id != "" {
 				if err := runner.Stop(id); err != nil {
@@ -138,6 +154,12 @@ func main() {
 		desktop.placeBall()
 		desktop.shapeBall()
 		desktop.ball.Show()
+		application.InvokeSync(func() {
+			if !w32.AddClipboardFormatListener(w32.HWND(desktop.ball.NativeWindow())) {
+				log.Print("监听剪贴板失败")
+			}
+		})
+		desktop.RefreshClipboard()
 	})
 	desktop.ball.OnWindowEvent(events.Common.WindowDidResize, func(*application.WindowEvent) { desktop.shapeBall() })
 	desktop.ball.OnWindowEvent(events.Common.WindowDidMove, func(*application.WindowEvent) {
@@ -162,6 +184,7 @@ func main() {
 	desktop.ball.OnWindowEvent(events.Common.WindowClosing, func(e *application.WindowEvent) { desktop.ball.Hide(); e.Cancel() })
 	app.Event.OnApplicationEvent(events.Common.ApplicationStarted, func(*application.ApplicationEvent) {
 		log.Print("桌面应用启动")
+		go desktop.watchClipboard()
 		desktop.placeBall()
 		desktop.ball.Show()
 		if err := desktop.applySettings(store.Settings()); err != nil {
@@ -312,6 +335,88 @@ func (d *Desktop) CopyText(text string) error {
 	}
 	return nil
 }
+
+type ClipboardCount struct {
+	HasText       bool   `json:"hasText"`
+	WithSpaces    int    `json:"withSpaces"`
+	WithoutSpaces int    `json:"withoutSpaces"`
+	Error         string `json:"error,omitempty"`
+}
+
+func countCharacters(text string) ClipboardCount {
+	count := ClipboardCount{HasText: true}
+	for _, character := range text {
+		// 按 Word 的纯文本统计口径，段落、分页和零宽空格不计为字符。
+		switch character {
+		case '\r', '\n', '\f', '\u200b', '\ufeff':
+			continue
+		}
+		count.WithSpaces++
+		switch character {
+		case ' ', '\t', '\v', '\u00a0', '\u2005', '\u3000':
+			continue
+		}
+		count.WithoutSpaces++
+	}
+	return count
+}
+
+func (d *Desktop) RefreshClipboard() {
+	select {
+	case d.clipboardWake <- struct{}{}:
+	default:
+	}
+}
+
+func readClipboardCount() (ClipboardCount, error) {
+	runtime.LockOSThread()
+	defer runtime.UnlockOSThread()
+	for attempt := 0; !w32.OpenClipboard(0); attempt++ {
+		if attempt == 99 {
+			return ClipboardCount{}, fmt.Errorf("剪贴板被其他程序占用")
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	defer w32.CloseClipboard()
+	if !w32.IsClipboardFormatAvailable(w32.CF_UNICODETEXT) {
+		return ClipboardCount{}, nil
+	}
+	handle := w32.GetClipboardData(w32.CF_UNICODETEXT)
+	kernel := windows.NewLazySystemDLL("kernel32.dll")
+	size, _, err := kernel.NewProc("GlobalSize").Call(uintptr(handle))
+	if size < 2 {
+		return ClipboardCount{}, fmt.Errorf("读取剪贴板文本：%w", err)
+	}
+	pointer := w32.GlobalLock(w32.HGLOBAL(handle))
+	// GlobalUnlock 返回 0 也可能表示成功；按实际分配长度读取，避免大段文本被截断。
+	defer w32.GlobalUnlock(w32.HGLOBAL(handle))
+	text := windows.UTF16ToString(unsafe.Slice((*uint16)(pointer), int(size/2)))
+	return countCharacters(text), nil
+}
+
+func (d *Desktop) watchClipboard() {
+	for {
+		select {
+		case <-d.clipboardStop:
+			return
+		case <-d.clipboardWake:
+			count, err := readClipboardCount()
+			if err != nil {
+				count.Error = "读取剪贴板失败，请重新复制"
+				log.Printf("统计剪贴板字符：%v", err)
+			}
+			d.mu.Lock()
+			resize := d.ballExpanded != count.HasText
+			d.ballExpanded = count.HasText
+			d.mu.Unlock()
+			if resize {
+				d.shapeBall()
+			}
+			d.ball.EmitEvent("trylet:clipboard-count", count)
+		}
+	}
+}
+
 func (d *Desktop) OpenURL(raw string) error {
 	u, err := url.Parse(raw)
 	if err != nil || u.Scheme != "https" || u.Host != "github.com" {
@@ -375,7 +480,9 @@ func (d *Desktop) placeBall() {
 			y = a.Y + a.Height/2
 		}
 	}
-	d.ball.SetPosition(x, y)
+	width, _ := d.ball.Size()
+	d.ball.SetPosition(x-width+48, y)
+	d.shapeBall()
 }
 
 func (d *Desktop) savePosition() {
@@ -383,6 +490,8 @@ func (d *Desktop) savePosition() {
 		return
 	}
 	x, y := d.ball.Position()
+	width, _ := d.ball.Size()
+	x += width - 48
 	if err := d.store.SaveBallPosition(x, y); err != nil {
 		log.Printf("保存悬浮球位置：%v", err)
 	}
@@ -395,21 +504,29 @@ func (d *Desktop) shapeBall() {
 			return
 		}
 		bounds := d.ball.PhysicalBounds()
-		center := application.Point{X: bounds.X + bounds.Width/2, Y: bounds.Y + bounds.Height/2}
+		center := application.Point{X: bounds.X + bounds.Width - bounds.Height/2, Y: bounds.Y + bounds.Height/2}
 		screen := application.ScreenNearestPhysicalPoint(center)
 		if screen == nil {
 			log.Print("读取悬浮球所在屏幕失败")
 			return
 		}
-		// 小窗口的原生 DPI 通知可能滞后，按所在屏幕缩放直接校正 48 DIP，避免坐标换算的取整偏差。
+		d.mu.Lock()
+		width := 48
+		if d.ballExpanded {
+			width = 192
+		}
+		d.mu.Unlock()
+		// 按所在屏幕校正 DIP，展开时保持右侧图标的位置。
 		size := int(math.Round(48 * float64(screen.ScaleFactor)))
-		if bounds.Width != size || bounds.Height != size {
-			// 保持选屏锚点不变，跨屏边界处不会因尺寸变化反复切换目标屏幕。
-			bounds.X, bounds.Y = center.X-size/2, center.Y-size/2
-			bounds.Width, bounds.Height = size, size
+		width = int(math.Round(float64(width) * float64(screen.ScaleFactor)))
+		area := screen.PhysicalWorkArea
+		x := max(area.X, min(center.X-width+size/2, area.X+area.Width-width))
+		y := max(area.Y, min(center.Y-size/2, area.Y+area.Height-size))
+		if bounds.X != x || bounds.Y != y || bounds.Width != width || bounds.Height != size {
+			bounds.X, bounds.Y, bounds.Width, bounds.Height = x, y, width, size
 			d.ball.SetPhysicalBounds(bounds)
 		}
-		region, _, err := windows.NewLazySystemDLL("gdi32.dll").NewProc("CreateEllipticRgn").Call(0, 0, uintptr(size), uintptr(size))
+		region, _, err := windows.NewLazySystemDLL("gdi32.dll").NewProc("CreateRoundRectRgn").Call(0, 0, uintptr(width+1), uintptr(size+1), uintptr(size), uintptr(size))
 		if region == 0 {
 			log.Printf("创建悬浮球形状：%v", err)
 			return

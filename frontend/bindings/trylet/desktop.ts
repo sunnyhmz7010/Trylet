@@ -33,6 +33,10 @@ export function Quit(): $CancellablePromise<void> {
     return $Call.ByName("main.Desktop.Quit");
 }
 
+export function RefreshClipboard(): $CancellablePromise<void> {
+    return $Call.ByName("main.Desktop.RefreshClipboard");
+}
+
 export function SetPinned(value: boolean): $CancellablePromise<void> {
     return $Call.ByName("main.Desktop.SetPinned", value);
 }
