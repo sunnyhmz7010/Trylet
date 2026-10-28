@@ -10,7 +10,7 @@ try {
     if (-not (Test-Path -LiteralPath 'frontend\dist\index.html')) {
         [IO.File]::WriteAllText((Join-Path $PSScriptRoot 'frontend\dist\index.html'), '<!doctype html><html lang="zh-CN"><title>Trylet</title></html>', [Text.UTF8Encoding]::new($false))
     }
-    npm --prefix frontend ci --no-audit --no-fund
+    npm --prefix frontend ci --prefer-offline --no-audit --no-fund
     if ($LASTEXITCODE -ne 0) { throw '前端依赖安装失败' }
     go run github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0 generate bindings -ts -i -names
     if ($LASTEXITCODE -ne 0) { throw 'Wails 接口生成失败' }

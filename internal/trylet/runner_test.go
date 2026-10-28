@@ -126,7 +126,6 @@ func TestPortableStoreAndPublicationPreserved(t *testing.T) {
 	}
 }
 
-
 func TestPortableStoreFailedWritePreservesState(t *testing.T) {
 	root := t.TempDir()
 	s, err := NewStore(root, root)
@@ -210,7 +209,7 @@ func TestPortableTokenEncryptionAndRemoval(t *testing.T) {
 
 func TestRunnerUsesPortableTempDirectory(t *testing.T) {
 	var candidate RuntimeCandidate
-	for _, found := range discoverRuntimes(Settings{}) {
+	for _, found := range installedRuntimeCandidates() {
 		if found.Language == "python" {
 			candidate = found
 			break

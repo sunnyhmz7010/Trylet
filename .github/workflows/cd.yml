@@ -49,7 +49,10 @@ jobs:
         run: .\build.ps1
 
       - name: Test Go
-        run: go test -count=1 -v ./...
+        run: |
+          # Strawberry 自带的旧 GCC 不支持中文临时目录，使用运行器预装的新版 MinGW。
+          $env:PATH = ($env:PATH -split ';' | Where-Object { $_.TrimEnd('\') -ine 'C:\Strawberry\c\bin' }) -join ';'
+          go test -count=1 -v ./...
 
       - name: Check Go
         run: go vet ./...

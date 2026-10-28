@@ -7,14 +7,20 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
 	"golang.org/x/sys/windows"
 )
 
+// 同一测试进程共用环境探测结果，各用例仍分别验证编译、交互和进程清理。
+var installedRuntimeCandidates = sync.OnceValue(func() []RuntimeCandidate {
+	return discoverRuntimes(Settings{})
+})
+
 func TestInstalledRuntimeMatrix(t *testing.T) {
-	candidates := discoverRuntimes(Settings{})
+	candidates := installedRuntimeCandidates()
 	for _, c := range candidates {
 		t.Logf("已验证候选 %s / %s: %s (%s)", c.Language, c.Kind, c.Path, c.Version)
 	}
@@ -27,6 +33,7 @@ func TestInstalledRuntimeMatrix(t *testing.T) {
 		{"c", "clang", "#include <stdio.h>\nint main(void){puts(\"中文结果=42\");}\n", "", "", "中文结果=42"},
 	} {
 		t.Run(spec.language+"_"+spec.kind, func(t *testing.T) {
+			t.Parallel()
 			var candidate *RuntimeCandidate
 			for _, c := range candidates {
 				if c.Language == spec.language && c.Kind == spec.kind {
@@ -86,7 +93,7 @@ func runInteractiveFixture(t *testing.T, candidate RuntimeCandidate, source, pro
 
 func TestStopProcessTreeAndContinuousOutput(t *testing.T) {
 	var python *RuntimeCandidate
-	for _, c := range discoverRuntimes(Settings{}) {
+	for _, c := range installedRuntimeCandidates() {
 		if c.Language == "python" {
 			value := c
 			python = &value

@@ -94,6 +94,7 @@ func gitFixtureHashes(t *testing.T, root string) map[string]string {
 	return result
 }
 func TestGitReadOnlyChangesHistoryAndDiff(t *testing.T) {
+	t.Parallel()
 	g, root, _ := gitFixture(t)
 	writeGitFixture(t, root, "中文 文件.py", "print('base')\n")
 	fixtureGit(t, root, "add", ".")
@@ -162,6 +163,7 @@ func TestGitReadOnlyChangesHistoryAndDiff(t *testing.T) {
 }
 
 func TestGitBinaryAndUTF16Diff(t *testing.T) {
+	t.Parallel()
 	g, root, _ := gitFixture(t)
 	encoded := func(value uint16) []byte {
 		b := []byte{255, 254, 0, 0, 10, 0}
@@ -206,6 +208,7 @@ func TestGitBinaryAndUTF16Diff(t *testing.T) {
 }
 
 func TestGitConflictDiff(t *testing.T) {
+	t.Parallel()
 	g, root, _ := gitFixture(t)
 	writeGitFixture(t, root, "conflict.txt", "base\n")
 	fixtureGit(t, root, "add", ".")
@@ -234,6 +237,7 @@ func TestGitConflictDiff(t *testing.T) {
 	}
 }
 func TestGitEmptyRepositoryAndRename(t *testing.T) {
+	t.Parallel()
 	g, root, _ := gitFixture(t)
 	empty, err := g.OpenRepository(root)
 	if err != nil {
