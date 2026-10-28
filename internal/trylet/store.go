@@ -24,6 +24,7 @@ type diskState struct {
 	Token          []byte            `json:"encryptedToken,omitempty"`
 	GitRecent      []GitRecent       `json:"gitRecent,omitempty"`
 	GitPreferences map[string]string `json:"gitPreferences,omitempty"`
+	Skills         skillState        `json:"skills,omitempty"`
 }
 
 type Store struct {

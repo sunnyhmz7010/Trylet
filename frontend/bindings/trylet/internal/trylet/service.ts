@@ -13,6 +13,10 @@ export function Bootstrap(): $CancellablePromise<$models.Bootstrap> {
     return $Call.ByName("trylet/internal/trylet.Service.Bootstrap");
 }
 
+export function DeleteSkill(locationID: string, name: string): $CancellablePromise<string> {
+    return $Call.ByName("trylet/internal/trylet.Service.DeleteSkill", locationID, name);
+}
+
 export function DetectRuntimes(): $CancellablePromise<$models.RuntimeCandidate[] | null> {
     return $Call.ByName("trylet/internal/trylet.Service.DetectRuntimes");
 }
@@ -21,8 +25,20 @@ export function Directory(target: $models.PublishTarget, dir: string): $Cancella
     return $Call.ByName("trylet/internal/trylet.Service.Directory", target, dir);
 }
 
+export function DiscardSkillPreview(id: string): $CancellablePromise<void> {
+    return $Call.ByName("trylet/internal/trylet.Service.DiscardSkillPreview", id);
+}
+
+export function GetSkillWorkspace(): $CancellablePromise<$models.SkillWorkspace> {
+    return $Call.ByName("trylet/internal/trylet.Service.GetSkillWorkspace");
+}
+
 export function History(): $CancellablePromise<$models.DraftSummary[] | null> {
     return $Call.ByName("trylet/internal/trylet.Service.History");
+}
+
+export function InstallSkills(previewID: string, locationID: string, paths: string[] | null): $CancellablePromise<$models.SkillInstallResult[] | null> {
+    return $Call.ByName("trylet/internal/trylet.Service.InstallSkills", previewID, locationID, paths);
 }
 
 export function LoadDraft(id: string): $CancellablePromise<$models.Draft> {
@@ -31,6 +47,10 @@ export function LoadDraft(id: string): $CancellablePromise<$models.Draft> {
 
 export function NewDraft(): $CancellablePromise<$models.Draft> {
     return $Call.ByName("trylet/internal/trylet.Service.NewDraft");
+}
+
+export function PrepareSkillInstall(repository: string, extract: boolean): $CancellablePromise<$models.SkillPreview> {
+    return $Call.ByName("trylet/internal/trylet.Service.PrepareSkillInstall", repository, extract);
 }
 
 export function Publish(req: $models.PublishRequest): $CancellablePromise<$models.PublishResult> {
@@ -61,6 +81,14 @@ export function SaveSettings(v: $models.Settings): $CancellablePromise<void> {
     return $Call.ByName("trylet/internal/trylet.Service.SaveSettings", v);
 }
 
+export function SaveSkillPreferences(prefs: $models.SkillPreferences): $CancellablePromise<$models.SkillWorkspace> {
+    return $Call.ByName("trylet/internal/trylet.Service.SaveSkillPreferences", prefs);
+}
+
+export function ScanSkills(locationID: string): $CancellablePromise<$models.SkillInstallation[] | null> {
+    return $Call.ByName("trylet/internal/trylet.Service.ScanSkills", locationID);
+}
+
 export function SetToken(token: string): $CancellablePromise<void> {
     return $Call.ByName("trylet/internal/trylet.Service.SetToken", token);
 }
@@ -71,6 +99,10 @@ export function StartRun(req: $models.RunRequest): $CancellablePromise<string> {
 
 export function StopRun(id: string): $CancellablePromise<void> {
     return $Call.ByName("trylet/internal/trylet.Service.StopRun", id);
+}
+
+export function UpdateSkill(id: string, confirmation: string): $CancellablePromise<$models.SkillUpdateResult> {
+    return $Call.ByName("trylet/internal/trylet.Service.UpdateSkill", id, confirmation);
 }
 
 export function WriteInput(id: string, data: string): $CancellablePromise<void> {

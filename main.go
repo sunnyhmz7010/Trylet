@@ -329,6 +329,9 @@ func (d *Desktop) requestQuit() {
 func (d *Desktop) ChooseGitRepository() (string, error) {
 	return d.app.Dialog.OpenFile().CanChooseDirectories(true).CanChooseFiles(false).CanCreateDirectories(false).SetTitle("打开 Git 仓库").AttachToWindow(d.editor).PromptForSingleSelection()
 }
+func (d *Desktop) ChooseSkillsDirectory() (string, error) {
+	return d.app.Dialog.OpenFile().CanChooseDirectories(true).CanChooseFiles(false).CanCreateDirectories(false).SetTitle("选择项目或 Skills 目录").AttachToWindow(d.editor).PromptForSingleSelection()
+}
 func (d *Desktop) CopyText(text string) error {
 	if !d.app.Clipboard.SetText(text) {
 		return fmt.Errorf("复制失败，请重试")

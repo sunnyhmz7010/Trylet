@@ -18,6 +18,9 @@ type Service struct {
 	detectGeneration uint64
 	settingsChanged  func(Settings) error
 	notice           string
+	skillsMu         sync.Mutex
+	skillHome        string
+	skillDownloads   map[string]*skillDownload
 }
 
 func NewService(store *Store, runner *Runner, settingsChanged func(Settings) error) *Service {

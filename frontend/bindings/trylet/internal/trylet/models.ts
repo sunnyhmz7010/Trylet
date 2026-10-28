@@ -301,3 +301,74 @@ export interface Settings {
     "ballY": number;
     "ballPlaced": boolean;
 }
+
+export interface SkillCustomLocation {
+    "path": string;
+    "project": string;
+}
+
+export interface SkillEntry {
+    "name": string;
+    "path": string;
+}
+
+export interface SkillInstallResult {
+    "sourcePath": string;
+    "name": string;
+    "path": string;
+    "error": string;
+    "warning": string;
+}
+
+export interface SkillInstallation {
+    "id": string;
+    "locationID": string;
+    "name": string;
+    "path": string;
+    "skills": SkillEntry[] | null;
+    "repository": string;
+    "sourcePath": string;
+    "mode": string;
+    "revision": string;
+    "readOnly": boolean;
+    "linked": boolean;
+    "missing": boolean;
+    "issue": string;
+}
+
+export interface SkillLocation {
+    "id": string;
+    "scope": string;
+    "tool": string;
+    "path": string;
+    "exists": boolean;
+    "readOnly": boolean;
+}
+
+export interface SkillPreferences {
+    "scope": string;
+    "project": string;
+    "location": string;
+    "customLocations": SkillCustomLocation[] | null;
+}
+
+export interface SkillPreview {
+    "id": string;
+    "repository": string;
+    "revision": string;
+    "mode": string;
+    "candidates": SkillEntry[] | null;
+}
+
+export interface SkillUpdateResult {
+    "needsConfirmation": boolean;
+    "confirmation": string;
+    "changes": string[] | null;
+    "message": string;
+    "warning": string;
+}
+
+export interface SkillWorkspace {
+    "preferences": SkillPreferences;
+    "locations": SkillLocation[] | null;
+}

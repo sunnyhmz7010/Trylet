@@ -13,6 +13,7 @@ import {
   Pin,
   Play,
   Plus,
+  Puzzle,
   Settings2,
   Square,
   TerminalSquare,
@@ -80,7 +81,7 @@ export default function App() {
   const [error, setError] = useState('')
   const [bootError, setBootError] = useState('')
   const [saveStatus, setSaveStatus] = useState('已保存')
-  const [activeView, setActiveView] = useState<'editor' | 'git' | 'settings'>('editor')
+  const [activeView, setActiveView] = useState<'editor' | 'git' | 'skills' | 'settings'>('editor')
   const activeViewRef = useRef(activeView)
   activeViewRef.current = activeView
   const [GitView, setGitView] = useState<ComponentType<{active:boolean}> | null>(null)
@@ -89,6 +90,12 @@ export default function App() {
     if (activeView !== 'git' || GitView || gitLoadError) return
     void import('./GitPanel').then((module) => setGitView(() => module.default)).catch((failure) => setGitLoadError(errorText(failure)))
   },[activeView,GitView,gitLoadError])
+  const [SkillsView, setSkillsView] = useState<ComponentType<{active:boolean}> | null>(null)
+  const [skillsLoadError, setSkillsLoadError] = useState('')
+  useEffect(() => {
+    if (activeView !== 'skills' || SkillsView || skillsLoadError) return
+    void import('./SkillsPanel').then((module) => setSkillsView(() => module.default)).catch((failure) => setSkillsLoadError(errorText(failure)))
+  }, [activeView, SkillsView, skillsLoadError])
   const [publishDraft, setPublishDraft] = useState<Draft | null>(null)
   const [pending, setPending] = useState<PendingAction | null>(null)
   const [languageAction, setLanguageAction] = useState<'run' | 'publish' | 'template' | null>(null)
@@ -512,16 +519,16 @@ export default function App() {
     <SettingsContext.Provider value={settings}><div className="app-shell">
       <header className="app-navigation">
         <div className="app-tabs" role="tablist" aria-label="工作区" onKeyDown={(event) => {
-          const views = ['editor','git','settings'] as const
+          const views = ['editor','git','skills','settings'] as const
           const index = views.indexOf(activeView)
-          const next = event.key === 'ArrowRight' ? (index+1)%3 : event.key === 'ArrowLeft' ? (index+2)%3 : event.key === 'Home' ? 0 : event.key === 'End' ? 2 : -1
+          const next = event.key === 'ArrowRight' ? (index+1)%views.length : event.key === 'ArrowLeft' ? (index+views.length-1)%views.length : event.key === 'Home' ? 0 : event.key === 'End' ? views.length-1 : -1
           if (next < 0) return
           event.preventDefault()
           publishAfterSettings.current = false
           setActiveView(views[next])
           ;(event.currentTarget.children[next] as HTMLButtonElement).focus()
         }}>
-          {([{view:'editor',label:'编辑器',Icon:Code2},{view:'git',label:'Git',Icon:GitBranch},{view:'settings',label:'设置',Icon:Settings2}] as const).map(({view,label,Icon}) => (
+          {([{view:'editor',label:'编辑器',Icon:Code2},{view:'git',label:'Git',Icon:GitBranch},{view:'skills',label:'Skills',Icon:Puzzle},{view:'settings',label:'设置',Icon:Settings2}] as const).map(({view,label,Icon}) => (
             <button key={view} id={'tab-'+view} className="folder-tab" role="tab" aria-label={label} title={label} aria-selected={activeView===view} aria-controls={'panel-'+view} tabIndex={activeView===view?0:-1} onClick={() => {publishAfterSettings.current=false;setActiveView(view)}}>
               <Icon size={17} aria-hidden="true"/>
             </button>
@@ -769,6 +776,9 @@ export default function App() {
       </section>
       <section id="panel-git" role="tabpanel" aria-labelledby="tab-git" className="git-page" hidden={activeView!=='git'}>
         {GitView ? <GitView active={activeView==='git'}/> : <div className="panel-loading">{gitLoadError ? <><span>{gitLoadError}</span><Button variant="outline" onClick={()=>setGitLoadError('')}>重试</Button></> : <><LoaderCircle size={18} className="animate-spin"/>正在加载 Git 视图…</>}</div>}
+      </section>
+      <section id="panel-skills" role="tabpanel" aria-labelledby="tab-skills" className="skills-page" hidden={activeView!=='skills'}>
+        {SkillsView ? <SkillsView active={activeView==='skills'}/> : <div className="panel-loading">{skillsLoadError ? <><span>{skillsLoadError}</span><Button variant="outline" onClick={()=>setSkillsLoadError('')}>重试</Button></> : <><LoaderCircle size={18} className="animate-spin"/>正在加载 Skills…</>}</div>}
       </section>
       <section id="panel-settings" role="tabpanel" aria-labelledby="tab-settings" className="settings-page" hidden={activeView!=='settings'}>
         <SettingsPanel

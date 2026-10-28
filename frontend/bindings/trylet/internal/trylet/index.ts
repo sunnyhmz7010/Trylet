@@ -44,5 +44,14 @@ export type {
     RunEvent,
     RunRequest,
     RuntimeCandidate,
-    Settings
+    Settings,
+    SkillCustomLocation,
+    SkillEntry,
+    SkillInstallResult,
+    SkillInstallation,
+    SkillLocation,
+    SkillPreferences,
+    SkillPreview,
+    SkillUpdateResult,
+    SkillWorkspace
 } from "./models.js";

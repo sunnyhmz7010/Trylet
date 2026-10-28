@@ -13,6 +13,10 @@ export function ChooseGitRepository(): $CancellablePromise<string> {
     return $Call.ByName("main.Desktop.ChooseGitRepository");
 }
 
+export function ChooseSkillsDirectory(): $CancellablePromise<string> {
+    return $Call.ByName("main.Desktop.ChooseSkillsDirectory");
+}
+
 export function CopyText(text: string): $CancellablePromise<void> {
     return $Call.ByName("main.Desktop.CopyText", text);
 }
