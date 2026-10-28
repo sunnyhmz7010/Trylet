@@ -54,6 +54,8 @@ func runInteractiveFixture(t *testing.T, candidate RuntimeCandidate, source, pro
 	}
 	t.Cleanup(func() { _ = runner.Stop(id) })
 	output := ""
+	// ConPTY 可在文本中插入 CSI 模式切换；断言比较可见文字，失败日志仍保留原始输出。
+	controlSequence := regexp.MustCompile("\x1b\\[[0-?]*[ -/]*[@-~]")
 	sent := false
 	timer := time.NewTimer(35 * time.Second)
 	defer timer.Stop()
@@ -63,7 +65,7 @@ func runInteractiveFixture(t *testing.T, candidate RuntimeCandidate, source, pro
 			if e.Kind == "output" {
 				b, _ := base64.StdEncoding.DecodeString(e.Data)
 				output += string(b)
-				if prompt != "" && strings.Contains(output, prompt) && !sent {
+				if prompt != "" && strings.Contains(controlSequence.ReplaceAllString(output, ""), prompt) && !sent {
 					if err = runner.Write(id, input); err != nil {
 						t.Fatal(err)
 					}
@@ -71,7 +73,7 @@ func runInteractiveFixture(t *testing.T, candidate RuntimeCandidate, source, pro
 				}
 			}
 			if e.Kind == "exit" {
-				if e.Phase != "exited" || e.ExitCode != 0 || !strings.Contains(output, want) {
+				if e.Phase != "exited" || e.ExitCode != 0 || !strings.Contains(controlSequence.ReplaceAllString(output, ""), want) {
 					t.Fatalf("运行失败 %+v，output=%q", e, output)
 				}
 				return output
