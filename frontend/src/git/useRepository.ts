@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { listen, open } from "./bridge";
 import { request, errorOf, RequestGate } from "./api";
 import type { Project, Snapshot, Commit, HistoryPage, GitError } from "./types";
-import { useI18n } from "./i18n";
+import { text as t } from "./text";
 type Recent = { path: string; name: string };
 type Launch = { path: string; view: "changes" | "history" };
 type History = {
@@ -31,7 +31,6 @@ const empty: History = {
 };
 
 export function useRepository(active: boolean) {
-  const { t } = useI18n();
   const activeRef = useRef(active); activeRef.current = active;
   const [project, setProject] = useState<Project | null>(null);
   const [recents, setRecents] = useState<Recent[]>([]);

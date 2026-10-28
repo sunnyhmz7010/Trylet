@@ -3,11 +3,10 @@ import { Collapse } from "./Collapse";
 import { Icon } from "./Icon";
 import { CopyButton } from "./CopyButton";
 import type { CommitDetail } from "./types";
-import { useI18n } from "./i18n";
+import { text as t } from "./text";
 
 export function CommitMetadata({ detail }: { detail: CommitDetail }) {
   const [expanded, setExpanded] = useState(false);
-  const { t, language } = useI18n();
   return (
     <div className="commit-metadata">
       <div className="commit-metadata-heading">
@@ -78,7 +77,7 @@ export function CommitMetadata({ detail }: { detail: CommitDetail }) {
               <dt>{t("时间")}</dt>
               <dd>
                 {new Date(detail.date).toLocaleString(
-                  language === "en" ? "en-US" : "zh-CN",
+                  "zh-CN",
                 )}
               </dd>
             </div>

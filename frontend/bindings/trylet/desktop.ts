@@ -5,6 +5,10 @@
 // @ts-ignore: Unused imports
 import { Call as $Call, CancellablePromise as $CancellablePromise } from "@wailsio/runtime";
 
+export function Appearance(): $CancellablePromise<string> {
+    return $Call.ByName("main.Desktop.Appearance");
+}
+
 export function ChooseGitRepository(): $CancellablePromise<string> {
     return $Call.ByName("main.Desktop.ChooseGitRepository");
 }

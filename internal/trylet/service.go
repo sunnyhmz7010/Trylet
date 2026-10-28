@@ -68,6 +68,12 @@ func (s *Service) LoadDraft(id string) (Draft, error) {
 func (s *Service) History() []DraftSummary { return s.store.History() }
 
 func (s *Service) SaveSettings(v Settings) error {
+	if v.Theme != "" && v.Theme != "system" && v.Theme != "light" && v.Theme != "dark" {
+		return errors.New("外观设置无效")
+	}
+	if v.GitDiffLayout != "" && v.GitDiffLayout != "split" && v.GitDiffLayout != "unified" {
+		return errors.New("差异展示设置无效")
+	}
 	if v.Runtimes == nil {
 		v.Runtimes = map[string]string{}
 	}

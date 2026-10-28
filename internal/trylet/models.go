@@ -1,15 +1,17 @@
 package trylet
 
 type Settings struct {
-	AutoTemplate bool              `json:"autoTemplate"`
-	Shortcut     string            `json:"shortcut"`
-	Runtimes     map[string]string `json:"runtimes"`
-	CustomPaths  map[string]string `json:"customPaths"`
-	Repository   string            `json:"repository"`
-	Branch       string            `json:"branch"`
-	BallX        int               `json:"ballX"`
-	BallY        int               `json:"ballY"`
-	BallPlaced   bool              `json:"ballPlaced"`
+	Theme         string            `json:"theme"`
+	GitDiffLayout string            `json:"gitDiffLayout"`
+	AutoTemplate  bool              `json:"autoTemplate"`
+	Shortcut      string            `json:"shortcut"`
+	Runtimes      map[string]string `json:"runtimes"`
+	CustomPaths   map[string]string `json:"customPaths"`
+	Repository    string            `json:"repository"`
+	Branch        string            `json:"branch"`
+	BallX         int               `json:"ballX"`
+	BallY         int               `json:"ballY"`
+	BallPlaced    bool              `json:"ballPlaced"`
 }
 
 type PublishTarget struct {

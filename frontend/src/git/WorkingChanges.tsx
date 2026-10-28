@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import { Icon } from "./Icon";
 import { CopyButton } from "./CopyButton";
@@ -9,7 +9,7 @@ import type { WorkingFile } from "./useWorkingCopy";
 import { FileIcon } from "./FileIcon";
 import { ReadStatus } from "./ReadStatus";
 import { Collapse } from "./Collapse";
-import { useI18n } from "./i18n";
+import { text as t } from "./text";
 import { ErrorMessage } from "./ErrorMessage";
 import "./changes-tree.css";
 
@@ -113,7 +113,6 @@ export function ChangesSidebar({
   const [collapsed, setCollapsed] = useState<string[]>([]);
   const [query, setQuery] = useState("");
   const input = useRef<HTMLInputElement>(null);
-  const { t } = useI18n();
   const treeCache = useRef<{
     files: FileState[];
     groups: ChangeGroup[];
@@ -411,19 +410,6 @@ export function SourceEditor({
   origin?: DiffOrigin;
   active?: boolean;
 }) {
-  const { t } = useI18n();
-  const [preferSplit, setPreferSplit] = useState(true),
-    [wide, setWide] = useState(false);
-  const editor = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = editor.current;
-    if (!el) return;
-    const observer = new ResizeObserver(() => {
-      if (el.clientWidth > 0) setWide(el.clientWidth >= 660);
-    });
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
   const selected = files.find((f) => f.path === file?.path);
   const labels: [string, string] =
     file?.mode === "staged"
@@ -438,7 +424,7 @@ export function SourceEditor({
     commit: t("提交差异"),
   };
   return (
-    <div className="changes-editor" ref={editor}>
+    <div className="changes-editor">
       {file ? (
         <>
           <header className="editor-heading">
@@ -449,27 +435,7 @@ export function SourceEditor({
               </div>
               <span>{captions[file.mode]}</span>
             </div>
-            {!selected?.conflict &&
-              !diff?.lfs &&
-              !diff?.preview &&
-              !diff?.binary && (
-                <div className="diff-tabs" aria-label={t("差异展示方式")}>
-                  <button
-                    aria-pressed={wide && preferSplit}
-                    disabled={!wide}
-                    title={!wide ? t("加宽窗口后可以左右对照") : undefined}
-                    onClick={() => setPreferSplit(true)}
-                  >
-                    {t("左右对照")}
-                  </button>
-                  <button
-                    aria-pressed={!wide || !preferSplit}
-                    onClick={() => setPreferSplit(false)}
-                  >
-                    {t("统一差异")}
-                  </button>
-                </div>
-              )}
+
           </header>
           {error && (
             <div className="history-error" role="status">
@@ -487,7 +453,6 @@ export function SourceEditor({
             {diff ? (
               <DiffView
                 data={diff}
-                layout={wide && preferSplit ? "split" : "unified"}
                 labels={labels}
                 origin={origin}
                 active={active}

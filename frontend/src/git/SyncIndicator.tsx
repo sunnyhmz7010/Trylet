@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useI18n } from "./i18n";
+import { text as t } from "./text";
 
 export function SyncIndicator({
   busy,
@@ -8,7 +8,6 @@ export function SyncIndicator({
   busy: boolean;
   requestKey: string;
 }) {
-  const { t } = useI18n();
   const [active, setActive] = useState(document.visibilityState === "visible");
   const [visibleKey, setVisibleKey] = useState<string | null>(null);
   useEffect(() => {

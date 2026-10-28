@@ -8,7 +8,7 @@ import { CommitMetadata } from "./CommitMetadata";
 import { CopyButton } from "./CopyButton";
 import { useCommitMotion } from "./useCommitMotion";
 import type { GitError, Project, Selection } from "./types";
-import { useI18n } from "./i18n";
+import { text as t } from "./text";
 import { ErrorMessage } from "./ErrorMessage";
 
 export type DetailState = {
@@ -35,7 +35,6 @@ export function Details({
   commits?: readonly { hash: string }[];
   onStateChange?: (state: DetailState) => void;
 }) {
-  const { t, language } = useI18n();
   const view = useCommitView(project, selection, shown);
   const data =
     view.data &&
@@ -110,7 +109,7 @@ export function Details({
                     <strong>{data.detail.author}</strong>
                     <span>
                       {new Date(data.detail.date).toLocaleDateString(
-                        language === "en" ? "en-US" : "zh-CN",
+                        "zh-CN",
                       )}
                     </span>
                   </p>

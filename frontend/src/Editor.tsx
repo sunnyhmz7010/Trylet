@@ -4,6 +4,7 @@ import { Compartment, EditorState } from '@codemirror/state'
 import { placeholder } from '@codemirror/view'
 import { cpp } from '@codemirror/lang-cpp'
 import { python } from '@codemirror/lang-python'
+import { codeHighlighting, codeTheme } from './codeAppearance'
 
 type Props = {
   value: string
@@ -19,6 +20,7 @@ export default function Editor({ value, language, locked, onChange }: Props) {
   callback.current = onChange
   const languageConfig = useRef(new Compartment())
   const readOnlyConfig = useRef(new Compartment())
+  const themeConfig = useRef(new Compartment())
   useEffect(() => {
     const instance = new EditorView({
       parent: mount.current!,
@@ -26,6 +28,8 @@ export default function Editor({ value, language, locked, onChange }: Props) {
         doc: value,
         extensions: [
           basicSetup,
+          codeHighlighting,
+          themeConfig.current.of(codeTheme()),
           placeholder('在这里写几行代码，试试你的想法。'),
           languageConfig.current.of(
             language === 'python' ? python() : language === 'c' || language === 'cpp' ? cpp() : [],
@@ -47,8 +51,11 @@ export default function Editor({ value, language, locked, onChange }: Props) {
       }),
     })
     view.current = instance
+    const theme = () => instance.dispatch({ effects: themeConfig.current.reconfigure(codeTheme()) })
+    window.addEventListener('trylet:theme-changed', theme)
     instance.focus()
     return () => {
+      window.removeEventListener('trylet:theme-changed', theme)
       instance.destroy()
       view.current = null
     }

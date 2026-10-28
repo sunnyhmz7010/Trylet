@@ -4,9 +4,10 @@ import type { Diff, ConflictLine, DiffOrigin } from "./types";
 import { LineAttribution } from "./LineAttribution";
 import { CodeDiff, CodeLines } from "./CodeDiff";
 import { FilePreviewDiff } from "./FilePreview";
-import { useI18n } from "./i18n";
+import { text as t } from "./text";
 import { ErrorMessage } from "./ErrorMessage";
 import "./lfs-diff.css";
+import { useSettings } from "../SettingsContext";
 export { patchRows } from "./patch";
 
 function Patch({ patch, active }: { patch: string; active?: boolean }) {
@@ -23,7 +24,6 @@ function ConflictCode({
   label: string;
   active?: boolean;
 }) {
-  const { t } = useI18n();
   return rows.length ? (
     <CodeLines lines={rows} label={label} active={active} />
   ) : (
@@ -82,7 +82,6 @@ function LfsDiff({
   labels: [string, string];
   active?: boolean;
 }) {
-  const { t, language } = useI18n();
   const lfs = data.lfs!;
   const states = [lfs.beforeState, lfs.afterState];
   return (
@@ -105,7 +104,7 @@ function LfsDiff({
                 <dt>{t("大小")}</dt>
                 <dd>
                   {new Intl.NumberFormat(
-                    language === "en" ? "en-US" : "zh-CN",
+                    "zh-CN",
                   ).format(pointer.size)}{" "}
                   {t("字节")}
                 </dd>
@@ -155,7 +154,7 @@ function LfsDiff({
 }
 export function DiffView({
   data,
-  layout = "unified",
+  layout,
   labels,
   origin,
   active = true,
@@ -166,7 +165,7 @@ export function DiffView({
   origin?: DiffOrigin;
   active?: boolean;
 }) {
-  const { t } = useI18n();
+  const settings = useSettings();
   const [line, setLine] = useState<{
     side: "before" | "after";
     line: number;
@@ -216,7 +215,7 @@ export function DiffView({
         />
       ) : data.conflict ? (
         <>
-          <p className="diff-caption">{t(data.conflict.kind)}</p>
+          <p className="git-diff-caption">{t(data.conflict.kind)}</p>
           {data.conflict.blocks.map((b, i) => (
             <section className="conflict-block" key={b.startLine}>
               <h3>
@@ -314,7 +313,7 @@ export function DiffView({
           )}
           <CodeDiff
             patch={data.patch}
-            layout={layout}
+            layout={layout ?? (settings?.gitDiffLayout === "unified" ? "unified" : "split")}
             labels={labels}
             onLineSelect={selectLine}
             active={active}

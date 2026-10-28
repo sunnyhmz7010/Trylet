@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { CopyText as writeText } from "../../bindings/trylet/desktop";
 import { Icon } from "./Icon";
-import { useI18n } from "./i18n";
+import { text as t } from "./text";
 
 export function CopyButton({
   text,
@@ -13,7 +13,6 @@ export function CopyButton({
   quiet?: boolean;
 }) {
   const [status, setStatus] = useState<"idle" | "copied" | "error">("idle");
-  const { t } = useI18n();
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const serial = useRef(0);
   useEffect(() => {

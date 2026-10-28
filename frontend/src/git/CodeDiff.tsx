@@ -11,7 +11,7 @@ import type { KeyboardEvent, PointerEvent, ReactNode } from "react";
 import { patchRows } from "./patch";
 import { VariableHeightIndex } from "./variableVirtualizer";
 import type { ConflictLine } from "./types";
-import { useI18n } from "./i18n";
+import { text as t } from "./text";
 import { Icon } from "./Icon";
 import "./code-diff.css";
 
@@ -225,7 +225,6 @@ export function splitRows(rows: Row[]): SplitRow[] {
 }
 
 export function CodeDiff(props: PatchCodeDiffProps | RawCodeDiffProps) {
-  const { t } = useI18n();
   const rawLines = "rawLines" in props ? props.rawLines : undefined;
   const patch = "patch" in props ? props.patch : "";
   const layout = "layout" in props ? props.layout : "unified";
@@ -253,7 +252,16 @@ export function CodeDiff(props: PatchCodeDiffProps | RawCodeDiffProps) {
     ) : (
       <span className="line-number">{value}</span>
     );
-  const renderLayout = rawLines ? "unified" : layout;
+  const [wide, setWide] = useState(false);
+  const responsiveRoot = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const node = responsiveRoot.current;
+    if (!node) return;
+    const observer = new ResizeObserver(() => { if (node.clientWidth > 0) setWide(node.clientWidth >= 660); });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+  const renderLayout = rawLines || !wide ? "unified" : layout;
   const rows = useMemo<CodeRow[]>(
     () => rawLines ?? patchRows(patch),
     [patch, rawLines],
@@ -927,7 +935,7 @@ export function CodeDiff(props: PatchCodeDiffProps | RawCodeDiffProps) {
 
   if (renderLayout === "unified")
     return (
-      <>
+      <div className="code-diff-container" ref={responsiveRoot}>
         {searchBar}
         <div
           className={
@@ -982,11 +990,11 @@ export function CodeDiff(props: PatchCodeDiffProps | RawCodeDiffProps) {
               })}
           </div>
         </div>
-      </>
+      </div>
     );
 
   return (
-    <>
+    <div className="code-diff-container" ref={responsiveRoot}>
       {searchBar}
       <div className="split-editor code-diff-split" ref={splitRoot}>
         {[0, 1].map((side) => (
@@ -1067,7 +1075,7 @@ export function CodeDiff(props: PatchCodeDiffProps | RawCodeDiffProps) {
           onKeyDown={onDividerKeyDown}
         />
       </div>
-    </>
+    </div>
   );
 }
 

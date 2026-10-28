@@ -3,7 +3,7 @@ import { layoutGraph, visibleEdges, curve, ROW_HEIGHT, COLORS } from "./graph";
 import { useGraphMotion } from "./useGraphMotion";
 import { CopyButton } from "./CopyButton";
 import type { Commit, Snapshot, Reference } from "./types";
-import { useI18n } from "./i18n";
+import { text as t } from "./text";
 export function HistoryGraph({
   commits,
   snapshot,
@@ -21,7 +21,6 @@ export function HistoryGraph({
   resetKey: string;
   active?: boolean;
 }) {
-  const { t } = useI18n();
   const graph = useMemo(
     () => layoutGraph(commits, snapshot.head),
     [commits, snapshot.head],
