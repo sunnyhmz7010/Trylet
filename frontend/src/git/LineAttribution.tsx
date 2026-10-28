@@ -4,7 +4,7 @@ import { CopyButton } from "./CopyButton";
 import { Icon } from "./Icon";
 import { ReadStatus } from "./ReadStatus";
 import type { DiffOrigin, GitError, LineOrigin } from "./types";
-import { useI18n } from "./i18n";
+import { text as t } from "./text";
 import { ErrorMessage } from "./ErrorMessage";
 
 export function LineAttribution({
@@ -18,7 +18,6 @@ export function LineAttribution({
   onClose: () => void;
   active: boolean;
 }) {
-  const { t, language } = useI18n();
   const key = JSON.stringify([origin, selection]);
   const [retry, setRetry] = useState(0);
   const [state, setState] = useState<{
@@ -86,7 +85,7 @@ export function LineAttribution({
             {data.timestamp && (
               <time>
                 {new Date(data.timestamp * 1000).toLocaleDateString(
-                  language === "en" ? "en-US" : "zh-CN",
+                  "zh-CN",
                 )}
               </time>
             )}

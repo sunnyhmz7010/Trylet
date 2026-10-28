@@ -13,11 +13,11 @@ import (
 	"sync"
 	"time"
 
-	"trylet/internal/trylet"
 	"github.com/wailsapp/wails/v3/pkg/application"
 	"github.com/wailsapp/wails/v3/pkg/events"
 	"github.com/wailsapp/wails/v3/pkg/w32"
 	"golang.org/x/sys/windows"
+	"trylet/internal/trylet"
 )
 
 //go:embed all:frontend/dist
@@ -320,7 +320,14 @@ func (d *Desktop) OpenURL(raw string) error {
 	return d.app.Browser.OpenURL(raw)
 }
 
-func (d *Desktop) applySettings(v trylet.Settings) error {
+func (d *Desktop) Appearance() string { return d.store.Settings().Theme }
+
+func (d *Desktop) applySettings(v trylet.Settings) (err error) {
+	defer func() {
+		if err == nil && d.ball != nil {
+			d.ball.EmitEvent("trylet:appearance", v.Theme)
+		}
+	}()
 	d.mu.Lock()
 	old := d.shortcut
 	d.mu.Unlock()

@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 @theme inline {
   --color-background: var(--background);
@@ -37,6 +38,14 @@
   --primary-foreground: #ffffff;
   --destructive: #c43535;
   --success: #17834b;
+  --active-fill: #e9e7ff;
+  --syntax-keyword: #7040a0;
+  --syntax-string: #a33232;
+  --syntax-number: #176642;
+  --syntax-type: #805500;
+  --toolbar-height: 41px;
+  --footer-height: 49px;
+  --control-radius: 6px;
   --radius: 0.5rem;
   font-family: 'Segoe UI', 'Microsoft YaHei UI', sans-serif;
   font-size: 13px;
@@ -84,7 +93,7 @@ input:focus-visible {
   outline-offset: 2px;
 }
 ::selection {
-  background: #dcdafc;
+  background: var(--active-fill);
 }
 .app-shell {
   display: flex;
@@ -161,7 +170,7 @@ input:focus-visible {
 }
 .icon-button.active {
   color: var(--primary);
-  background: #e9e7ff;
+  background: var(--active-fill);
 }
 .workspace {
   display: flex;
@@ -194,7 +203,7 @@ input:focus-visible {
 }
 .editor-mount .cm-gutters {
   background: var(--card);
-  color: #9a9aa3;
+  color: var(--muted);
   border: 0;
   padding-left: 5px;
 }
@@ -209,21 +218,21 @@ input:focus-visible {
   padding-top: 0;
 }
 .editor-mount .cm-activeLine {
-  background: #f7f7fc;
+  background: var(--background);
 }
 .editor-mount .cm-activeLineGutter {
   background: transparent;
   color: var(--muted);
 }
 .editor-mount .cm-placeholder {
-  color: #767680;
+  color: var(--muted);
 }
 .editor-mount .cm-focused {
   outline: 0;
 }
 .editor-mount .cm-selectionBackground,
 .editor-mount .cm-focused .cm-selectionBackground {
-  background: #e5e3ff;
+  background: var(--active-fill);
 }
 .editor-hint {
   position: absolute;
@@ -328,7 +337,7 @@ input:focus-visible {
   background: var(--card);
 }
 .resize-handle:hover {
-  background: #e9e7ff;
+  background: var(--active-fill);
 }
 .terminal-header {
   height: 31px;
@@ -685,8 +694,7 @@ input:focus-visible {
     padding-right: 16px;
   }
 }
-@media (prefers-color-scheme: dark) {
-  :root {
+:root[data-theme="dark"] {
     color-scheme: dark;
     --background: #1a1a1e;
     --card: #232327;
@@ -698,24 +706,11 @@ input:focus-visible {
     --primary-foreground: #181426;
     --destructive: #ff9c9c;
     --success: #6fd99b;
-  }
-  button.bg-destructive {
-    background: #b91c1c;
-  }
-  .icon-button.active {
-    background: #33314c;
-  }
-  .editor-mount .cm-activeLine {
-    background: #292932;
-  }
-  .notice {
-    background: #3c2623;
-    color: #ffc2ad;
-    border-color: #5b3831;
-  }
-  ::selection {
-    background: #43405e;
-  }
+    --active-fill: #33314c;
+    --syntax-keyword: #c6a7ef;
+    --syntax-string: #eea6a6;
+    --syntax-number: #86d8ab;
+    --syntax-type: #e6ca8b;
 }
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -735,11 +730,14 @@ input:focus-visible {
 .folder-tab[aria-selected=true] { background:var(--card); color:var(--primary); height:34px; }
 .folder-tab:focus-visible { outline-offset:-3px; }
 .editor-page { display:flex; flex:1; min-height:0; flex-direction:column; }
-.editor-toolbar { height:41px; min-height:41px; padding:0 12px; gap:9px; }
-.git-page,.settings-page { flex:1; min-height:0; display:flex; margin:0 10px 10px; border:1px solid var(--border); border-radius:0 9px 9px 9px; overflow:hidden; background:var(--card); }
+.page-toolbar { height:var(--toolbar-height); min-height:var(--toolbar-height); padding:0 12px; display:flex; align-items:center; gap:9px; background:var(--background); color:var(--muted); }
+.page-footer { height:var(--footer-height); min-height:var(--footer-height); display:flex; align-items:center; gap:8px; padding:0 12px; background:var(--background); color:var(--muted); }
+.section-tabs { display:flex; gap:4px; min-width:0; }
+.section-tabs button { height:28px; padding:0 10px; border:1px solid transparent; border-radius:var(--control-radius); background:transparent; color:var(--muted); font-size:12px; white-space:nowrap; }
+.section-tabs button:hover { background:var(--secondary); color:var(--foreground); }
+.section-tabs button[aria-pressed=true] { background:var(--card); border-color:var(--border); color:var(--foreground); }
+.git-page,.settings-page { flex:1; min-height:0; min-width:0; display:flex; overflow:hidden; }
 .git-tab-content { flex:1; min-height:0; min-width:0; display:flex; flex-direction:column; }
 .panel-loading { display:flex; align-items:center; justify-content:center; gap:8px; flex:1; color:var(--muted); }
-.settings-inline { display:flex; flex:1; min-height:0; flex-direction:column; width:100%; overflow:hidden; }
-.settings-inline .dialog-heading h2 { margin:0 0 4px; font-size:16px; font-weight:600; }
-.settings-inline .dialog-heading p { margin:0; font-size:12px; color:var(--muted); }
-.settings-inline .dialog-scroll { flex:1; min-height:0; overflow:auto; }
+* { scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
+.editor-mount .cm-cursor { border-left-color:var(--primary); }

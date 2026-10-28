@@ -1,10 +1,7 @@
 :where(.oil-git) * {
   box-sizing: border-box;
 }
-:where(.oil-git) body {
-  margin: 0;
-}
-:where(.oil-git) button,
+:where(.oil-git) button:not([data-slot="button"]),
 :where(.oil-git) select {
   font: inherit;
   color: inherit;
@@ -13,11 +10,8 @@
   cursor: default;
   opacity: 0.45;
 }
-:where(.oil-git) :focus,
-:where(.oil-git) :focus-visible {
-  outline: none;
-}
-:where(.oil-git) button:hover:not(:disabled) {
+:where(.oil-git) :focus-visible { outline:2px solid var(--primary); outline-offset:-2px; }
+:where(.oil-git) button:not([data-slot="button"]):hover:not(:disabled) {
   background: var(--hover);
 }
 :where(.oil-git) h1,
@@ -37,7 +31,9 @@
   color: var(--muted);
 }
 :where(.oil-git).app {
-  height: 100dvh;
+  height: 100%;
+  width:100%;
+  min-height:0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -301,8 +297,8 @@
   color: var(--accent);
   margin-left: 10px;
 }
-:where(.oil-git) .resize-handle:hover,
-:where(.oil-git) .resize-handle:focus-visible {
+:where(.oil-git) .git-resize-handle:hover,
+:where(.oil-git) .git-resize-handle:focus-visible {
   background: var(--selection);
 }
 :where(.oil-git) .resizing {
@@ -377,7 +373,7 @@
   color: var(--error-fg);
 }
 :where(.oil-git) .inline-note,
-:where(.oil-git) .diff-caption {
+:where(.oil-git) .git-diff-caption {
   padding: 12px 22px;
   color: var(--muted);
   font-size: 12px;
@@ -586,9 +582,11 @@
   }
 }
 /* 自绘桌面组件：统一运动、层级与信息密度。 */
-:where(.oil-git) button {
+:where(.oil-git) button:not([data-slot="button"]) {
   cursor: pointer;
   border: 0;
+  border-radius:var(--control-radius);
+  padding:5px 8px;
   background: none;
   transition:
     background-color var(--fast),
@@ -597,16 +595,13 @@
 }
 :where(.oil-git) .toolbar {
   position: relative;
-  height: 60px;
-  min-height: 60px;
-  padding: 0 24px;
+  height: var(--toolbar-height);
+  min-height: var(--toolbar-height);
+  padding: 0 12px;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 9px;
   background: var(--toolbar);
-}
-:where(.oil-git).mac .toolbar {
-  padding-left: 96px;
 }
 :where(.oil-git) .toolbar-divider {
   height: 17px;
@@ -638,12 +633,14 @@
 }
 :where(.oil-git) .project-dropdown {
   max-width: 32%;
-  border-color: transparent !important;
-  background: none !important;
+  border:1px solid var(--border);
+  background:var(--card);
+  border-radius:var(--control-radius);
+  height:29px;
 }
 :where(.oil-git) .project-dropdown > span {
-  font-size: 14px;
-  font-weight: 550;
+  font-size: 12px;
+  font-weight: 500;
 }
 :where(.oil-git) .tree-dropdown {
   max-width: 180px;
@@ -873,17 +870,17 @@
   border-radius: 4px;
   background: var(--surface);
 }
-:where(.oil-git) .workspace {
+:where(.oil-git) .git-workspace {
   display: grid;
   flex: 1;
   min-height: 0;
   min-width: 0;
   grid-template-columns: minmax(0, 1fr) 0px minmax(0, 0px);
 }
-:where(.oil-git) .resizing .workspace {
+:where(.oil-git) .resizing .git-workspace {
   transition: none;
 }
-:where(.oil-git) .resize-handle {
+:where(.oil-git) .git-resize-handle {
   width: 6px;
   flex-shrink: 0;
   cursor: col-resize;
@@ -892,7 +889,7 @@
   border: 0;
   transition: background-color var(--fast);
 }
-:where(.oil-git) .resize-handle:hover {
+:where(.oil-git) .git-resize-handle:hover {
   background: var(--selection);
 }
 :where(.oil-git) .detail-shell {
@@ -906,14 +903,14 @@
     transform var(--motion) var(--ease);
   background: var(--bg);
 }
-:where(.oil-git) .workspace[data-expanded="true"] .detail-shell {
+:where(.oil-git) .git-workspace[data-expanded="true"] .detail-shell {
   opacity: 1;
   transform: none;
 }
-:where(.oil-git) .workspace[data-expanded="false"] > .detail-shell {
+:where(.oil-git) .git-workspace[data-expanded="false"] > .detail-shell {
   display: none;
 }
-:where(.oil-git) .workspace[data-expanded="false"] > .resize-handle {
+:where(.oil-git) .git-workspace[data-expanded="false"] > .git-resize-handle {
   visibility: hidden;
   pointer-events: none;
 }
@@ -1067,30 +1064,6 @@
   gap: 8px;
   flex-shrink: 0;
 }
-:where(.oil-git) .diff-tabs {
-  display: flex;
-  gap: 0;
-  position: relative;
-  align-self: flex-start;
-  padding: 3px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 6px;
-}
-:where(.oil-git) .diff-tabs button {
-  font-size: 11px;
-  padding: 5px 11px;
-  border: 0;
-  border-radius: 3px;
-  color: var(--muted);
-}
-:where(.oil-git) .diff-tabs button[aria-pressed="true"] {
-  background: var(--selected-bg);
-  color: var(--text);
-  border-color: var(--line);
-  border: 0;
-  box-shadow: 0 1px 3px #0002;
-}
 :where(.oil-git) .diff-path {
   flex: 1;
   min-width: 0;
@@ -1114,7 +1087,7 @@
   font-size: 12px;
   line-height: 1.9;
 }
-:where(.oil-git) .diff-caption {
+:where(.oil-git) .git-diff-caption {
   font-size: 11px;
 }
 :where(.oil-git) .details .detail-message {
@@ -1126,9 +1099,14 @@
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  padding: 40px;
-  gap: 22px;
-  animation: content-in 300ms var(--ease);
+  margin:0 10px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  background:var(--card);
+  min-height:0;
+  overflow:auto;
+  padding:24px;
+  gap:12px;
 }
 :where(.oil-git) .primary {
   display: inline-flex;
@@ -1137,9 +1115,10 @@
   gap: 9px;
   background: var(--accent);
   color: var(--accent-ink);
-  padding: 12px 20px;
-  border-radius: 7px;
-  font-size: 14px;
+  padding:0 11px;
+  height:30px;
+  border-radius:var(--control-radius);
+  font-size:12px;
   font-weight: 500;
   box-shadow: 0 1px 0 #ffffff22 inset;
   transition:
@@ -1150,9 +1129,8 @@
   margin-bottom: 4px;
 }
 :where(.oil-git) .welcome h1 {
-  font-size: 26px;
-  font-weight: 500;
-  letter-spacing: 0.2px;
+  font-size:16px;
+  font-weight:600;
 }
 :where(.oil-git) .welcome > p {
   font-size: 13px;
@@ -1176,13 +1154,9 @@
   }
 }
 @media (max-width: 1040px) {
-  :where(.oil-git).mac .toolbar {
-    padding-left: 90px;
-  }
   :where(.oil-git) .toolbar {
     gap: 9px;
-    padding: 0 20px;
-    padding-right: 19px;
+    padding: 0 12px;
   }
   :where(.oil-git) .current-branch {
     max-width: 170px;
@@ -1228,22 +1202,7 @@
 :where(.oil-git) .overlay-root[data-active="false"] {
   pointer-events: none;
 }
-:where(.oil-git) :root {
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
-    "Microsoft YaHei", sans-serif;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  --mono: ui-monospace, SFMono-Regular, Consolas, monospace;
-  font-size: 14px;
-  --fast: 140ms;
-  --motion: 240ms;
-  --ease: cubic-bezier(0.2, 0.75, 0.25, 1);
-  --font:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
-    "Microsoft YaHei", sans-serif;
-}
+
 /* 工作区采用源代码管理分组与左右差异；两侧代码独立横向滚动、纵向同步。 */
 :where(.oil-git) .change-group-heading {
   display: flex;
@@ -1349,10 +1308,6 @@
   color: var(--muted);
   margin-top: 4px;
 }
-:where(.oil-git) .editor-heading .diff-tabs {
-  align-self: center;
-  flex-shrink: 0;
-}
 :where(.oil-git) .working-diff {
   flex: 1;
   min-height: 0;
@@ -1428,10 +1383,6 @@
   :where(.oil-git) .editor-heading {
     padding: 14px 16px;
     flex-wrap: wrap;
-  }
-  :where(.oil-git) .editor-heading .diff-tabs button {
-    font-size: 10px;
-    padding: 4px 8px;
   }
   :where(.oil-git) .changes-tree {
     padding-left: 5px;
@@ -1540,6 +1491,10 @@
 /* 同一仓库的工作区常驻左侧，右侧保持源码与分支各自的浏览位置。 */
 :where(.oil-git) .repository-workbench {
   display: grid;
+  margin:0 10px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  overflow:hidden;
   grid-template-columns: var(--sidebar-width, 250px) minmax(0, 1fr);
   position: relative;
   flex: 1;
@@ -1675,7 +1630,7 @@
   display: flex;
 }
 :where(.oil-git) .view-source > .changes-editor,
-:where(.oil-git) .view-history > .workspace {
+:where(.oil-git) .view-history > .git-workspace {
   flex: 1;
   min-width: 0;
   min-height: 0;
@@ -1690,7 +1645,7 @@
 :where(.oil-git) .view-source .working-diff {
   background: var(--editor);
 }
-:where(.oil-git) .workspace[data-expanded="true"] {
+:where(.oil-git) .git-workspace[data-expanded="true"] {
   grid-template-columns: minmax(0, 1fr) 6px minmax(
       0,
       var(--detail-width, 420px)
@@ -1780,15 +1735,8 @@
   margin-top: 2px;
   align-self: flex-start;
 }
-:where(.oil-git) .theme-dropdown {
-  max-width: 115px;
-  flex-shrink: 0;
-}
 :where(.oil-git) .ref {
   border: 0;
-}
-:where(.oil-git) .diff-tabs {
-  background: var(--surface);
 }
 :where(.oil-git) .view-tabs > button[aria-selected="true"],
 :where(.oil-git) .view-tabs > button:hover:not(:disabled) {
@@ -1806,9 +1754,6 @@
 }
 :where(.oil-git) .primary {
   box-shadow: none;
-}
-:where(.oil-git) .diff-tabs {
-  border: 0;
 }
 :where(.oil-git) .source-file,
 :where(.oil-git) .editor-heading strong,
@@ -1848,15 +1793,9 @@
 :where(.oil-git) .split-side:first-child .split-label {
   color: var(--muted);
 }
-:where(.oil-git) .theme-dropdown > span {
-  font-size: 12px;
-}
 :where(.oil-git).app {
   color: var(--text);
-  background: var(--bg);
-}
-:where(.oil-git) body {
-  background: var(--bg);
+  background: var(--background);
 }
 :where(.oil-git) .toolbar,
 :where(.oil-git) .persistent-sidebar,
@@ -1867,36 +1806,30 @@
     color var(--fast);
 }
 @media (max-width: 900px) {
-  :where(.oil-git) .theme-dropdown {
-    max-width: 90px;
-  }
-  :where(.oil-git) .theme-dropdown > svg:first-child {
-    display: none;
-  }
   :where(.oil-git) .toolbar .current-branch {
     max-width: 100px;
   }
 }
-:where(.oil-git) .workspace {
+:where(.oil-git) .git-workspace {
   grid-template-rows: minmax(0, 1fr);
 }
 :where(.oil-git) .history-panel {
   min-height: 0;
   overflow: hidden;
 }
-:where(.oil-git).app[data-compact-details="true"] .workspace[data-expanded="true"] {
+:where(.oil-git).app[data-compact-details="true"] .git-workspace[data-expanded="true"] {
   grid-template-columns: minmax(0, 1fr);
 }
 :where(.oil-git).app[data-compact-details="true"]
-  .workspace[data-expanded="true"]
+  .git-workspace[data-expanded="true"]
   > .history-panel,
 :where(.oil-git).app[data-compact-details="true"]
-  .workspace[data-expanded="true"]
-  > .resize-handle {
+  .git-workspace[data-expanded="true"]
+  > .git-resize-handle {
   display: none;
 }
 :where(.oil-git).app[data-compact-details="true"]
-  .workspace[data-expanded="true"]
+  .git-workspace[data-expanded="true"]
   > .detail-shell {
   grid-column: 1;
 }
@@ -1914,10 +1847,6 @@
 
 :where(.oil-git) .repository-workbench[data-view="history"] .source-file.selected {
   background: var(--hover);
-}
-
-:where(.oil-git) html {
-  background: var(--bg, #282c34);
 }
 :where(.oil-git) .read-status {
   padding: 16px 20px;
@@ -1970,3 +1899,9 @@
 :where(.oil-git) .diff-scroll::-webkit-scrollbar-corner {
   background: var(--editor);
 }
+
+:where(.oil-git) .code-diff-container { display:flex; flex-direction:column; flex:1; min-width:0; min-height:0; }
+
+:where(.oil-git) .git-footer { font-size:11px; justify-content:space-between; }
+:where(.oil-git) .git-footer > span:first-child { min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+:where(.oil-git) .git-footer > span:last-child { flex-shrink:0; }

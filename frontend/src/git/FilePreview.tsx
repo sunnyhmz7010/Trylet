@@ -7,7 +7,7 @@ import {
 } from "react";
 import { CodeDiff } from "./CodeDiff";
 import type { FilePreview, PreviewSide } from "./types";
-import { useI18n } from "./i18n";
+import { text as t } from "./text";
 import { ErrorMessage } from "./ErrorMessage";
 import "./file-preview.css";
 
@@ -23,7 +23,6 @@ function SideInfo({
   side: PreviewSide | null;
   label: string;
 }) {
-  const { t } = useI18n();
   return (
     <header className="preview-side-heading">
       <strong>{label}</strong>
@@ -55,7 +54,6 @@ function Media({
   active: boolean;
   onDecodeFailure: () => void;
 }) {
-  const { t } = useI18n();
   const [failed, setFailed] = useState(false);
   const media = useRef<HTMLMediaElement | null>(null);
   useEffect(() => {
@@ -143,7 +141,6 @@ function PixelDifference({
   after: string;
   onDecodeFailure: () => void;
 }) {
-  const { t } = useI18n();
   const canvas = useRef<HTMLCanvasElement>(null);
   const [note, setNote] = useState<
     | { kind: "loading" }
@@ -253,7 +250,6 @@ function ImageComparison({
   active: boolean;
   onDecodeFailure: () => void;
 }) {
-  const { t } = useI18n();
   const [mode, setMode] = useState<ImageMode>("split");
   const [zoom, setZoom] = useState(false);
   const [position, setPosition] = useState(50);
@@ -452,7 +448,6 @@ function HexDiff({
   preview: FilePreview;
   labels: [string, string];
 }) {
-  const { t } = useI18n();
   const [changedOnly, setChangedOnly] = useState(true);
   const [scrollTop, setScrollTop] = useState(0);
   const viewport = useRef<HTMLDivElement>(null);
@@ -572,7 +567,6 @@ export function FilePreviewDiff({
   active?: boolean;
   labels?: [string, string];
 }) {
-  const { t } = useI18n();
   const sidesLabels = labels ?? [t("变更前"), t("变更后")];
   const sides = [preview.before, preview.after];
   const image = sides.some((side) => side?.kind === "image");

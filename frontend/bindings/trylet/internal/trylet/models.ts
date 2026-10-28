@@ -289,6 +289,8 @@ export interface RuntimeCandidate {
 }
 
 export interface Settings {
+    "theme": string;
+    "gitDiffLayout": string;
     "autoTemplate": boolean;
     "shortcut": string;
     "runtimes": { [_ in string]?: string } | null;

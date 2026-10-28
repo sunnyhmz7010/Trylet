@@ -5,6 +5,7 @@ import { Input } from './components/ui/input'
 import * as Backend from '../bindings/trylet/internal/trylet/service'
 import * as Desktop from '../bindings/trylet/desktop'
 import type { RuntimeCandidate, Settings } from '../bindings/trylet/internal/trylet/models'
+import './settings.css'
 import { errorText, languageNames } from './lib/language'
 
 type Props = {
@@ -21,6 +22,8 @@ type Props = {
 
 export default function SettingsPanel(props: Props) {
   const [form, setForm] = useState<Settings>(() => structuredClone(props.settings))
+  const [category, setCategory] = useState('general')
+  const [saved, setSaved] = useState(false)
   const [token, setToken] = useState('')
   const [hasToken, setHasToken] = useState(props.tokenSet)
   const [error, setError] = useState('')
@@ -39,6 +42,7 @@ export default function SettingsPanel(props: Props) {
     void Desktop.OpenURL(url.toString()).catch((failure) => setError(errorText(failure)))
   }
   const save = async () => {
+    setSaved(false)
     setSaving(true)
     setError('')
     try {
@@ -59,6 +63,7 @@ export default function SettingsPanel(props: Props) {
       setHasToken(tokenSet)
       setForm(value)
       props.onSaved(value, tokenSet)
+      setSaved(true)
     } catch (failure) {
       setError(errorText(failure))
     } finally {
@@ -79,11 +84,24 @@ export default function SettingsPanel(props: Props) {
   },[props.active,saving,removing])
   return (
     <section className="settings-inline" aria-label="设置">
-        <div className="dialog-heading">
-          <h2>设置</h2>
-          <p>使用这台电脑已有的环境，保持练习简单。</p>
-        </div>
-        <div className="dialog-scroll">
+        <header className="page-toolbar">
+          <nav className="section-tabs" aria-label="设置分类">
+            {[['general','常规'],['runtimes','运行环境'],['git','Git 浏览'],['github','GitHub 发布']].map(([id,label]) =>
+              <button key={id} type="button" aria-pressed={category===id} onClick={()=>setCategory(id)}>{label}</button>)}
+          </nav>
+        </header>
+        <div className="settings-body" onChange={()=>setSaved(false)}>
+          <fieldset disabled={saving || removing} className="settings-fields">
+          <section hidden={category!=='general'} aria-label="常规设置">
+          <h2>外观</h2>
+          <p className="section-description">编辑器、Git 和悬浮球使用同一套外观。</p>
+          <div className="field">
+            <label htmlFor="appearance">颜色模式</label>
+            <select id="appearance" className="native-select" value={form.theme || 'system'} onChange={e=>setForm({...form,theme:e.target.value})}>
+              <option value="system">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option>
+            </select>
+          </div>
+          <div className="settings-divider"/>
           <div className="section-label">编辑与窗口</div>
           <label className="check-field">
             <input
@@ -103,9 +121,10 @@ export default function SettingsPanel(props: Props) {
             />
             <small>留空可关闭；若已被其他程序占用，会保留原来的快捷键。</small>
           </div>
-          <div className="settings-divider" />
+          </section>
+          <section hidden={category!=='runtimes'} aria-label="运行环境设置">
           <div className="section-label">
-            <span>本机运行环境</span>
+            <h2>本机运行环境</h2>
             <Button
               variant="ghost"
               size="sm"
@@ -175,8 +194,21 @@ export default function SettingsPanel(props: Props) {
           <p className="help">
             自定义路径保存后重新检测。C/C++ 编译完整单文件；Python 使用对应解释器中已有的依赖。
           </p>
-          <div className="settings-divider" />
-          <div className="section-label">GitHub 发布</div>
+          </section>
+          <section hidden={category!=='git'} aria-label="Git 浏览设置">
+            <h2>差异展示</h2>
+            <p className="section-description">对所有仓库的文件更改和提交历史生效。</p>
+            <div className="field">
+              <label htmlFor="git-diff-layout">展示方式</label>
+              <select id="git-diff-layout" className="native-select" value={form.gitDiffLayout || 'split'} onChange={e=>setForm({...form,gitDiffLayout:e.target.value})}>
+                <option value="split">左右对照</option><option value="unified">统一差异</option>
+              </select>
+              <small>左右对照在面板宽度不足时自动使用统一差异。</small>
+            </div>
+          </section>
+          <section hidden={category!=='github'} aria-label="GitHub 发布设置">
+          <h2>发布到 GitHub</h2>
+          <p className="section-description">为代码练习设置默认的归档位置。</p>
           <div className="field">
             <label htmlFor="repository">默认仓库</label>
             <Input
@@ -242,21 +274,26 @@ export default function SettingsPanel(props: Props) {
               </Button>
             )}
           </div>
+          </section>
+          </fieldset>
+        </div>
+        <footer className="page-footer settings-footer">
+          <div className="settings-feedback" aria-live="polite">
           {error && (
             <p className="form-error" role="alert">
               {error}
             </p>
           )}
-        </div>
-        <div className="dialog-footer">
-          <Button variant="outline" disabled={saving || removing} onClick={() => {setForm(structuredClone(props.settings));setToken('');setError('');props.onClose()}}>
+          {!error && <span>{saved ? '设置已保存' : '保存后对所有工作区生效'}</span>}
+          </div>
+          <Button variant="outline" disabled={saving || removing} onClick={() => {setForm(structuredClone(props.settings));setToken('');setError('');setSaved(false);props.onClose()}}>
             取消
           </Button>
           <Button disabled={saving || removing} onClick={() => void save()}>
             {saving && <LoaderCircle size={13} className="animate-spin" />}
             {saving ? '保存中…' : '保存设置'}
           </Button>
-        </div>
+        </footer>
     </section>
   )
 }

@@ -1,0 +1,16 @@
+.settings-inline { display:flex; flex:1; min-height:0; min-width:0; flex-direction:column; }
+.settings-body { flex:1; min-height:0; overflow:auto; margin:0 10px; padding:20px 22px; border:1px solid var(--border); border-radius:9px; background:var(--card); }
+.settings-fields { border:0; padding:0; margin:0; min-width:0; max-width:640px; }
+.settings-fields h2 { font-size:13px; font-weight:600; margin:0; }
+.section-description { margin:6px 0 18px; color:var(--muted); font-size:12px; line-height:1.65; }
+.settings-fields .field { max-width:480px; }
+.settings-fields .runtime-row { border:0; border-bottom:1px solid var(--border); border-radius:0; padding:10px 0 16px; margin:0 0 8px; }
+.settings-fields .runtime-row:last-of-type { border-bottom:0; }
+.settings-fields .runtime-path { font-size:11px; }
+.settings-footer { justify-content:flex-end; }
+.settings-feedback { margin-right:auto; min-width:0; font-size:11px; overflow-wrap:anywhere; }
+.settings-feedback .form-error { margin:0; }
+@media (max-width:570px) {
+  .settings-body { padding:16px; }
+  .settings-feedback { max-width:210px; }
+}

@@ -6,18 +6,16 @@ import { HistoryGraph } from "./HistoryGraph";
 import { Details, type DetailState } from "./Details";
 import { usePaneLayout } from "./usePaneLayout";
 import { Icon } from "./Icon";
+import { Button } from "../components/ui/button";
 import { Dropdown, type MenuOption } from "./Dropdown";
 import type { Selection } from "./types";
-import { useTheme, type Theme } from "./theme";
 import { ReadStatus } from "./ReadStatus";
 import { SyncIndicator } from "./SyncIndicator";
-import { useI18n } from "./i18n";
+import { text as t } from "./text";
 import { ErrorMessage } from "./ErrorMessage";
 export default function App({ active }: { active: boolean }) {
   const repo = useRepository(active);
-  const { theme, setTheme } = useTheme();
-  const { language, setLanguage, t } = useI18n();
-  const [view, setView] = useState<"source" | "history">("history");
+  const [view, setView] = useState<"source" | "history">("source");
   const working = useWorkingCopy(repo.project, active && view === "source");
   const [selection, setSelection] = useState<Selection>(null);
   const selectionOwner = useRef<string | null>(null);
@@ -211,15 +209,6 @@ export default function App({ active }: { active: boolean }) {
     }
   };
   const conflicts = s?.files.filter((f) => f.conflict).length ?? 0;
-  const themes = [
-    { value: "dark", label: t("深色") },
-    { value: "light", label: t("浅色") },
-    { value: "green", label: t("绿色") },
-  ];
-  const languages = [
-    { value: "en", label: t("英文") },
-    { value: "zh-CN", label: t("简体中文") },
-  ];
   const filters: MenuOption[] = [
     { value: "all", label: t("所有分支与标签") },
     { value: "HEAD", label: t("当前 HEAD 的历史") },
@@ -235,7 +224,7 @@ export default function App({ active }: { active: boolean }) {
     })),
   ];
   const recentOptions: MenuOption[] = [
-    { value: "__choose", label: t("打开其他项目"), description: "⌘ / Ctrl O" },
+    { value: "__choose", label: t("打开其他项目"), description: "Ctrl O" },
     ...repo.recents.map((r) => ({
       value: r.path,
       label: r.name,
@@ -244,18 +233,16 @@ export default function App({ active }: { active: boolean }) {
       removable: true,
     })),
   ];
-  const mac = navigator.userAgent.includes("Macintosh");
   return (
     <div
       ref={shell}
       className={
         "oil-git app " +
-        (mac ? "mac " : "") +
         (detailOpen && view === "history" ? "has-details " : "") +
         (panes.dragging ? "resizing" : "")
       }
     >
-      <header className="toolbar" data-tauri-drag-region>
+      <header className="toolbar" >
         <Dropdown
           className="project-dropdown"
           value={s?.path ?? ""}
@@ -282,7 +269,7 @@ export default function App({ active }: { active: boolean }) {
               <Icon name="branch" size={16} />
               {s.branch || t("分离 HEAD")}
             </span>
-            <span className="toolbar-spacer" data-tauri-drag-region />
+            <span className="toolbar-spacer"  />
             {s.worktrees.length > 1 && (
               <Dropdown
                 className="tree-dropdown"
@@ -310,30 +297,14 @@ export default function App({ active }: { active: boolean }) {
             <button
               className="icon-button"
               onClick={() => void repo.refresh(true)}
-              title={t("刷新 · ⌘ / Ctrl R")}
+              title={t("刷新 · Ctrl R")}
               aria-label={t("刷新仓库")}
             >
               <Icon name="refresh" />
             </button>
           </>
         )}
-        {!s && <span className="toolbar-spacer" data-tauri-drag-region />}
-        <Dropdown
-          className="theme-dropdown"
-          value={theme}
-          options={themes}
-          onChange={(v) => setTheme(v as Theme)}
-          label={t("切换主题")}
-          icon="palette"
-        />
-        <Dropdown
-          className="language-dropdown"
-          value={language}
-          options={languages}
-          onChange={(value) => setLanguage(value as "en" | "zh-CN")}
-          label={t("切换语言")}
-          icon="language"
-        />
+        {!s && <span className="toolbar-spacer"  />}
         <SyncIndicator busy={syncing} requestKey={repo.project?.repoId ?? ""} />
       </header>
       {readError && (
@@ -366,14 +337,13 @@ export default function App({ active }: { active: boolean }) {
             </div>
           ) : (
             <>
-              <button
-                className="primary"
+              <Button
                 onClick={() => void repo.choose()}
                 disabled={repo.opening}
               >
                 <Icon name="folder" />
                 {t("打开 Git 项目")}
-              </button>
+              </Button>
               {repo.recents.length > 0 && (
                 <div className="welcome-recents">
                   {repo.recentError && (
@@ -443,7 +413,7 @@ export default function App({ active }: { active: boolean }) {
             />
           </aside>
           <div
-            className="resize-handle sidebar-resize-handle"
+            className="git-resize-handle sidebar-resize-handle"
             role="separator"
             aria-label={t("调整侧栏宽度")}
             aria-orientation="vertical"
@@ -539,7 +509,7 @@ export default function App({ active }: { active: boolean }) {
               aria-labelledby="history-tab"
               inert={view !== "history"}
             >
-              <div className="workspace" data-expanded={detailOpen}>
+              <div className="git-workspace" data-expanded={detailOpen}>
                 <section className="history-panel" aria-label={t("仓库历史")}>
                   <div className="detail-pending">
                     <ReadStatus
@@ -636,7 +606,7 @@ export default function App({ active }: { active: boolean }) {
                   </div>
                 </section>
                 <div
-                  className="resize-handle"
+                  className="git-resize-handle"
                   role="separator"
                   aria-label={t("调整详情宽度")}
                   aria-orientation="vertical"
@@ -667,6 +637,7 @@ export default function App({ active }: { active: boolean }) {
           </section>
         </main>
       )}
+      <footer className="page-footer git-footer"><span title={s?.path}>{s?.path || '本地仓库'}</span><span>{s ? `${s.files.length} 个更改` : repo.gitStatus.version ? `Git ${repo.gitStatus.version}` : '正在检测 Git'}</span></footer>
     </div>
   );
 }

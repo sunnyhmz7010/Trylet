@@ -67,7 +67,6 @@ export default function TerminalView({ onReady, onInput, onResize }: Props) {
         callbacks.current.onInput(data)
       }
     })
-    const media = matchMedia('(prefers-color-scheme: dark)')
     const theme = () => {
       const s = getComputedStyle(document.documentElement)
       terminal.options.theme = {
@@ -76,7 +75,7 @@ export default function TerminalView({ onReady, onInput, onResize }: Props) {
         cursor: s.getPropertyValue('--primary').trim(),
       }
     }
-    media.addEventListener('change', theme)
+    window.addEventListener('trylet:theme-changed', theme)
     onReady({
       write: (data) => terminal.write(data),
       clear: () => { inputVersion++; terminal.reset() },
@@ -87,7 +86,7 @@ export default function TerminalView({ onReady, onInput, onResize }: Props) {
       disposed = true
       input.dispose()
       observer.disconnect()
-      media.removeEventListener('change', theme)
+      window.removeEventListener('trylet:theme-changed', theme)
       terminal.dispose()
     }
   }, [])

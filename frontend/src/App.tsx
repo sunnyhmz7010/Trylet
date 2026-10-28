@@ -47,7 +47,9 @@ import {
 } from './components/ui/select'
 import { Input } from './components/ui/input'
 import Editor from './Editor'
-import SettingsPanel from './SettingsDialog'
+import SettingsPanel from './SettingsPanel'
+import { SettingsContext } from './SettingsContext'
+import { watchAppearance } from './appearance'
 import PublishDialog from './PublishDialog'
 import type { TerminalHandle } from './Terminal'
 import {
@@ -70,6 +72,7 @@ export default function App() {
   const [draft, setDraft] = useState<Draft | null>(null)
   const draftRef = useRef<Draft | null>(null)
   const [settings, setSettings] = useState<Settings | null>(null)
+  useEffect(() => watchAppearance(settings?.theme ?? 'system'), [settings?.theme])
   const [tokenSet, setTokenSet] = useState(false)
   const [history, setHistory] = useState<DraftSummary[]>([])
   const [runtimes, setRuntimes] = useState<RuntimeCandidate[]>([])
@@ -506,7 +509,7 @@ export default function App() {
       </div>
     )
   return (
-    <div className="app-shell">
+    <SettingsContext.Provider value={settings}><div className="app-shell">
       <header className="app-navigation">
         <div className="app-tabs" role="tablist" aria-label="工作区" onKeyDown={(event) => {
           const views = ['editor','git','settings'] as const
@@ -548,7 +551,7 @@ export default function App() {
 
       </header>
       <section id="panel-editor" role="tabpanel" aria-labelledby="tab-editor" className="editor-page" hidden={activeView!=='editor'}>
-      <header className="topbar editor-toolbar">
+      <header className="page-toolbar">
         <Select disabled={switching} value={draft.language} onValueChange={changeLanguage}>
           <SelectTrigger className="language-trigger" aria-label="选择语言">
             <SelectValue>
@@ -703,7 +706,7 @@ export default function App() {
           </section>
         )}
       </main>
-      <footer className="footer">
+      <footer className="footer page-footer">
         <button
           className="environment"
           title={
@@ -914,6 +917,6 @@ export default function App() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </div></SettingsContext.Provider>
   )
 }

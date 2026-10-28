@@ -1,9 +1,19 @@
-import { SyncBallDPI, ToggleEditor } from '../bindings/trylet/desktop'
+import { Appearance, SyncBallDPI, ToggleEditor } from '../bindings/trylet/desktop'
 import brandGlyph from './brand.svg?raw'
 import './ball.css'
+import { Events } from '@wailsio/runtime'
+import { watchAppearance } from './appearance'
 
 const ball = document.querySelector<HTMLButtonElement>('#ball')!
 ball.innerHTML = brandGlyph
+let stopAppearance = watchAppearance('system')
+let appearanceVersion = 0
+const applyAppearance = (value: string) => { stopAppearance(); stopAppearance = watchAppearance(value) }
+Events.On('trylet:appearance', (event) => { appearanceVersion++; applyAppearance(String(event.data ?? 'system')) })
+const initialAppearanceVersion = appearanceVersion
+void Appearance().then((value) => {
+  if (appearanceVersion === initialAppearanceVersion) applyAppearance(value)
+}).catch((error: unknown) => { ball.title = `读取外观设置失败：${String(error)}` })
 const watchDPI = () => {
   void SyncBallDPI().catch((error: unknown) => {
     ball.title = `调整显示缩放失败：${String(error)}`

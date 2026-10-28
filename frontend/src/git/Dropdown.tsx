@@ -8,7 +8,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "./Icon";
-import { useI18n } from "./i18n";
+import { text as t } from "./text";
 export type MenuOption = {
   value: string;
   label: string;
@@ -54,7 +54,6 @@ export function Dropdown({
     width: 320,
     maxHeight: 400,
   });
-  const { t } = useI18n();
   const trigger = useRef<HTMLButtonElement>(null),
     popup = useRef<HTMLDivElement>(null),
     input = useRef<HTMLInputElement>(null);
