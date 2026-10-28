@@ -196,7 +196,11 @@ func (r *Runner) execute(ctx context.Context, s *runSession, req RunRequest, run
 		if req.Language == "cpp" {
 			std = "c++17"
 		}
-		compileArgs := []string{"-std=" + std, "-Wall", "-Wextra", "-finput-charset=UTF-8", "-fexec-charset=UTF-8", source, "-o", binary}
+		compileArgs := []string{"-std=" + std, "-Wall", "-Wextra", "-finput-charset=UTF-8", "-fexec-charset=UTF-8", filepath.Base(source), "-o", "practice.exe"}
+		if runtime.Kind == "gcc" {
+			// 部分 MinGW 工具仍按 ANSI 解析路径；相对文件名和固定中间产物避免传入中文绝对路径。
+			compileArgs = append(compileArgs, "-save-temps=obj")
+		}
 		if runtime.Kind == "msvc" {
 			compileArgs = []string{"/nologo", "/utf-8", "/W4", "/std:" + std, source, "/Fe:" + binary}
 			if req.Language == "cpp" {
@@ -236,7 +240,14 @@ func (r *Runner) execute(ctx context.Context, s *runSession, req RunRequest, run
 			}
 			return
 		}
-		program = binary
+		systemDirectory, err := windows.GetSystemDirectory()
+		if err != nil {
+			message = "定位系统命令处理器失败：" + err.Error()
+			return
+		}
+		// 在新建的 ConPTY 内设置代码页；使用固定命令和文件名，不拼接草稿或用户路径。
+		program = filepath.Join(systemDirectory, "cmd.exe")
+		args = []string{"/d", "/s", "/c", "chcp 65001>nul && .\\practice.exe"}
 	} else {
 		args = []string{"-B", "-u", source}
 	}
