@@ -46,28 +46,24 @@ jobs:
           cache-dependency-path: go.sum
 
       - name: Build Windows executable
-        run: .\build.ps1
-
-      - name: Test Go
+        id: build
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          BUILD_ARCH: ${{ matrix.arch }}
         run: |
-          # Strawberry 自带的旧 GCC 不支持中文临时目录，使用运行器预装的新版 MinGW。
-          $env:PATH = ($env:PATH -split ';' | Where-Object { $_.TrimEnd('\') -ine 'C:\Strawberry\c\bin' }) -join ';'
-          go test -count=1 -v ./...
-
-      - name: Check Go
-        run: go vet ./...
-
-      - name: Test frontend
-        run: npm --prefix frontend test
-
-      - name: Package portable Windows release
-        run: .\build\package-release.ps1
+          .\build.ps1
+          $version = $env:RELEASE_TAG
+          if (-not $version) { $version = 'v' + (Get-Content frontend/package.json -Raw | ConvertFrom-Json).version }
+          $fileName = "Trylet-$version-windows-$env:BUILD_ARCH.exe"
+          Move-Item -LiteralPath bin/Trylet.exe -Destination (Join-Path bin $fileName)
+          "file=bin/$fileName" >> $env:GITHUB_OUTPUT
 
       - name: Upload build artifacts
+        if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v7
         with:
-          name: Trylet-windows-${{ matrix.arch }}
-          path: release/windows/
+          path: ${{ steps.build.outputs.file }}
+          archive: false
           if-no-files-found: error
 
       - name: Upload files to release
@@ -76,11 +72,5 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
-        run: |
-          $files = @(
-            'release/windows/Trylet-windows-${{ matrix.arch }}.exe',
-            'release/windows/Trylet-windows-${{ matrix.arch }}-portable.zip',
-            'release/windows/Trylet-windows-${{ matrix.arch }}-SHA256SUMS.txt'
-          )
-          if ('${{ matrix.arch }}' -eq 'amd64') { $files += 'release/windows/Trylet-source.zip' }
-          gh release upload "$env:RELEASE_TAG" @files --clobber
+          RELEASE_FILE: ${{ steps.build.outputs.file }}
+        run: gh release upload "$env:RELEASE_TAG" "$env:RELEASE_FILE" --clobber

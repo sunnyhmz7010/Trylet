@@ -36,7 +36,7 @@
 
 ### 📦 安装与运行
 
-已有便携包时，解压后直接打开 `Trylet.exe`。从源码构建需要 Go 和 Node.js：
+从 Releases 下载对应架构的 EXE 后直接运行，配置文件会自动生成。从源码构建需要 Go 和 Node.js：
 
 ```powershell
 git clone https://github.com/sunnyhmz7010/Trylet.git
@@ -44,9 +44,9 @@ cd Trylet
 .\build.ps1 -Run
 ```
 
-构建产物为 `bin\Trylet.exe`，在 x64、ARM64 Windows 主机上分别构建对应架构。也可在 [GitHub Actions 的 CD 工作流](https://github.com/sunnyhmz7010/Trylet/actions/workflows/cd.yml)点击 **Run workflow**，构建完成后按电脑架构下载 `Trylet-windows-amd64` 或 `Trylet-windows-arm64` 产物。
+本地构建产物为 `bin\Trylet.exe`，在 x64、ARM64 Windows 主机上分别构建对应架构。也可在 [GitHub Actions 的 CD 工作流](https://github.com/sunnyhmz7010/Trylet/actions/workflows/cd.yml)点击 **Run workflow**，构建完成后按电脑架构直接下载带版本号的 EXE。
 
-发布 GitHub Release 时，CD 会分别在 x64、ARM64 运行器上原生构建和测试，附加 `Trylet-windows-<架构>.exe`、`Trylet-windows-<架构>-portable.zip` 和各自的 SHA256 校验文件；便携 ZIP 内仍为 `Trylet.exe`。两种架构共用的 `Trylet-source.zip` 只上传一次，校验值列在 amd64 的校验文件中。使用仓库自带的 `GITHUB_TOKEN`，无需配置额外令牌。
+发布 GitHub Release 时，CD 分别在 x64、ARM64 运行器上原生构建，仅上传 `Trylet-v<版本>-windows-amd64.exe` 和 `Trylet-v<版本>-windows-arm64.exe`。手动构建也直接上传 EXE，不额外压缩。发布使用仓库自带的 `GITHUB_TOKEN`，无需配置额外令牌。
 
 ## 📖 使用说明
 
@@ -115,7 +115,7 @@ npm --prefix frontend run build
 
 先构建以生成 Go 嵌入的前端资源。模拟 GitHub API 测试只监听回环地址，不读取真实令牌或写入真实仓库。
 
-构建后运行 `.\build\package-release.ps1`，可在本地生成与 Actions 相同的 `release\windows` 交付文件。CD 复用 `build.ps1`，并在打包前执行 Go 测试、`go vet` 和前端测试。
+CD 复用 `build.ps1`，仅执行构建与上传。上述测试和检查命令供本地开发使用。
 
 ## 🔐 安全报告
 
