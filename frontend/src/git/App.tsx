@@ -459,7 +459,7 @@ export default function App({ active }: { active: boolean }) {
                   }}
                 >
                   <Icon name="branch" size={15} />
-                  {t("分支")}
+                  {t("提交历史")}
                 </button>
               </div>
               <span className="toolbar-spacer" />
