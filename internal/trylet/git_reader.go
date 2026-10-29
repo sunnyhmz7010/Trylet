@@ -53,6 +53,7 @@ type GitReader struct {
 	store      *Store
 	tempRoot   string
 	binary     string
+	timeout    time.Duration
 	lfsCommand string
 	gate       chan struct{}
 	mu         sync.Mutex
@@ -83,7 +84,11 @@ func (g *GitReader) run(root string, args []string, input []byte, limit int, all
 	if g.binary == "" {
 		return nil, false, gitError("gitUnavailable", "没有检测到 Git，请指定或安装本机 Git 后重试。")
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
+	timeout := g.timeout
+	if timeout == 0 {
+		timeout = 8 * time.Second
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	select {
 	case g.gate <- struct{}{}:
@@ -126,7 +131,7 @@ func (g *GitReader) run(root string, args []string, input []byte, limit int, all
 	err = cmd.Wait()
 	_ = windows.TerminateJobObject(job, 1)
 	if ctx.Err() != nil {
-		return nil, false, gitError("timeout", "读取 Git 超过 8 秒，请重试或缩小仓库范围。")
+		return nil, false, gitError("timeout", fmt.Sprintf("Git 操作超过 %s，请重试。", timeout))
 	}
 	if err != nil {
 		code := cmd.ProcessState.ExitCode()

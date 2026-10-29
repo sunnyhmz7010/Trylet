@@ -149,9 +149,9 @@ export default function SkillsPanel({ active }: { active: boolean }) {
               <button className="skill-name" type="button" aria-expanded={expanded.has(item.id)} onClick={() => setExpanded((current) => { const next = new Set(current); if (next.has(item.id)) next.delete(item.id); else next.add(item.id); return next })}>
                 {expanded.has(item.id) ? <ChevronDown size={13}/> : <ChevronRight size={13}/>}<strong>{item.name}</strong>{item.linked && <Link2 size={13} aria-label="链接目录"/>}
               </button>
-              <span className="skill-state">{item.readOnly ? '系统内置 · 只读' : item.linked ? '链接' : item.missing ? '目录缺失' : item.mode === 'repository' ? `整仓库 · ${item.skills?.length ?? 0} 个技能` : `${item.skills?.length ?? 0} 个技能`}</span>
+              <span className="skill-state">{item.readOnly ? '系统内置 · 只读' : item.linked ? '链接' : item.missing ? '目录缺失' : item.mode === 'git' ? `Git 克隆 · ${item.skills?.length ?? 0} 个技能` : item.mode === 'repository' ? `整仓库 · ${item.skills?.length ?? 0} 个技能` : `${item.skills?.length ?? 0} 个技能`}</span>
               <div className="skill-actions">
-                {!item.readOnly && <><Button variant="ghost" size="xs" disabled={!item.repository || item.linked || busy.has(item.id)} title={item.repository ? '从来源仓库更新' : '未绑定仓库，无法更新'} onClick={() => void update(item)}>{busy.has(item.id) ? <LoaderCircle size={12} className="animate-spin"/> : <RefreshCw size={12}/>}更新</Button>
+                {!item.readOnly && <><Button variant="ghost" size="xs" disabled={!item.repository || item.linked || (item.mode === 'git' && item.missing) || busy.has(item.id)} title={item.mode === 'git' ? '快进更新当前 Git 分支，保留本地改动' : item.repository ? '从来源仓库更新' : '未绑定仓库，无法更新'} onClick={() => void update(item)}>{busy.has(item.id) ? <LoaderCircle size={12} className="animate-spin"/> : <RefreshCw size={12}/>}更新</Button>
                   <button type="button" className="icon-button skill-delete" aria-label={`删除 ${item.name}`} title="删除" disabled={busy.has(item.id)} onClick={() => setDeleteItem(item)}><Trash2 size={13}/></button></>}
               </div>
             </div>

@@ -220,6 +220,120 @@ func TestSkillsWholeRepositoryExistingAndSystemProtection(t *testing.T) {
 	skillTestRead(t, filepath.Join(location.Path, ".system", "builtin", "SKILL.md"), "builtin")
 }
 
+func TestSkillsAutomaticallyTrackGitClones(t *testing.T) {
+	s, _, location := skillTestService(t)
+	_, source, _ := gitFixture(t)
+	writeGitFixture(t, source, "skills/alpha/SKILL.md", "alpha v1")
+	fixtureGit(t, source, "add", ".")
+	fixtureGit(t, source, "commit", "-m", "技能初始版本")
+	revision := fixtureGit(t, source, "rev-parse", "HEAD")
+	fixtureGit(t, source, "remote", "add", "origin", "https://github.com/acme/catalog.git")
+	for _, test := range []struct{ name, remote string }{
+		{"https", "https://github.com/acme/catalog.git"},
+		{"ssh", "git@github.com:acme/catalog.git"},
+		{"ssh-url", "ssh://git@github.com/acme/catalog.git"},
+		{"worktree", "https://github.com/acme/catalog.git"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			path := filepath.Join(location.Path, test.name)
+			if err := os.MkdirAll(location.Path, 0755); err != nil {
+				t.Fatal(err)
+			}
+			if test.name == "worktree" {
+				fixtureGit(t, source, "worktree", "add", "--detach", path, "HEAD")
+			} else {
+				fixtureGit(t, source, "clone", "--no-hardlinks", source, path)
+				fixtureGit(t, path, "remote", "set-url", "origin", test.remote)
+			}
+			items, err := s.ScanSkills(location.ID)
+			if err != nil {
+				t.Fatal(err)
+			}
+			index := slices.IndexFunc(items, func(item SkillInstallation) bool { return item.Name == test.name })
+			if index < 0 {
+				t.Fatalf("未发现 Git 技能：%+v", items)
+			}
+			item := items[index]
+			if item.Repository != "acme/catalog" || item.Mode != "git" || item.Revision != revision || item.SourcePath != "." || len(item.Skills) != 1 || item.Issue != "" {
+				t.Fatalf("Git 来源识别错误：%+v", item)
+			}
+			reopened, err := NewStore(s.store.root, s.store.tempDir)
+			if err != nil || reopened.skillsState().Bindings[item.ID].Mode != "git" {
+				t.Fatalf("Git 来源未持久化：%v", err)
+			}
+			if test.name == "worktree" {
+				if _, err := s.UpdateSkill(item.ID, ""); err == nil || !strings.Contains(err.Error(), "上游") {
+					t.Fatalf("分离 HEAD 不能被 ZIP 更新替换：%v", err)
+				}
+			}
+			if got := fixtureGit(t, path, "rev-parse", "HEAD"); got != revision {
+				t.Fatalf("扫描改变了 Git 提交：%s", got)
+			}
+		})
+	}
+}
+
+func TestSkillsGitUpdatesPreserveWorkspaceAndHistory(t *testing.T) {
+	s, _, location := skillTestService(t)
+	_, source, _ := gitFixture(t)
+	writeGitFixture(t, source, "SKILL.md", "v1")
+	fixtureGit(t, source, "add", ".")
+	fixtureGit(t, source, "commit", "-m", "初始版本")
+	path := filepath.Join(location.Path, "catalog")
+	if err := os.MkdirAll(location.Path, 0755); err != nil {
+		t.Fatal(err)
+	}
+	fixtureGit(t, source, "clone", "--no-hardlinks", source, path)
+	record := skillRecord{ID: skillPathID(path), Root: location.Path, Name: "catalog", Repository: "acme/catalog", SourcePath: ".", Mode: "git", Revision: fixtureGit(t, path, "rev-parse", "HEAD")}
+	writeGitFixture(t, source, "SKILL.md", "v2")
+	fixtureGit(t, source, "commit", "-am", "远端更新")
+	result, err := s.updateGitSkill(record)
+	if err != nil || result.Warning != "" {
+		t.Fatalf("本地远端快进更新失败：%+v %v", result, err)
+	}
+	skillTestRead(t, filepath.Join(path, "SKILL.md"), "v2")
+	if got := fixtureGit(t, path, "rev-parse", "HEAD"); got != fixtureGit(t, source, "rev-parse", "HEAD") {
+		t.Fatalf("Git 历史未随更新快进：%s", got)
+	}
+	fixtureGit(t, path, "remote", "set-url", "origin", "https://github.com/acme/catalog.git")
+	writeGitFixture(t, path, "SKILL.md", "本地修改")
+	if _, err := s.UpdateSkill(record.ID, "任何覆盖确认都不生效"); err == nil || !strings.Contains(err.Error(), "本地改动") {
+		t.Fatalf("Git 本地修改必须阻止覆盖：%v", err)
+	}
+	skillTestRead(t, filepath.Join(path, "SKILL.md"), "本地修改")
+	writeGitFixture(t, path, "SKILL.md", "v2")
+	fixtureGit(t, path, "remote", "set-url", "origin", source)
+	fixtureGit(t, path, "config", "user.name", "Trylet Test")
+	fixtureGit(t, path, "config", "user.email", "local-test@example.invalid")
+	writeGitFixture(t, path, "local.txt", "保留本地提交")
+	fixtureGit(t, path, "add", ".")
+	fixtureGit(t, path, "commit", "-m", "本地提交")
+	localRevision := fixtureGit(t, path, "rev-parse", "HEAD")
+	writeGitFixture(t, source, "SKILL.md", "v3")
+	fixtureGit(t, source, "commit", "-am", "远端再次更新")
+	if _, err := s.updateGitSkill(record); err == nil {
+		t.Fatal("分叉分支不能自动合并或重置")
+	}
+	if got := fixtureGit(t, path, "rev-parse", "HEAD"); got != localRevision {
+		t.Fatalf("本地提交被改写：%s", got)
+	}
+	skillTestRead(t, filepath.Join(path, "SKILL.md"), "v2")
+	skillTestRead(t, filepath.Join(path, "local.txt"), "保留本地提交")
+	ignoredPath := filepath.Join(location.Path, "ignored")
+	fixtureGit(t, source, "clone", "--no-hardlinks", source, ignoredPath)
+	writeGitFixture(t, ignoredPath, ".git/info/exclude", "ignored.txt\n")
+	writeGitFixture(t, ignoredPath, "ignored.txt", "保留本地忽略文件")
+	record.Name, record.ID = "ignored", skillPathID(ignoredPath)
+	record.Revision = fixtureGit(t, ignoredPath, "rev-parse", "HEAD")
+	writeGitFixture(t, source, "ignored.txt", "远端新增同名文件")
+	fixtureGit(t, source, "add", ".")
+	fixtureGit(t, source, "commit", "-m", "远端新增文件")
+	if _, err := s.updateGitSkill(record); err == nil {
+		t.Fatal("Git 更新不能覆盖本地忽略文件")
+	}
+	skillTestRead(t, filepath.Join(ignoredPath, "ignored.txt"), "保留本地忽略文件")
+}
+
 func TestSkillsUpdateProtectsLocalChangesAndMissingSources(t *testing.T) {
 	s, remote, location := skillTestService(t)
 	installed := skillTestInstall(t, s, location, true, "skills/alpha")[0]

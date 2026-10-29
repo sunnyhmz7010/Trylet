@@ -205,6 +205,7 @@ func (s *Service) ScanSkills(locationID string) ([]SkillInstallation, error) {
 	state := s.store.skillsState()
 	items := []SkillInstallation{}
 	seen := map[string]bool{}
+	bindingsChanged := false
 	root, err := os.OpenRoot(location.Path)
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
 		return nil, fmt.Errorf("读取 Skills 目录：%w", err)
@@ -244,6 +245,19 @@ func (s *Service) ScanSkills(locationID string) ([]SkillInstallation, error) {
 			if len(item.Skills) == 0 && !linked && !bound && item.Issue == "" {
 				continue
 			}
+			if !linked && !item.ReadOnly && len(item.Skills) > 0 {
+				detected, detectErr := skillGitRecord(path)
+				if detectErr == nil {
+					if !bound || record.Mode != detected.Mode || record.Repository != detected.Repository || record.Revision != detected.Revision {
+						state.Bindings[id] = detected
+						bindingsChanged = true
+					}
+					record, bound = detected, true
+				} else if !errors.Is(detectErr, os.ErrNotExist) {
+					item.Issue = "读取 Git 来源失败：" + detectErr.Error()
+					bound = false
+				}
+			}
 			if bound {
 				item.Repository, item.SourcePath, item.Mode, item.Revision = record.Repository, record.SourcePath, record.Mode, record.Revision
 			}
@@ -256,9 +270,93 @@ func (s *Service) ScanSkills(locationID string) ([]SkillInstallation, error) {
 			continue
 		}
 		items = append(items, SkillInstallation{ID: id, LocationID: location.ID, Name: record.Name, Path: filepath.Join(record.Root, record.Name), Skills: []SkillEntry{}, Repository: record.Repository, SourcePath: record.SourcePath, Mode: record.Mode, Revision: record.Revision, Missing: true, Issue: "安装目录已不存在，可更新恢复或删除绑定"})
+		if record.Mode == "git" {
+			items[len(items)-1].Issue = "Git 克隆目录已不存在，请重新克隆或删除绑定"
+		}
+	}
+	if bindingsChanged {
+		if err := s.store.saveSkills(state); err != nil {
+			return nil, fmt.Errorf("保存 Git 来源失败：%w", err)
+		}
 	}
 	sort.Slice(items, func(i, j int) bool { return strings.ToLower(items[i].Name) < strings.ToLower(items[j].Name) })
 	return items, nil
+}
+
+func skillGitRecord(path string) (skillRecord, error) {
+	if _, err := os.Lstat(filepath.Join(path, ".git")); err != nil {
+		return skillRecord{}, err
+	}
+	info, err := os.Lstat(path)
+	if err != nil {
+		return skillRecord{}, err
+	}
+	if !info.IsDir() || skillIsLink(info) || protectedSkillPath(path) {
+		return skillRecord{}, errors.New("不能更新链接或系统内置 Git 目录")
+	}
+	git := NewGitReader(nil, "", nil)
+	remote, err := git.text(path, "remote", "get-url", "origin")
+	if err != nil {
+		return skillRecord{}, err
+	}
+	if strings.HasPrefix(remote, "git@github.com:") {
+		remote = strings.TrimPrefix(remote, "git@github.com:")
+	} else if strings.HasPrefix(remote, "ssh://git@github.com/") {
+		remote = strings.TrimPrefix(remote, "ssh://git@github.com/")
+	} else if !strings.Contains(remote, "://") {
+		return skillRecord{}, errors.New("origin 不是支持的 GitHub HTTPS 或 SSH 仓库地址")
+	}
+	repository, err := skillRepository(remote)
+	if err != nil {
+		return skillRecord{}, errors.New("origin 不是支持的 GitHub HTTPS 或 SSH 仓库地址")
+	}
+	revision, err := git.text(path, "rev-parse", "--verify", "HEAD")
+	if err != nil {
+		return skillRecord{}, err
+	}
+	return skillRecord{ID: skillPathID(path), Root: filepath.Dir(path), Name: filepath.Base(path), Repository: repository, SourcePath: ".", Mode: "git", Revision: revision}, nil
+}
+
+func (s *Service) updateGitSkill(record skillRecord) (SkillUpdateResult, error) {
+	path := filepath.Join(record.Root, record.Name)
+	git := NewGitReader(nil, "", nil)
+	if err := git.checkFilters(path); err != nil {
+		return SkillUpdateResult{}, err
+	}
+	status, err := git.text(path, "status", "--porcelain=v1", "--untracked-files=normal", "--ignore-submodules=none")
+	if err != nil {
+		return SkillUpdateResult{}, err
+	}
+	if status != "" {
+		return SkillUpdateResult{}, errors.New("Git 工作区存在本地改动，请先自行提交或处理后再更新；不会覆盖或自动暂存")
+	}
+	upstream, err := git.text(path, "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{upstream}")
+	if err != nil || !strings.HasPrefix(upstream, "origin/") {
+		return SkillUpdateResult{}, errors.New("当前分支未跟踪 origin 的上游分支，请先在 Git 中设置后再更新")
+	}
+	// Git 克隆只快进当前分支，保留 .git、本地提交与用户选择的分支。
+	git.timeout = 2 * time.Minute
+	if _, err := git.text(path, "-c", "core.hooksPath="+os.DevNull, "fetch", "--no-recurse-submodules", "origin"); err != nil {
+		return SkillUpdateResult{}, fmt.Errorf("Git 获取更新失败：%w", err)
+	}
+	if _, err := git.text(path, "-c", "core.hooksPath="+os.DevNull, "merge", "--ff-only", "--no-edit", "--no-autostash", "--no-overwrite-ignore", upstream); err != nil {
+		return SkillUpdateResult{}, fmt.Errorf("Git 快进更新失败，未执行覆盖或重置：%w", err)
+	}
+	revision, err := git.text(path, "rev-parse", "--verify", "HEAD")
+	if err != nil {
+		return SkillUpdateResult{}, fmt.Errorf("Git 更新已完成，但读取当前版本失败：%w", err)
+	}
+	result := SkillUpdateResult{Message: "已更新当前 Git 分支"}
+	if revision == record.Revision {
+		result.Message = "已是最新版本（当前 Git 分支无需快进）"
+	}
+	record.Revision = revision
+	state := s.store.skillsState()
+	state.Bindings[record.ID] = record
+	if err := s.store.saveSkills(state); err != nil {
+		result.Warning = "Git 更新已完成，但来源记录保存失败：" + err.Error()
+	}
+	return result, nil
 }
 
 func validSkillName(name string) bool {
@@ -545,6 +643,14 @@ func (s *Service) UpdateSkill(id, confirmation string) (SkillUpdateResult, error
 	record, exists := s.store.skillsState().Bindings[id]
 	if !exists || !validSkillTarget(record.Name) || skillPathID(filepath.Join(record.Root, record.Name)) != id {
 		return SkillUpdateResult{}, errors.New("技能尚未绑定仓库，或安装记录无效")
+	}
+	// 即使安装记录仍是 ZIP 模式，也不能用快照替换后来放入的 Git 工作区。
+	detected, detectErr := skillGitRecord(filepath.Join(record.Root, record.Name))
+	if record.Mode == "git" || !errors.Is(detectErr, os.ErrNotExist) {
+		if detectErr != nil {
+			return SkillUpdateResult{}, fmt.Errorf("读取 Git 来源失败，请刷新列表或检查克隆目录：%w", detectErr)
+		}
+		return s.updateGitSkill(detected)
 	}
 	root, err := os.OpenRoot(record.Root)
 	files := map[string]string{}
