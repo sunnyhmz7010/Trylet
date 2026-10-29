@@ -39,7 +39,7 @@ export default function PublishDialog({ draft, settings, onClose, onPublished }:
     previous ? previous.path.split('/').slice(0, -1).join('/') : localDate(),
   )
   const [filename, setFilename] = useState(
-    previous?.path.split('/').at(-1) ??
+    previous?.path.split('/').at(-1)?.replace(/\.[^.]+$/, extensions[draft.language as Language]) ??
       `practice-${timeSuffix()}${extensions[draft.language as Language]}`,
   )
   const [message, setMessage] = useState(`feat(practice): 添加 ${filename}`)
@@ -50,7 +50,9 @@ export default function PublishDialog({ draft, settings, onClose, onPublished }:
   >(null)
   const [dirInfo, setDirInfo] = useState<Directory | null>(null)
   const [repositoryLoading, setRepositoryLoading] = useState(true)
-  const [directoryLoading, setDirectoryLoading] = useState(true)
+  const [directoryLoading, setDirectoryLoading] = useState(false)
+  const [repositoryRetry, setRepositoryRetry] = useState(0)
+  const [directoryRetry, setDirectoryRetry] = useState(0)
   const [repositoryError, setRepositoryError] = useState('')
   const [directoryError, setDirectoryError] = useState('')
   const [error, setError] = useState('')
@@ -64,7 +66,10 @@ export default function PublishDialog({ draft, settings, onClose, onPublished }:
     let live = true
     setRepositoryLoading(true)
     setRepositoryError('')
+    setRepositoryInfo(null)
     setDirInfo(null)
+    setDirectoryError('')
+    setDirectoryLoading(false)
     const timer = setTimeout(() => {
       if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository)) {
         setRepositoryError('请填写 owner/repo 格式的仓库名称')
@@ -91,7 +96,7 @@ export default function PublishDialog({ draft, settings, onClose, onPublished }:
       live = false
       clearTimeout(timer)
     }
-  }, [repository])
+  }, [repository, repositoryRetry])
 
   useEffect(() => {
     if (!branch || repositoryInfo?.repository !== repository || repositoryLoading) return
@@ -112,7 +117,7 @@ export default function PublishDialog({ draft, settings, onClose, onPublished }:
     return () => {
       live = false
     }
-  }, [repository, repositoryInfo, branch, directory, repositoryLoading])
+  }, [repository, repositoryInfo, branch, directory, repositoryLoading, directoryRetry])
 
   useEffect(() => {
     if (!messageEdited.current) setMessage(`feat(practice): 添加 ${filename}`)
@@ -152,11 +157,12 @@ export default function PublishDialog({ draft, settings, onClose, onPublished }:
   const addFolder = () => {
     const name = newFolder.trim()
     if (!name || /[/\\:\r\n]/.test(name) || name === '.' || name === '..') {
-      setDirectoryError('请输入有效的单级目录名。')
+      setError('请输入有效的单级目录名。')
       return
     }
     setDirectory([directory, name].filter(Boolean).join('/'))
     setNewFolder('')
+    setError('')
   }
   const openURL = (value: string) => {
     void Desktop.OpenURL(value).catch((failure) => setError(errorText(failure)))
@@ -266,6 +272,9 @@ export default function PublishDialog({ draft, settings, onClose, onPublished }:
               {repositoryError && (
                 <p className="form-error" role="alert">
                   {repositoryError}
+                  <Button variant="link" size="sm" disabled={busy || repositoryLoading} onClick={() => setRepositoryRetry((value) => value + 1)}>
+                    重试读取仓库
+                  </Button>
                 </p>
               )}
               <div className="field">
@@ -290,9 +299,14 @@ export default function PublishDialog({ draft, settings, onClose, onPublished }:
                   <div className="folder-list">
                     {repositoryLoading || directoryLoading ? (
                       <div className="directory-empty">正在读取目录…</div>
+                    ) : !repositoryInfo ? (
+                      <div className="directory-empty">请先读取仓库信息。</div>
                     ) : directoryError ? (
                       <p className="form-error" role="alert">
                         {directoryError}
+                        <Button variant="link" size="sm" disabled={busy || directoryLoading} onClick={() => setDirectoryRetry((value) => value + 1)}>
+                          重试读取目录
+                        </Button>
                       </p>
                     ) : dirInfo?.names?.length ? (
                       dirInfo.names.map((name) => (
@@ -419,8 +433,11 @@ export default function PublishDialog({ draft, settings, onClose, onPublished }:
                 disabled={
                   busy ||
                   repositoryLoading ||
-                  !repositoryInfo ||
+                  repositoryInfo?.repository !== repository ||
                   !!repositoryError ||
+                  directoryLoading ||
+                  !!directoryError ||
+                  dirInfo?.path !== directory ||
                   !branch ||
                   !filename.trim() ||
                   !message.trim()

@@ -220,7 +220,18 @@ func (s *Store) History() []DraftSummary {
 	for _, d := range s.state.Drafts {
 		result = append(result, DraftSummary{ID: d.ID, Title: d.Title, Language: d.Language, UpdatedAt: d.UpdatedAt})
 	}
-	sort.Slice(result, func(i, j int) bool { return result[i].UpdatedAt > result[j].UpdatedAt })
+	// RFC3339Nano 的小数位数可变，同一秒内不能直接按字符串排序。
+	sort.Slice(result, func(i, j int) bool {
+		left, leftErr := time.Parse(time.RFC3339Nano, result[i].UpdatedAt)
+		right, rightErr := time.Parse(time.RFC3339Nano, result[j].UpdatedAt)
+		if (leftErr == nil) != (rightErr == nil) {
+			return leftErr == nil
+		}
+		if leftErr != nil {
+			return result[i].UpdatedAt > result[j].UpdatedAt
+		}
+		return left.After(right)
+	})
 	return result
 }
 

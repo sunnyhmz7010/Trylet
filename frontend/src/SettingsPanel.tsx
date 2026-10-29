@@ -10,6 +10,8 @@ import { errorText, languageNames } from './lib/language'
 
 type Props = {
   active: boolean
+  category: string
+  onCategoryChange: (category: string) => void
   settings: Settings
   tokenSet: boolean
   runtimes: RuntimeCandidate[]
@@ -22,7 +24,7 @@ type Props = {
 
 export default function SettingsPanel(props: Props) {
   const [form, setForm] = useState<Settings>(() => structuredClone(props.settings))
-  const [category, setCategory] = useState('general')
+  const category = props.category
   const [saved, setSaved] = useState(false)
   const [token, setToken] = useState('')
   const [hasToken, setHasToken] = useState(props.tokenSet)
@@ -87,7 +89,7 @@ export default function SettingsPanel(props: Props) {
         <header className="page-toolbar">
           <nav className="section-tabs" aria-label="设置分类">
             {[['general','常规'],['runtimes','运行环境'],['git','Git 浏览'],['github','GitHub 发布']].map(([id,label]) =>
-              <button key={id} type="button" aria-pressed={category===id} onClick={()=>setCategory(id)}>{label}</button>)}
+              <button key={id} type="button" aria-pressed={category===id} onClick={()=>props.onCategoryChange(id)}>{label}</button>)}
           </nav>
         </header>
         <div className="settings-body" onChange={()=>setSaved(false)}>

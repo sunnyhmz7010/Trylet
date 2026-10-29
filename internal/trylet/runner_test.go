@@ -126,6 +126,19 @@ func TestPortableStoreAndPublicationPreserved(t *testing.T) {
 	}
 }
 
+func TestHistoryOrdersDraftsChronologically(t *testing.T) {
+	store := &Store{state: diskState{Drafts: map[string]Draft{
+		"older":  {ID: "older", UpdatedAt: "2026-10-29T14:00:00Z"},
+		"newer":  {ID: "newer", UpdatedAt: "2026-10-29T14:00:00.1Z"},
+		"latest": {ID: "latest", UpdatedAt: "2026-10-29T14:00:00.100000001Z"},
+	}}}
+	for i, draft := range store.History() {
+		if expected := []string{"latest", "newer", "older"}[i]; draft.ID != expected {
+			t.Fatalf("历史第 %d 项应为 %s，实际为 %s", i, expected, draft.ID)
+		}
+	}
+}
+
 func TestPortableStoreFailedWritePreservesState(t *testing.T) {
 	root := t.TempDir()
 	s, err := NewStore(root, root)

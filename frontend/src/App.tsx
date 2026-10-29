@@ -82,6 +82,7 @@ export default function App() {
   const [bootError, setBootError] = useState('')
   const [saveStatus, setSaveStatus] = useState('已保存')
   const [activeView, setActiveView] = useState<'editor' | 'git' | 'skills' | 'settings'>('editor')
+  const [settingsCategory, setSettingsCategory] = useState('general')
   const activeViewRef = useRef(activeView)
   activeViewRef.current = activeView
   const [GitView, setGitView] = useState<ComponentType<{active:boolean}> | null>(null)
@@ -120,6 +121,7 @@ export default function App() {
     savedVersion = useRef(0),
     queuedVersion = useRef(0)
   const saveChain = useRef<Promise<Draft | undefined>>(Promise.resolve(undefined))
+  const saveFailure = useRef('')
   const publishAfterSettings = useRef(false)
   const handlers = useRef({
     hide: async () => {},
@@ -163,6 +165,11 @@ export default function App() {
         if (draftRef.current?.id === snapshot.id) {
           savedVersion.current = Math.max(savedVersion.current, revision)
           setSaveStatus(savedVersion.current === version.current ? '已保存' : '待保存')
+          if (saveFailure.current) {
+            const recovered = saveFailure.current
+            setError((current) => current === recovered ? '' : current)
+            saveFailure.current = ''
+          }
           setHistory((items) => [
             {
               id: result.id,
@@ -177,7 +184,8 @@ export default function App() {
       } catch (failure) {
         if (queuedVersion.current === revision) queuedVersion.current = savedVersion.current
         setSaveStatus('保存失败')
-        setError(errorText(failure))
+        saveFailure.current = errorText(failure)
+        setError(saveFailure.current)
         throw failure
       }
     }
@@ -353,6 +361,7 @@ export default function App() {
       candidates[0]
     if (!runtime) {
       setError(`未检测到可用的 ${languageNames[lang]} 环境，请在设置中指定可执行文件。`)
+      setSettingsCategory('runtimes')
       setActiveView('settings')
       return
     }
@@ -402,12 +411,14 @@ export default function App() {
     }
     if (!newSettings?.repository || !hasToken) {
       publishAfterSettings.current = true
+      setSettingsCategory('github')
       setActiveView('settings')
       return
     }
     try {
       const snapshot = await flush()
-      if (snapshot) setPublishDraft({ ...snapshot, language: lang })
+      if (snapshot && draftRef.current?.id === snapshot.id && !transitionLock.current)
+        setPublishDraft({ ...snapshot, language: lang })
     } catch (failure) {
       setError(errorText(failure))
     }
@@ -557,6 +568,15 @@ export default function App() {
         </button>
 
       </header>
+      {error && (
+        <div className="notice" role="alert">
+          <AlertCircle size={14} />
+          <span>{error}</span>
+          <button className="icon-button" aria-label="关闭提示" onClick={() => setError('')}>
+            <X size={13} />
+          </button>
+        </div>
+      )}
       <section id="panel-editor" role="tabpanel" aria-labelledby="tab-editor" className="editor-page" hidden={activeView!=='editor'}>
       <header className="page-toolbar">
         <Select disabled={switching} value={draft.language} onValueChange={changeLanguage}>
@@ -634,15 +654,6 @@ export default function App() {
 
       </header>
       <main className="workspace">
-        {error && (
-          <div className="notice" role="alert">
-            <AlertCircle size={14} />
-            <span>{error}</span>
-            <button className="icon-button" aria-label="关闭提示" onClick={() => setError('')}>
-              <X size={13} />
-            </button>
-          </div>
-        )}
         <div className="editor-holder">
           <Editor
             key={draft.id}
@@ -719,7 +730,7 @@ export default function App() {
           title={
             selectedRuntime ? `${selectedRuntime.name} · ${selectedRuntime.path}` : '选择本机环境'
           }
-          onClick={() => setActiveView('settings')}
+          onClick={() => {setSettingsCategory('runtimes');setActiveView('settings')}}
         >
           {detecting ? (
             <LoaderCircle size={11} className="animate-spin" />
@@ -783,6 +794,8 @@ export default function App() {
       <section id="panel-settings" role="tabpanel" aria-labelledby="tab-settings" className="settings-page" hidden={activeView!=='settings'}>
         <SettingsPanel
           active={activeView==='settings'}
+          category={settingsCategory}
+          onCategoryChange={setSettingsCategory}
           settings={settings}
           tokenSet={tokenSet}
           runtimes={runtimes}

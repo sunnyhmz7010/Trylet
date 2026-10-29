@@ -190,7 +190,7 @@ function DownloadSkills({ location, onClose, onChanged, onNotice }: { location: 
   const [preview, setPreview] = useState<SkillPreview | null>(null)
   const [selected, setSelected] = useState<string[]>([])
   const [results, setResults] = useState<SkillInstallResult[]>([])
-  const [busy, setBusy] = useState<'preview' | 'install' | ''>('')
+  const [busy, setBusy] = useState<'preview' | 'install' | 'reset' | ''>('')
   const [error, setError] = useState('')
   const previewRef = useRef('')
   useEffect(() => () => {
@@ -226,10 +226,12 @@ function DownloadSkills({ location, onClose, onChanged, onNotice }: { location: 
   }
   const reset = async () => {
     if (!preview || busy) return
+    setBusy('reset')
     try {
       await Backend.DiscardSkillPreview(preview.id)
       previewRef.current = ''; setPreview(null); setSelected([]); setResults([]); setError('')
     } catch (failure) { setError(errorText(failure)) }
+    finally { setBusy('') }
   }
   const completed = new Set(results.filter((item) => !item.error).map((item) => item.sourcePath))
   const available = preview?.candidates?.filter((item) => !completed.has(item.path)) ?? []
@@ -255,7 +257,7 @@ function DownloadSkills({ location, onClose, onChanged, onNotice }: { location: 
           </>}
           {error && <p className="form-error skills-download-error" role="alert"><AlertCircle size={13}/>{error}</p>}
         </div>
-        <div className="dialog-footer"><Button type="button" variant="outline" disabled={!!busy} onClick={onClose}>取消</Button><Button type="submit" disabled={!!busy || (!preview && !repository.trim()) || (!!preview && !selected.length)}>{busy && <LoaderCircle size={13} className="animate-spin"/>}{busy === 'preview' ? '下载并识别中…' : busy === 'install' ? '安装中…' : preview ? `安装 ${selected.length} 项` : '下载并识别'}</Button></div>
+        <div className="dialog-footer"><Button type="button" variant="outline" disabled={!!busy} onClick={onClose}>取消</Button><Button type="submit" disabled={!!busy || (!preview && !repository.trim()) || (!!preview && !selected.length)}>{busy && <LoaderCircle size={13} className="animate-spin"/>}{busy === 'preview' ? '下载并识别中…' : busy === 'install' ? '安装中…' : busy === 'reset' ? '正在清理预览…' : preview ? `安装 ${selected.length} 项` : '下载并识别'}</Button></div>
       </form>
     </DialogContent>
   </Dialog>
