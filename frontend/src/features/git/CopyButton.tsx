@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { CopyText as writeText } from "../../bindings/trylet/internal/desktop/desktop";
+import { CopyText as writeText } from "../../../bindings/trylet/internal/desktop/desktop";
 import { Icon } from "./Icon";
 import { text as t } from "./text";
 

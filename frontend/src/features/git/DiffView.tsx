@@ -7,7 +7,7 @@ import { FilePreviewDiff } from "./FilePreview";
 import { text as t } from "./text";
 import { ErrorMessage } from "./ErrorMessage";
 import "./lfs-diff.css";
-import { useSettings } from "../SettingsContext";
+import { useSettings } from "../settings/SettingsContext";
 export { patchRows } from "./patch";
 
 function Patch({ patch, active }: { patch: string; active?: boolean }) {

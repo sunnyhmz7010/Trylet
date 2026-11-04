@@ -21,7 +21,6 @@ import (
 
 	"trylet/internal/language"
 	winprocess "trylet/internal/process"
-	storage "trylet/internal/store"
 )
 
 func probeRuntime(candidate RuntimeCandidate) (RuntimeCandidate, error) {
@@ -125,7 +124,7 @@ func probeCompiler(candidate RuntimeCandidate) error {
 	return nil
 }
 
-func collectRuntimeCandidates(settings storage.Settings) []RuntimeCandidate {
+func collectRuntimeCandidates(customPaths map[string]string) []RuntimeCandidate {
 	var candidates []RuntimeCandidate
 	join := func(root string, parts ...string) string {
 		root = strings.Trim(strings.TrimSpace(root), `"`)
@@ -297,7 +296,7 @@ func collectRuntimeCandidates(settings storage.Settings) []RuntimeCandidate {
 			}
 		}
 	}
-	for language, p := range settings.CustomPaths {
+	for language, p := range customPaths {
 		kind := "gcc"
 		name := "自定义编译器"
 		switch {
@@ -311,7 +310,7 @@ func collectRuntimeCandidates(settings storage.Settings) []RuntimeCandidate {
 		}
 		add(language, name, p, kind)
 	}
-	candidates = append(candidates, discoverMSVC(settings.CustomPaths)...)
+	candidates = append(candidates, discoverMSVC(customPaths)...)
 	seen := map[string]int{}
 	unique := make([]RuntimeCandidate, 0, len(candidates))
 	for _, c := range candidates {
@@ -328,8 +327,8 @@ func collectRuntimeCandidates(settings storage.Settings) []RuntimeCandidate {
 	return unique
 }
 
-func DiscoverRuntimes(settings storage.Settings) []RuntimeCandidate {
-	unique := collectRuntimeCandidates(settings)
+func DiscoverRuntimes(customPaths map[string]string) []RuntimeCandidate {
+	unique := collectRuntimeCandidates(customPaths)
 	var mu sync.Mutex
 	var wg sync.WaitGroup
 	gate := make(chan struct{}, 6)

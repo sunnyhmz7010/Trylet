@@ -1,7 +1,7 @@
 package store
 
 import (
-	githubapi "trylet/internal/github"
+	publication "trylet/internal/publish"
 )
 
 type Settings struct {
@@ -23,12 +23,12 @@ type Settings struct {
 }
 
 type Draft struct {
-	ID        string                   `json:"id"`
-	Title     string                   `json:"title"`
-	Language  string                   `json:"language"`
-	Code      string                   `json:"code"`
-	UpdatedAt string                   `json:"updatedAt"`
-	Publish   *githubapi.PublishRecord `json:"publish,omitempty"`
+	ID        string                     `json:"id"`
+	Title     string                     `json:"title"`
+	Language  string                     `json:"language"`
+	Code      string                     `json:"code"`
+	UpdatedAt string                     `json:"updatedAt"`
+	Publish   *publication.PublishRecord `json:"publish,omitempty"`
 }
 
 type DraftInput struct {

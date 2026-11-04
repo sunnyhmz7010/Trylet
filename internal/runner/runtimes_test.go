@@ -7,8 +7,6 @@ import (
 	"slices"
 	"strings"
 	"testing"
-
-	storage "trylet/internal/store"
 )
 
 func isolateRuntimePaths(t *testing.T) string {
@@ -67,7 +65,7 @@ func TestCollectRuntimeCandidatesFindsUnactivatedInstallations(t *testing.T) {
 	writeRuntimeFixture(t, filepath.Join(root, "python.exe"), "")
 	writeRuntimeFixture(t, filepath.Join(root, "projects", "nested", ".venv", "Scripts", "python.exe"), "")
 	found := map[string]int{}
-	for _, candidate := range collectRuntimeCandidates(storage.Settings{CustomPaths: map[string]string{"c": filepath.Join(quoted, "gcc.exe")}}) {
+	for _, candidate := range collectRuntimeCandidates(map[string]string{"c": filepath.Join(quoted, "gcc.exe")}) {
 		key := candidate.Language + ":" + strings.ToLower(candidate.Path)
 		found[key]++
 		if found[key] != 1 {

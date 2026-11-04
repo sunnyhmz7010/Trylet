@@ -14,12 +14,11 @@ import (
 	"golang.org/x/sys/windows"
 
 	"trylet/internal/identity"
-	storage "trylet/internal/store"
 )
 
 // 同一测试进程共用环境探测结果，各用例仍分别验证编译、交互和进程清理。
 var installedRuntimeCandidates = sync.OnceValue(func() []RuntimeCandidate {
-	return DiscoverRuntimes(storage.Settings{})
+	return DiscoverRuntimes(nil)
 })
 
 func TestInstalledRuntimeMatrix(t *testing.T) {

@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { MergeView } from '@codemirror/merge'
 import { Compartment, EditorState } from '@codemirror/state'
 import { EditorView, lineNumbers } from '@codemirror/view'
-import { codeTheme } from './codeAppearance'
+import { codeTheme } from '../editor/codeAppearance'
 
 export default function Diff({ remote, local }: { remote: string; local: string }) {
   const mount = useRef<HTMLDivElement>(null)

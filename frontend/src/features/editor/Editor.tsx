@@ -4,7 +4,7 @@ import { Compartment, EditorState } from '@codemirror/state'
 import { placeholder } from '@codemirror/view'
 import { codeHighlighting, codeTheme } from './codeAppearance'
 import { copyHighlightedHTML } from './editorClipboard'
-import { errorText } from './lib/language'
+import { errorText } from '../../lib/language'
 
 type Props = {
   value: string

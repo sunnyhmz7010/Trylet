@@ -97,6 +97,7 @@ Trylet/
 │   ├── desktop/            # 窗口、托盘、快捷键与 Windows 选区监听
 │   ├── git/                # 本地仓库、差异、历史、监听与安全快进
 │   ├── github/             # GitHub API、文件发布与仓库下载
+│   ├── publish/            # 草稿与 GitHub 共用的发布目标、发布记录
 │   ├── runner/             # 环境检测、编译、ConPTY 执行与进程回收
 │   ├── skills/             # 技能扫描、安装、更新与下载取消
 │   ├── store/              # JSON 持久化、备份恢复与 Windows 凭据加密
@@ -106,9 +107,15 @@ Trylet/
 │   ├── language/           # 支持的源码语言与扩展名
 │   ├── process/            # Windows 隐藏进程与 Job Object
 │   └── testutil/           # 跨模块测试使用的本地文件与 Git 夹具
-├── frontend/embed.go        # 嵌入构建后的前端资源
-├── frontend/src/            # 编辑器、Git、设置和悬浮球
-├── frontend/bindings/       # Wails 生成的类型与接口
+├── frontend/
+│   ├── embed.go            # 嵌入构建后的前端资源
+│   ├── src/
+│   │   ├── app/            # 窗口布局、导航与跨功能操作协调
+│   │   ├── features/       # editor、git、skills、settings、publish
+│   │   ├── components/ui/  # 共用界面组件
+│   │   └── lib/            # 语言识别等共用逻辑
+│   ├── bindings/           # Wails 生成的类型与接口
+│   └── scripts/            # 构建产物体积检查
 ├── build/                  # 图标、清单与图标嵌入
 └── build.ps1               # Windows 构建入口
 ```

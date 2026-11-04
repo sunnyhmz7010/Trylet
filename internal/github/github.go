@@ -19,6 +19,7 @@ import (
 
 	"trylet/internal/identity"
 	"trylet/internal/language"
+	publication "trylet/internal/publish"
 )
 
 type Publisher struct {
@@ -175,7 +176,7 @@ type gitTree struct {
 	Truncated bool        `json:"truncated"`
 }
 
-func (p *Publisher) Directory(ctx context.Context, target PublishTarget, dir string) (Directory, error) {
+func (p *Publisher) Directory(ctx context.Context, target publication.PublishTarget, dir string) (Directory, error) {
 	result := Directory{Path: dir, Names: []string{}, Exists: true}
 	base, err := RepositoryEndpoint(target.Repository)
 	if err != nil {
@@ -238,7 +239,7 @@ type remoteFile struct {
 	Type     string `json:"type"`
 }
 
-func (p *Publisher) remote(ctx context.Context, t PublishTarget) (*remoteFile, string, error) {
+func (p *Publisher) remote(ctx context.Context, t publication.PublishTarget) (*remoteFile, string, error) {
 	base, err := RepositoryEndpoint(t.Repository)
 	if err != nil {
 		return nil, "", err
@@ -284,7 +285,7 @@ func (p *Publisher) Publish(ctx context.Context, r PublishRequest) (PublishResul
 		return PublishResult{}, err
 	}
 	if file != nil && content == r.Code {
-		return PublishResult{Status: "synced", Message: "内容已同步", Record: &PublishRecord{Target: r.Target, SHA: file.SHA, FileURL: file.HTMLURL}}, nil
+		return PublishResult{Status: "synced", Message: "内容已同步", Record: &publication.PublishRecord{Target: r.Target, SHA: file.SHA, FileURL: file.HTMLURL}}, nil
 	}
 	conflict := func(file *remoteFile, content, message string) PublishResult {
 		sha := ""
@@ -314,7 +315,7 @@ func (p *Publisher) Publish(ctx context.Context, r PublishRequest) (PublishResul
 		// 请求可能已提交但响应丢失；重读确认后才报告同步成功。
 		latest, latestCode, checkErr := p.remote(ctx, r.Target)
 		if checkErr == nil && latest != nil && latestCode == r.Code {
-			return PublishResult{Status: "synced", Message: "已核对远端，内容已同步", Record: &PublishRecord{Target: r.Target, SHA: latest.SHA, FileURL: latest.HTMLURL}}, nil
+			return PublishResult{Status: "synced", Message: "已核对远端，内容已同步", Record: &publication.PublishRecord{Target: r.Target, SHA: latest.SHA, FileURL: latest.HTMLURL}}, nil
 		}
 		var ae *apiError
 		if checkErr == nil && errors.As(err, &ae) && (ae.status == 409 || ae.status == 422) && latest != nil {
@@ -322,5 +323,5 @@ func (p *Publisher) Publish(ctx context.Context, r PublishRequest) (PublishResul
 		}
 		return PublishResult{}, err
 	}
-	return PublishResult{Status: "published", Message: "已提交到 GitHub", Record: &PublishRecord{Target: r.Target, SHA: response.Content.SHA, FileURL: response.Content.HTMLURL, CommitURL: response.Commit.HTMLURL}}, nil
+	return PublishResult{Status: "published", Message: "已提交到 GitHub", Record: &publication.PublishRecord{Target: r.Target, SHA: response.Content.SHA, FileURL: response.Content.HTMLURL, CommitURL: response.Commit.HTMLURL}}, nil
 }

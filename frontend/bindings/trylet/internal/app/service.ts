@@ -10,6 +10,9 @@ import { Call as $Call, CancellablePromise as $CancellablePromise } from "@wails
 import * as github$0 from "../github/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as publish$0 from "../publish/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as runner$0 from "../runner/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
@@ -27,7 +30,7 @@ export function DetectRuntimes(): $CancellablePromise<runner$0.RuntimeCandidate[
     return $Call.ByName("trylet/internal/app.Service.DetectRuntimes");
 }
 
-export function Directory(target: github$0.PublishTarget, dir: string): $CancellablePromise<github$0.Directory> {
+export function Directory(target: publish$0.PublishTarget, dir: string): $CancellablePromise<github$0.Directory> {
     return $Call.ByName("trylet/internal/app.Service.Directory", target, dir);
 }
 

@@ -1,4 +1,4 @@
-import * as Git from '../../bindings/trylet/internal/git/gitreader'
+import * as Git from '../../../bindings/trylet/internal/git/gitreader'
 import type { GitError } from './types'
 
 export function errorOf(error: unknown): GitError {

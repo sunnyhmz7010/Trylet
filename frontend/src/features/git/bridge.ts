@@ -1,5 +1,5 @@
 import { Events } from '@wailsio/runtime'
-import { ChooseGitRepository } from '../../bindings/trylet/internal/desktop/desktop'
+import { ChooseGitRepository } from '../../../bindings/trylet/internal/desktop/desktop'
 
 export async function open(_options?: unknown): Promise<string | null> {
   return (await ChooseGitRepository()) || null

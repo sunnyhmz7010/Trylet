@@ -14,7 +14,7 @@ func TestGlobalDisplayPreferencesPersist(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	service := NewService(store, nil, nil)
+	service := NewService(store, nil, nil, nil)
 	settings := store.Settings()
 	settings.Theme = "dark"
 	settings.GitDiffLayout = "unified"
@@ -57,7 +57,7 @@ func TestWindowPreferencesPersist(t *testing.T) {
 	if settings.CloseAction != "background" || settings.RememberCloseAction || !settings.BallEnabled || !settings.BallFollowWindow || settings.Theme != "dark" {
 		t.Fatalf("旧数据未补齐窗口默认值：%+v", settings)
 	}
-	service := NewService(store, nil, nil)
+	service := NewService(store, nil, nil, nil)
 	if err := store.RememberCloseAction("quit"); err != nil {
 		t.Fatal(err)
 	}

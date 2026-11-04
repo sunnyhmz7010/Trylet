@@ -1,17 +1,8 @@
 package github
 
-type PublishTarget struct {
-	Repository string `json:"repository"`
-	Branch     string `json:"branch"`
-	Path       string `json:"path"`
-}
-
-type PublishRecord struct {
-	Target    PublishTarget `json:"target"`
-	SHA       string        `json:"sha"`
-	FileURL   string        `json:"fileURL"`
-	CommitURL string        `json:"commitURL"`
-}
+import (
+	publication "trylet/internal/publish"
+)
 
 type RepositoryInfo struct {
 	DefaultBranch string   `json:"defaultBranch"`
@@ -25,19 +16,19 @@ type Directory struct {
 }
 
 type PublishRequest struct {
-	DraftID     string        `json:"draftID"`
-	Code        string        `json:"code"`
-	Language    string        `json:"language"`
-	Target      PublishTarget `json:"target"`
-	Message     string        `json:"message"`
-	ExpectedSHA string        `json:"expectedSHA"`
-	Confirmed   bool          `json:"confirmed"`
+	DraftID     string                    `json:"draftID"`
+	Code        string                    `json:"code"`
+	Language    string                    `json:"language"`
+	Target      publication.PublishTarget `json:"target"`
+	Message     string                    `json:"message"`
+	ExpectedSHA string                    `json:"expectedSHA"`
+	Confirmed   bool                      `json:"confirmed"`
 }
 
 type PublishResult struct {
-	Status     string         `json:"status"`
-	RemoteCode string         `json:"remoteCode"`
-	SHA        string         `json:"sha"`
-	Message    string         `json:"message"`
-	Record     *PublishRecord `json:"record,omitempty"`
+	Status     string                     `json:"status"`
+	RemoteCode string                     `json:"remoteCode"`
+	SHA        string                     `json:"sha"`
+	Message    string                     `json:"message"`
+	Record     *publication.PublishRecord `json:"record,omitempty"`
 }

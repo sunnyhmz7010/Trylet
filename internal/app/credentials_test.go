@@ -17,7 +17,7 @@ func TestPortableTokenEncryptionAndRemoval(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	service := NewService(s, execution.NewRunner(s.Root(), func(execution.RunEvent) {}), nil)
+	service := NewService(s, execution.NewRunner(s.Root(), func(execution.RunEvent) {}), nil, nil)
 	const fakeToken = "trylet-local-test-token-not-a-real-secret"
 	if err = service.SetToken(fakeToken); err != nil {
 		t.Fatal(err)
@@ -55,7 +55,7 @@ func TestPortableTokenEncryptionAndRemoval(t *testing.T) {
 	if _, err = reloaded.ReadToken(); err == nil {
 		t.Fatal("无效密文必须报错")
 	}
-	if _, err = NewService(reloaded, execution.NewRunner(s.Root(), func(execution.RunEvent) {}), nil).Bootstrap(); err != nil {
+	if _, err = NewService(reloaded, execution.NewRunner(s.Root(), func(execution.RunEvent) {}), nil, nil).Bootstrap(); err != nil {
 		t.Fatal("失效令牌不应阻止读取本地草稿")
 	}
 	if err = service.RemoveToken(); err != nil {

@@ -10,6 +10,7 @@ import (
 
 	githubapi "trylet/internal/github"
 	"trylet/internal/language"
+	publication "trylet/internal/publish"
 	execution "trylet/internal/runner"
 	storage "trylet/internal/store"
 )
@@ -25,10 +26,8 @@ type Service struct {
 	notice           string
 }
 
-func NewService(store *storage.Store, runner *execution.Runner, settingsChanged func(storage.Settings) error) *Service {
-	s := &Service{store: store, runner: runner, settingsChanged: settingsChanged}
-	s.publisher = githubapi.NewPublisher(store.ReadToken, "https://api.github.com")
-	return s
+func NewService(store *storage.Store, runner *execution.Runner, publisher *githubapi.Publisher, settingsChanged func(storage.Settings) error) *Service {
+	return &Service{store: store, runner: runner, publisher: publisher, settingsChanged: settingsChanged}
 }
 
 func (s *Service) SetToken(token string) error {
@@ -147,7 +146,7 @@ func (s *Service) DetectRuntimes() []execution.RuntimeCandidate {
 	s.detectGeneration++
 	generation := s.detectGeneration
 	s.mu.Unlock()
-	v := execution.DiscoverRuntimes(s.store.Settings())
+	v := execution.DiscoverRuntimes(s.store.Settings().CustomPaths)
 	s.mu.Lock()
 	if generation == s.detectGeneration {
 		s.candidates = v
@@ -189,7 +188,7 @@ func (s *Service) Repository(repository string) (githubapi.RepositoryInfo, error
 	return s.publisher.Repository(context.Background(), repository)
 }
 
-func (s *Service) Directory(target githubapi.PublishTarget, dir string) (githubapi.Directory, error) {
+func (s *Service) Directory(target publication.PublishTarget, dir string) (githubapi.Directory, error) {
 	return s.publisher.Directory(context.Background(), target, dir)
 }
 

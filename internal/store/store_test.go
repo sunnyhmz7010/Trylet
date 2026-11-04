@@ -8,7 +8,7 @@ import (
 
 	"golang.org/x/sys/windows"
 
-	githubapi "trylet/internal/github"
+	publication "trylet/internal/publish"
 )
 
 func TestPortableStoreAndPublicationPreserved(t *testing.T) {
@@ -25,7 +25,7 @@ func TestPortableStoreAndPublicationPreserved(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err = s.SavePublication(d.ID, githubapi.PublishRecord{SHA: "abc", Target: githubapi.PublishTarget{Repository: "owner/repo", Path: "test.py", Branch: "main"}}); err != nil {
+	if err = s.SavePublication(d.ID, publication.PublishRecord{SHA: "abc", Target: publication.PublishTarget{Repository: "owner/repo", Path: "test.py", Branch: "main"}}); err != nil {
 		t.Fatal(err)
 	}
 	result, err := s.SaveDraft(DraftInput{ID: d.ID, Code: "print(2)", Language: "python", Title: "练习"})

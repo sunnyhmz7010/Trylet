@@ -298,3 +298,45 @@ func extractSkillArchive(ctx context.Context, archive, directory string) error {
 	}
 	return nil
 }
+
+type skillDownload struct {
+	SkillPreview
+	directory string
+	created   time.Time
+	cancel    context.CancelFunc
+}
+
+func (d *skillDownload) candidate(path string) (SkillEntry, bool) {
+	for _, candidate := range d.Candidates {
+		if candidate.Path == path {
+			return candidate, true
+		}
+	}
+	return SkillEntry{}, false
+}
+
+func (s *Service) skillDownload(id string) (*skillDownload, error) {
+	download := s.skillDownloads[id]
+	if download == nil || download.directory == "" || time.Since(download.created) > 30*time.Minute {
+		return nil, errors.New("下载预览已过期，请重新识别仓库")
+	}
+	return download, nil
+}
+
+func (s *Service) removeSkillDownload(id string) {
+	if download := s.skillDownloads[id]; download != nil {
+		if download.cancel != nil {
+			download.cancel()
+		}
+		if download.directory != "" {
+			cleanupSkillDownload(download.directory)
+		}
+		delete(s.skillDownloads, id)
+	}
+}
+
+func (s *Service) DiscardSkillPreview(id string) {
+	s.skillsMu.Lock()
+	defer s.skillsMu.Unlock()
+	s.removeSkillDownload(id)
+}

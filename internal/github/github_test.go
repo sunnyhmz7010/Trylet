@@ -14,6 +14,7 @@ import (
 	"testing"
 
 	"trylet/internal/identity"
+	publication "trylet/internal/publish"
 )
 
 type testGitHub struct {
@@ -102,7 +103,7 @@ func fakePublisher(t *testing.T, g *testGitHub) *Publisher {
 }
 
 func publishFixture() PublishRequest {
-	return PublishRequest{DraftID: identity.New(), Code: "print('你好')\n", Language: "python", Target: PublishTarget{Repository: "owner/repo", Branch: "main", Path: "2026-10-27/练习.py"}, Message: "feat(practice): 添加练习"}
+	return PublishRequest{DraftID: identity.New(), Code: "print('你好')\n", Language: "python", Target: publication.PublishTarget{Repository: "owner/repo", Branch: "main", Path: "2026-10-27/练习.py"}, Message: "feat(practice): 添加练习"}
 }
 
 func TestPublishCreateIdenticalAndConflict(t *testing.T) {
@@ -185,7 +186,7 @@ func TestGitHubDirectoriesAndAllBranches(t *testing.T) {
 	if err != nil || len(info.Branches) != 101 || info.Branches[100] != "main" {
 		t.Fatalf("分支集合不完整：%+v %v", info, err)
 	}
-	target := PublishTarget{Repository: "owner/repo", Branch: "main"}
+	target := publication.PublishTarget{Repository: "owner/repo", Branch: "main"}
 	root, err := p.Directory(ctx, target, "")
 	if err != nil || len(root.Names) != 1 || root.Names[0] != "主题" {
 		t.Fatalf("根目录失败：%+v %v", root, err)

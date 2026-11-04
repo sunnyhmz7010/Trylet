@@ -8,14 +8,15 @@ import {
   Github,
   LoaderCircle,
 } from 'lucide-react'
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from './components/ui/dialog'
-import { Button } from './components/ui/button'
-import { Input } from './components/ui/input'
-import * as Backend from '../bindings/trylet/internal/app/service'
-import * as Desktop from '../bindings/trylet/internal/desktop/desktop'
-import type { Draft, Settings } from '../bindings/trylet/internal/store/models'
-import type { Directory, PublishRecord, PublishResult, RepositoryInfo } from '../bindings/trylet/internal/github/models'
-import { errorText, extensions, localDate, timeSuffix, type Language } from './lib/language'
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '../../components/ui/dialog'
+import { Button } from '../../components/ui/button'
+import { Input } from '../../components/ui/input'
+import * as Backend from '../../../bindings/trylet/internal/app/service'
+import * as Desktop from '../../../bindings/trylet/internal/desktop/desktop'
+import type { Draft, Settings } from '../../../bindings/trylet/internal/store/models'
+import type { Directory, PublishResult, RepositoryInfo } from '../../../bindings/trylet/internal/github/models'
+import type { PublishRecord } from '../../../bindings/trylet/internal/publish/models'
+import { errorText, extensions, localDate, timeSuffix, type Language } from '../../lib/language'
 
 const Diff = lazy(() => import('./Diff'))
 type Props = {

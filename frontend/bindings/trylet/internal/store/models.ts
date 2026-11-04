@@ -3,7 +3,7 @@
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
-import * as github$0 from "../github/models.js";
+import * as publish$0 from "../publish/models.js";
 
 export interface Draft {
     "id": string;
@@ -11,7 +11,7 @@ export interface Draft {
     "language": string;
     "code": string;
     "updatedAt": string;
-    "publish"?: github$0.PublishRecord | null;
+    "publish"?: publish$0.PublishRecord | null;
 }
 
 export interface DraftInput {

@@ -6,7 +6,7 @@ import { HistoryGraph } from "./HistoryGraph";
 import { Details, type DetailState } from "./Details";
 import { usePaneLayout } from "./usePaneLayout";
 import { Icon } from "./Icon";
-import { Button } from "../components/ui/button";
+import { Button } from "../../components/ui/button";
 import { Dropdown, type MenuOption } from "./Dropdown";
 import type { Selection } from "./types";
 import { ReadStatus } from "./ReadStatus";

@@ -3,9 +3,7 @@
 
 export type {
     Directory,
-    PublishRecord,
     PublishRequest,
     PublishResult,
-    PublishTarget,
     RepositoryInfo
 } from "./models.js";

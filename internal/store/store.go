@@ -14,9 +14,9 @@ import (
 
 	"golang.org/x/sys/windows"
 
-	githubapi "trylet/internal/github"
 	"trylet/internal/identity"
 	"trylet/internal/language"
+	publication "trylet/internal/publish"
 )
 
 type diskState struct {
@@ -226,7 +226,7 @@ func (s *Store) SaveDraft(in DraftInput) (Draft, error) {
 	return d, s.persist(d)
 }
 
-func (s *Store) SavePublication(id string, record githubapi.PublishRecord) error {
+func (s *Store) SavePublication(id string, record publication.PublishRecord) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	d, err := s.load(id)

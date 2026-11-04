@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { AlertCircle, LoaderCircle, X } from 'lucide-react'
-import GitApp from './git/App'
-import { loadPreferences } from './git/preferences'
-import './git/styles.css'
-import './git/themes.css'
+import GitApp from './App'
+import { loadPreferences } from './preferences'
+import './styles.css'
+import './themes.css'
 
 export default function GitPanel({ active }: { active: boolean }) {
   const [ready,setReady] = useState(false)
