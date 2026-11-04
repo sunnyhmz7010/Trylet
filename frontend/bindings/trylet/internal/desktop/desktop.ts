@@ -7,80 +7,80 @@ import { Call as $Call, CancellablePromise as $CancellablePromise } from "@wails
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
-import * as trylet$0 from "./internal/trylet/models.js";
+import * as trylet$0 from "../trylet/models.js";
 
 export function Appearance(): $CancellablePromise<string> {
-    return $Call.ByName("main.Desktop.Appearance");
+    return $Call.ByName("trylet/internal/desktop.Desktop.Appearance");
 }
 
 export function ChooseGitRepository(): $CancellablePromise<string> {
-    return $Call.ByName("main.Desktop.ChooseGitRepository");
+    return $Call.ByName("trylet/internal/desktop.Desktop.ChooseGitRepository");
 }
 
 export function ChooseSkillsDirectory(): $CancellablePromise<string> {
-    return $Call.ByName("main.Desktop.ChooseSkillsDirectory");
+    return $Call.ByName("trylet/internal/desktop.Desktop.ChooseSkillsDirectory");
 }
 
 export function CloseEditor(): $CancellablePromise<void> {
-    return $Call.ByName("main.Desktop.CloseEditor");
+    return $Call.ByName("trylet/internal/desktop.Desktop.CloseEditor");
 }
 
 export function CopyText(text: string): $CancellablePromise<void> {
-    return $Call.ByName("main.Desktop.CopyText", text);
+    return $Call.ByName("trylet/internal/desktop.Desktop.CopyText", text);
 }
 
 export function EditorReady(): $CancellablePromise<string> {
-    return $Call.ByName("main.Desktop.EditorReady");
+    return $Call.ByName("trylet/internal/desktop.Desktop.EditorReady");
 }
 
 export function ExportDraft(id: string, language: string): $CancellablePromise<string> {
-    return $Call.ByName("main.Desktop.ExportDraft", id, language);
+    return $Call.ByName("trylet/internal/desktop.Desktop.ExportDraft", id, language);
 }
 
 export function HideEditor(): $CancellablePromise<void> {
-    return $Call.ByName("main.Desktop.HideEditor");
+    return $Call.ByName("trylet/internal/desktop.Desktop.HideEditor");
 }
 
 export function MinimiseEditor(): $CancellablePromise<void> {
-    return $Call.ByName("main.Desktop.MinimiseEditor");
+    return $Call.ByName("trylet/internal/desktop.Desktop.MinimiseEditor");
 }
 
 export function OpenURL(raw: string): $CancellablePromise<void> {
-    return $Call.ByName("main.Desktop.OpenURL", raw);
+    return $Call.ByName("trylet/internal/desktop.Desktop.OpenURL", raw);
 }
 
 export function Quit(): $CancellablePromise<void> {
-    return $Call.ByName("main.Desktop.Quit");
+    return $Call.ByName("trylet/internal/desktop.Desktop.Quit");
 }
 
 export function RefreshSelection(): $CancellablePromise<void> {
-    return $Call.ByName("main.Desktop.RefreshSelection");
+    return $Call.ByName("trylet/internal/desktop.Desktop.RefreshSelection");
 }
 
 export function RememberCloseAction(action: string): $CancellablePromise<trylet$0.Settings> {
-    return $Call.ByName("main.Desktop.RememberCloseAction", action);
+    return $Call.ByName("trylet/internal/desktop.Desktop.RememberCloseAction", action);
 }
 
 export function SetBallWidth(width: number): $CancellablePromise<void> {
-    return $Call.ByName("main.Desktop.SetBallWidth", width);
+    return $Call.ByName("trylet/internal/desktop.Desktop.SetBallWidth", width);
 }
 
 export function SetPinned(value: boolean): $CancellablePromise<void> {
-    return $Call.ByName("main.Desktop.SetPinned", value);
+    return $Call.ByName("trylet/internal/desktop.Desktop.SetPinned", value);
 }
 
 export function ShowEditor(): $CancellablePromise<void> {
-    return $Call.ByName("main.Desktop.ShowEditor");
+    return $Call.ByName("trylet/internal/desktop.Desktop.ShowEditor");
 }
 
 export function SyncBallDPI(): $CancellablePromise<void> {
-    return $Call.ByName("main.Desktop.SyncBallDPI");
+    return $Call.ByName("trylet/internal/desktop.Desktop.SyncBallDPI");
 }
 
 export function ToggleEditor(): $CancellablePromise<void> {
-    return $Call.ByName("main.Desktop.ToggleEditor");
+    return $Call.ByName("trylet/internal/desktop.Desktop.ToggleEditor");
 }
 
 export function ToggleWindowMode(): $CancellablePromise<boolean> {
-    return $Call.ByName("main.Desktop.ToggleWindowMode");
+    return $Call.ByName("trylet/internal/desktop.Desktop.ToggleWindowMode");
 }

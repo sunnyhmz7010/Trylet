@@ -1,4 +1,4 @@
-import { Appearance, RefreshSelection, SetBallWidth, ShowEditor, SyncBallDPI } from '../bindings/trylet/desktop'
+import { Appearance, RefreshSelection, SetBallWidth, ShowEditor, SyncBallDPI } from '../bindings/trylet/internal/desktop/desktop'
 import brandGlyph from './brand.svg?raw'
 import './ball.css'
 import { Events } from '@wailsio/runtime'

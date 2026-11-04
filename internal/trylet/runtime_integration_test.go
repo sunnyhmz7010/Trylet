@@ -31,6 +31,7 @@ func TestInstalledRuntimeMatrix(t *testing.T) {
 		{"c", "msvc", "#include <stdio.h>\nint main(void){int n;printf(\"数字: \");scanf(\"%d\",&n);printf(\"中文结果=%d\\n\",n*2);return 0;}\n", "数字:", "21\r", "中文结果=42"},
 		{"cpp", "msvc", "#include <iostream>\nint main(){int n;std::cout<<\"数字: \";std::cin>>n;std::cout<<\"中文结果=\"<<n*2<<std::endl;}\n", "数字:", "21\r", "中文结果=42"},
 		{"c", "clang", "#include <stdio.h>\nint main(void){puts(\"中文结果=42\");}\n", "", "", "中文结果=42"},
+		{"cpp", "clang", "#include <iostream>\nint main(){std::cout<<\"中文结果=42\"<<std::endl;}\n", "", "", "中文结果=42"},
 	} {
 		t.Run(spec.language+"_"+spec.kind, func(t *testing.T) {
 			t.Parallel()

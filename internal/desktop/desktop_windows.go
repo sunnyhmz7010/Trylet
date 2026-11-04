@@ -1,7 +1,6 @@
-package main
+package desktop
 
 import (
-	"embed"
 	"fmt"
 	"io/fs"
 	"log"
@@ -19,12 +18,6 @@ import (
 	"golang.org/x/sys/windows"
 	"trylet/internal/trylet"
 )
-
-//go:embed all:frontend/dist
-var assets embed.FS
-
-//go:embed build/icon.png
-var appIcon []byte
 
 var instanceID = "trylet.desktop"
 
@@ -57,7 +50,8 @@ type Desktop struct {
 	selectionStop  chan struct{}
 }
 
-func main() {
+// Run 启动桌面应用，并处理同一可执行文件的辅助模式。
+func Run(assets fs.FS, appIcon []byte) {
 	if len(os.Args) > 1 && os.Args[1] == "--trylet-lfs-clean" {
 		if err := trylet.GitLFSClean(os.Stdin, os.Stdout); err != nil {
 			log.Print(err)
@@ -122,7 +116,7 @@ func main() {
 		}
 	})
 	desktop.git = gitReader
-	webAssets, err := fs.Sub(assets, "frontend/dist")
+	webAssets, err := fs.Sub(assets, "dist")
 	if err != nil {
 		startupError(err)
 		return

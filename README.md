@@ -91,11 +91,13 @@ Skills 下载使用 GitHub ZIP 快照，无需 Git；公开仓库无需令牌，
 
 ```text
 Trylet/
-├── main.go                  # 桌面窗口、托盘和快捷键
+├── cmd/trylet/              # 可执行入口与生成的 Windows 资源
+├── internal/desktop/        # 桌面窗口、托盘、快捷键与 Windows 选区监听
 ├── internal/trylet/         # 草稿、运行环境、退出清理、字符统计、执行、Git 与发布
+├── frontend/embed.go        # 嵌入构建后的前端资源
 ├── frontend/src/            # 编辑器、Git、设置和悬浮球
 ├── frontend/bindings/       # Wails 生成的类型与接口
-├── build/                  # 图标和 Windows 资源
+├── build/                  # 图标、清单与图标嵌入
 └── build.ps1               # Windows 构建入口
 ```
 

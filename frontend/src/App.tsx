@@ -23,7 +23,7 @@ import {
   X,
 } from 'lucide-react'
 import * as Backend from '../bindings/trylet/internal/trylet/service'
-import * as Desktop from '../bindings/trylet/desktop'
+import * as Desktop from '../bindings/trylet/internal/desktop/desktop'
 import type {
   Draft,
   DraftSummary,

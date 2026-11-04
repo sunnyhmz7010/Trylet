@@ -128,6 +128,61 @@ type outputWriter struct {
 
 func (w outputWriter) Write(b []byte) (int, error) { w.runner.output(w.id, b); return len(b), nil }
 
+func runtimeEnvironment(candidate RuntimeCandidate, dir string) []string {
+	env := candidate.Env
+	if env == nil {
+		env = os.Environ()
+	}
+	env = append(append([]string{}, env...), "PYTHONIOENCODING=utf-8", "PYTHONUTF8=1")
+	pathSet := false
+	for i, value := range env {
+		if key, old, ok := strings.Cut(value, "="); ok && strings.EqualFold(key, "PATH") {
+			env[i] = "PATH=" + filepath.Dir(candidate.Path) + string(os.PathListSeparator) + old
+			pathSet = true
+			break
+		}
+	}
+	if !pathSet {
+		env = append(env, "PATH="+filepath.Dir(candidate.Path))
+	}
+	// MSVC 开发环境也可能携带旧 TEMP；探测、编译和运行统一使用本次工作目录。
+	filtered := env[:0]
+	for _, value := range env {
+		key, _, _ := strings.Cut(value, "=")
+		switch strings.ToUpper(key) {
+		case "TEMP", "TMP", "TMPDIR", "PYTHONDONTWRITEBYTECODE":
+			continue
+		}
+		filtered = append(filtered, value)
+	}
+	env = append(filtered, "TEMP="+dir, "TMP="+dir, "TMPDIR="+dir, "PYTHONDONTWRITEBYTECODE=1")
+	if candidate.Kind == "msvc" {
+		env = append(env, "VSLANG=1033")
+	}
+	return env
+}
+
+func compileArguments(language, kind, source, binary string) []string {
+	std := "c17"
+	if language == "cpp" {
+		std = "c++17"
+	}
+	args := []string{"-std=" + std, "-Wall", "-Wextra", "-finput-charset=UTF-8", "-fexec-charset=UTF-8", source, "-o", binary}
+	if kind == "gcc" {
+		// 部分 MinGW 工具仍按 ANSI 解析路径；相对文件名和固定中间产物避免传入中文绝对路径。
+		args = append(args, "-save-temps=obj")
+	}
+	if kind == "msvc" {
+		args = []string{"/nologo", "/utf-8", "/W4", "/std:" + std, source, "/Fe:" + binary}
+		if language == "cpp" {
+			args = append(args, "/EHsc")
+		} else {
+			args = append(args, "/TC")
+		}
+	}
+	return args
+}
+
 func (r *Runner) execute(ctx context.Context, s *runSession, req RunRequest, runtime RuntimeCandidate) {
 	status, exit, message := "failed", -1, ""
 	started := time.Now()
@@ -159,56 +214,11 @@ func (r *Runner) execute(ctx context.Context, s *runSession, req RunRequest, run
 		return
 	}
 	program, args := runtime.Path, []string{}
-	env := runtime.Env
-	if env == nil {
-		env = os.Environ()
-	}
-	env = append(append([]string{}, env...), "PYTHONIOENCODING=utf-8", "PYTHONUTF8=1")
-	pathSet := false
-	for i, value := range env {
-		if key, old, ok := strings.Cut(value, "="); ok && strings.EqualFold(key, "PATH") {
-			env[i] = "PATH=" + filepath.Dir(runtime.Path) + string(os.PathListSeparator) + old
-			pathSet = true
-			break
-		}
-	}
-	if !pathSet {
-		env = append(env, "PATH="+filepath.Dir(runtime.Path))
-	}
-	// MSVC 开发环境也可能携带旧 TEMP；编译和运行统一使用同级工作目录。
-	filtered := env[:0]
-	for _, value := range env {
-		key, _, _ := strings.Cut(value, "=")
-		switch strings.ToUpper(key) {
-		case "TEMP", "TMP", "TMPDIR", "PYTHONDONTWRITEBYTECODE":
-			continue
-		}
-		filtered = append(filtered, value)
-	}
-	env = append(filtered, "TEMP="+dir, "TMP="+dir, "TMPDIR="+dir, "PYTHONDONTWRITEBYTECODE=1")
-	if runtime.Kind == "msvc" {
-		env = append(env, "VSLANG=1033")
-	}
+	env := runtimeEnvironment(runtime, dir)
 	if req.Language != "python" {
 		r.phase(s, "compiling")
 		binary := filepath.Join(dir, "practice.exe")
-		std := "c17"
-		if req.Language == "cpp" {
-			std = "c++17"
-		}
-		compileArgs := []string{"-std=" + std, "-Wall", "-Wextra", "-finput-charset=UTF-8", "-fexec-charset=UTF-8", filepath.Base(source), "-o", "practice.exe"}
-		if runtime.Kind == "gcc" {
-			// 部分 MinGW 工具仍按 ANSI 解析路径；相对文件名和固定中间产物避免传入中文绝对路径。
-			compileArgs = append(compileArgs, "-save-temps=obj")
-		}
-		if runtime.Kind == "msvc" {
-			compileArgs = []string{"/nologo", "/utf-8", "/W4", "/std:" + std, source, "/Fe:" + binary}
-			if req.Language == "cpp" {
-				compileArgs = append(compileArgs, "/EHsc")
-			} else {
-				compileArgs = append(compileArgs, "/TC")
-			}
-		}
+		compileArgs := compileArguments(req.Language, runtime.Kind, filepath.Base(source), filepath.Base(binary))
 		compileCtx, cancel := context.WithTimeout(ctx, 60*time.Second)
 		cmd := hiddenCommand(compileCtx, runtime.Path, compileArgs...)
 		cmd.Dir = dir

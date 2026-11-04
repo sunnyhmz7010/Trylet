@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from './compone
 import { Button } from './components/ui/button'
 import { Input } from './components/ui/input'
 import * as Backend from '../bindings/trylet/internal/trylet/service'
-import * as Desktop from '../bindings/trylet/desktop'
+import * as Desktop from '../bindings/trylet/internal/desktop/desktop'
 import type {
   Directory,
   Draft,
