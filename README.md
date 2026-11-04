@@ -13,7 +13,6 @@
 <p align="center">
   <a href="https://github.com/sunnyhmz7010/Trylet/releases"><img src="https://img.shields.io/github/v/release/sunnyhmz7010/Trylet?label=Release&amp;color=3b82f6" alt="Release" /></a>
   <a href="https://github.com/sunnyhmz7010/Trylet/blob/main/LICENSE"><img src="https://img.shields.io/github/license/sunnyhmz7010/Trylet?color=10b981" alt="License" /></a>
-  <a href="https://github.com/sunnyhmz7010/Trylet/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/sunnyhmz7010/Trylet/ci.yml?branch=main&amp;label=CI" alt="CI" /></a>
 </p>
 
 ---
@@ -65,7 +64,7 @@
 
 ## 📖 使用说明
 
-顶部四个图标标签依次是“编辑器”“Git”“Skills”和“设置”，悬停可查看名称。切换页面会保留草稿、终端和浏览状态；完整操作见 [使用说明](./使用说明.md)。
+顶部四个图标标签依次是“编辑器”“Git”“Skills”和“设置”，悬停可查看名称。切换页面会保留草稿、终端和浏览状态。
 
 ### ✍️ 编写与运行
 
@@ -104,6 +103,8 @@ print("你好，" + name + "！")
 
 通过 Trylet 安装的技能会自动记录来源；已有 Git 克隆可从 GitHub `origin` 识别来源。未绑定来源的技能无法直接更新。下载私有仓库复用设置中的令牌，需要该仓库的 `Contents` 读取权限。
 
+下载会显示连接、下载、解压和识别的实际阶段，可取消下载或关闭弹窗；取消后清理预览。安装写入期间需等待完成。
+
 ### 🫧 悬浮窗与选区统计
 
 在“设置 → 常规”管理悬浮窗。默认与主窗口联动：主窗口显示时隐藏，最小化或后台运行时显示；关闭联动可让两者同时显示。
@@ -130,7 +131,7 @@ print("你好，" + name + "！")
 | --- | --- |
 | EXE 同级 `Trylet.json` | 自动生成，保存草稿、设置、发布记录、Git 偏好、Skills 来源和加密令牌 |
 | EXE 同级 `Trylet.backup.json` | 上一份数据的备份，随保存更新，不含访问令牌 |
-| EXE 同级 `.Trylet-runtime` | 缓存、运行产物和 Skills 下载预览，正常退出后清理 |
+| EXE 同级 `.Trylet-runtime` | 缓存、运行产物和 Skills 下载预览，正常退出后清理；异常遗留在下次启动时重试清理 |
 | 所选 Skills 安装目录 | 技能文件本体，需要单独备份 |
 
 移动应用时将 `Trylet.json` 与 EXE 一起保留。令牌使用 Windows DPAPI 加密，更换电脑或 Windows 账户后需重新填写。主文件损坏且备份有效时，启动会询问是否恢复，并先另存损坏文件；备份可能不含最后一次编辑，恢复后需重新填写令牌。
@@ -181,9 +182,7 @@ Trylet/
 │   ├── src/components/ui/ # 共用界面组件
 │   └── bindings/          # Wails 生成的接口与类型
 ├── build/                 # 图标与 Windows 资源
-├── build.ps1              # Windows 构建入口
-├── 使用说明.md            # 完整操作说明
-└── THIRD_PARTY_NOTICES.txt # 第三方版权与许可证
+└── build.ps1              # Windows 构建入口
 ```
 
 ## 👨‍💻 本地开发

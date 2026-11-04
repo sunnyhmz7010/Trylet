@@ -9,11 +9,6 @@ import type {} from "../github.com/wailsapp/wails/v3/internal/eventdata.js";
 import "../github.com/wailsapp/wails/v3/internal/eventcreate.js";
 
 /**
- * Name of the custom event "trylet:clipboard-count".
- */
-export const TryletClipboardCount = "trylet:clipboard-count";
-
-/**
  * Name of the custom event "trylet:git-changed".
  */
 export const TryletGitChanged = "trylet:git-changed";
@@ -22,4 +17,24 @@ export const TryletGitChanged = "trylet:git-changed";
  * Name of the custom event "trylet:run".
  */
 export const TryletRun = "trylet:run";
+
+/**
+ * Name of the custom event "trylet:selection-count".
+ */
+export const TryletSelectionCount = "trylet:selection-count";
+
+/**
+ * Name of the custom event "trylet:settings".
+ */
+export const TryletSettings = "trylet:settings";
+
+/**
+ * Name of the custom event "trylet:skill-download".
+ */
+export const TryletSkillDownload = "trylet:skill-download";
+
+/**
+ * Name of the custom event "trylet:window-mode".
+ */
+export const TryletWindowMode = "trylet:window-mode";
 

@@ -1,24 +1,29 @@
-import { Appearance, RefreshClipboard, SyncBallDPI, ToggleEditor } from '../bindings/trylet/desktop'
+import { Appearance, RefreshSelection, SetBallWidth, ShowEditor, SyncBallDPI } from '../bindings/trylet/internal/desktop/desktop'
 import brandGlyph from './brand.svg?raw'
 import './ball.css'
 import { Events } from '@wailsio/runtime'
 import { watchAppearance } from './appearance'
 
 const ball = document.querySelector<HTMLButtonElement>('#ball')!
-ball.innerHTML = `<span id="ball-counts" hidden><span>计空格</span><b id="with-spaces"></b><span>不计空格</span><b id="without-spaces"></b></span><span class="ball-icon">${brandGlyph}</span>`
+ball.innerHTML = `<span id="ball-counts" hidden><span>字符数（不计空格）</span><b id="without-spaces"></b><span>字符数（计空格）</span><b id="with-spaces"></b></span><span class="ball-icon">${brandGlyph}</span>`
 const counts = document.querySelector<HTMLElement>('#ball-counts')!
 const withSpaces = document.querySelector<HTMLElement>('#with-spaces')!
 const withoutSpaces = document.querySelector<HTMLElement>('#without-spaces')!
-Events.On('trylet:clipboard-count', ({ data }) => {
+Events.On('trylet:selection-count', ({ data }) => {
   ball.classList.toggle('counting', data.hasText)
   counts.hidden = !data.hasText
   withSpaces.textContent = data.withSpaces.toLocaleString('zh-CN')
   withoutSpaces.textContent = data.withoutSpaces.toLocaleString('zh-CN')
-  const summary = data.hasText ? `上次复制的字符数：计空格 ${withSpaces.textContent}，不计空格 ${withoutSpaces.textContent}。` : ''
+  const summary = data.hasText ? `当前选中：字符数（不计空格）${withoutSpaces.textContent}，字符数（计空格）${withSpaces.textContent}。` : ''
   ball.title = data.error || `${summary}Trylet · 点击打开，拖动移动`
   ball.setAttribute('aria-label', `${summary}打开 Trylet`)
 })
-void RefreshClipboard().catch((error: unknown) => { ball.title = `统计剪贴板失败：${String(error)}` })
+new ResizeObserver(([entry]) => {
+  void SetBallWidth(Math.ceil(entry.borderBoxSize[0].inlineSize)).catch((error: unknown) => {
+    ball.title = `调整悬浮球宽度失败：${String(error)}`
+  })
+}).observe(ball, { box: 'border-box' })
+void RefreshSelection().catch((error: unknown) => { ball.title = `统计选中文字失败：${String(error)}` })
 let stopAppearance = watchAppearance('system')
 let appearanceVersion = 0
 const applyAppearance = (value: string) => { stopAppearance(); stopAppearance = watchAppearance(value) }
@@ -54,13 +59,15 @@ ball.addEventListener('pointermove', (event) => {
 })
 ball.addEventListener('click', () => {
   if (!moved)
-    void ToggleEditor().catch((error: unknown) => {
+    void ShowEditor().catch((error: unknown) => {
       ball.title = `打开失败：${String(error)}`
     })
 })
 ball.addEventListener('keydown', (event) => {
   if (event.key === 'Enter' || event.key === ' ') {
     event.preventDefault()
-    void ToggleEditor()
+    void ShowEditor().catch((error: unknown) => {
+      ball.title = `打开失败：${String(error)}`
+    })
   }
 })
