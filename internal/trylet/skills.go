@@ -1,6 +1,7 @@
 package trylet
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
@@ -10,6 +11,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"reflect"
 	"slices"
 	"sort"
 	"strings"
@@ -551,6 +553,11 @@ func (s *Service) replaceSkill(source *os.Root, record skillRecord, update bool,
 		return "", errors.New("同名目录已存在，已保留；如已绑定此仓库，请使用更新")
 	}
 	if update {
+		if _, err := root.Lstat(filepath.Join(record.Name, ".git")); err == nil {
+			return "", errors.New("安装目录已变为 Git 工作区，请刷新后使用 Git 更新")
+		} else if !errors.Is(err, os.ErrNotExist) {
+			return "", err
+		}
 		files, err := currentSkillFiles(root, record.Name)
 		if err != nil {
 			return "", err
@@ -671,11 +678,21 @@ func (s *Service) UpdateSkill(id, confirmation string) (SkillUpdateResult, error
 	if present && len(changes) > 0 && confirmation != token {
 		return SkillUpdateResult{NeedsConfirmation: true, Confirmation: token, Changes: changes}, nil
 	}
-	download, err := s.prepareSkillDownload(record.Repository, record.Mode == "extracted")
+	downloadID := newID()
+	s.skillsMu.Unlock()
+	_, err = s.PrepareSkillInstall(context.Background(), downloadID, record.Repository, record.Mode == "extracted")
+	s.skillsMu.Lock()
 	if err != nil {
 		return SkillUpdateResult{}, err
 	}
-	defer s.removeSkillDownload(download.ID)
+	defer s.removeSkillDownload(downloadID)
+	download, err := s.skillDownload(downloadID)
+	if err != nil {
+		return SkillUpdateResult{}, err
+	}
+	if current, exists := s.store.skillsState().Bindings[id]; !exists || !reflect.DeepEqual(current, record) {
+		return SkillUpdateResult{}, errors.New("安装记录在下载期间发生变化，请刷新后重新更新")
+	}
 	if record.Mode == "extracted" {
 		if _, found := download.candidate(record.SourcePath); !found {
 			return SkillUpdateResult{}, fmt.Errorf("仓库中的 %s 已不存在，已保留本地技能", record.SourcePath)
@@ -793,6 +810,7 @@ type skillDownload struct {
 	SkillPreview
 	directory string
 	created   time.Time
+	cancel    context.CancelFunc
 }
 
 func (d *skillDownload) candidate(path string) (SkillEntry, bool) {
@@ -806,7 +824,7 @@ func (d *skillDownload) candidate(path string) (SkillEntry, bool) {
 
 func (s *Service) skillDownload(id string) (*skillDownload, error) {
 	download := s.skillDownloads[id]
-	if download == nil || time.Since(download.created) > 30*time.Minute {
+	if download == nil || download.directory == "" || time.Since(download.created) > 30*time.Minute {
 		return nil, errors.New("下载预览已过期，请重新识别仓库")
 	}
 	return download, nil
@@ -814,8 +832,11 @@ func (s *Service) skillDownload(id string) (*skillDownload, error) {
 
 func (s *Service) removeSkillDownload(id string) {
 	if download := s.skillDownloads[id]; download != nil {
-		if err := os.RemoveAll(download.directory); err != nil {
-			log.Printf("清理技能下载 %s：%v", download.directory, err)
+		if download.cancel != nil {
+			download.cancel()
+		}
+		if download.directory != "" {
+			cleanupSkillDownload(download.directory)
 		}
 		delete(s.skillDownloads, id)
 	}

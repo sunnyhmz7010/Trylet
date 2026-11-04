@@ -5,6 +5,10 @@
 // @ts-ignore: Unused imports
 import { Call as $Call, CancellablePromise as $CancellablePromise } from "@wailsio/runtime";
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import * as trylet$0 from "./internal/trylet/models.js";
+
 export function Appearance(): $CancellablePromise<string> {
     return $Call.ByName("main.Desktop.Appearance");
 }
@@ -17,6 +21,10 @@ export function ChooseSkillsDirectory(): $CancellablePromise<string> {
     return $Call.ByName("main.Desktop.ChooseSkillsDirectory");
 }
 
+export function CloseEditor(): $CancellablePromise<void> {
+    return $Call.ByName("main.Desktop.CloseEditor");
+}
+
 export function CopyText(text: string): $CancellablePromise<void> {
     return $Call.ByName("main.Desktop.CopyText", text);
 }
@@ -25,8 +33,16 @@ export function EditorReady(): $CancellablePromise<string> {
     return $Call.ByName("main.Desktop.EditorReady");
 }
 
+export function ExportDraft(id: string, language: string): $CancellablePromise<string> {
+    return $Call.ByName("main.Desktop.ExportDraft", id, language);
+}
+
 export function HideEditor(): $CancellablePromise<void> {
     return $Call.ByName("main.Desktop.HideEditor");
+}
+
+export function MinimiseEditor(): $CancellablePromise<void> {
+    return $Call.ByName("main.Desktop.MinimiseEditor");
 }
 
 export function OpenURL(raw: string): $CancellablePromise<void> {
@@ -37,8 +53,16 @@ export function Quit(): $CancellablePromise<void> {
     return $Call.ByName("main.Desktop.Quit");
 }
 
-export function RefreshClipboard(): $CancellablePromise<void> {
-    return $Call.ByName("main.Desktop.RefreshClipboard");
+export function RefreshSelection(): $CancellablePromise<void> {
+    return $Call.ByName("main.Desktop.RefreshSelection");
+}
+
+export function RememberCloseAction(action: string): $CancellablePromise<trylet$0.Settings> {
+    return $Call.ByName("main.Desktop.RememberCloseAction", action);
+}
+
+export function SetBallWidth(width: number): $CancellablePromise<void> {
+    return $Call.ByName("main.Desktop.SetBallWidth", width);
 }
 
 export function SetPinned(value: boolean): $CancellablePromise<void> {
@@ -55,4 +79,8 @@ export function SyncBallDPI(): $CancellablePromise<void> {
 
 export function ToggleEditor(): $CancellablePromise<void> {
     return $Call.ByName("main.Desktop.ToggleEditor");
+}
+
+export function ToggleWindowMode(): $CancellablePromise<boolean> {
+    return $Call.ByName("main.Desktop.ToggleWindowMode");
 }

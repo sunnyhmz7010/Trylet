@@ -115,21 +115,16 @@ func (s *Service) skillJSON(ctx context.Context, endpoint string, out any) error
 	return nil
 }
 
-func (s *Service) prepareSkillDownload(repository string, extract bool) (*skillDownload, error) {
+func (s *Service) prepareSkillDownload(ctx context.Context, repository string, extract bool, progress func(string)) (*skillDownload, error) {
 	repository, err := skillRepository(repository)
 	if err != nil {
 		return nil, err
 	}
-	for id, download := range s.skillDownloads {
-		if time.Since(download.created) > 30*time.Minute {
-			s.removeSkillDownload(id)
-		}
-	}
-	if len(s.skillDownloads) >= 4 {
-		return nil, errors.New("尚有未关闭的下载预览，请先关闭再试")
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Minute)
 	defer cancel()
+	if progress != nil {
+		progress("connecting")
+	}
 	var info struct {
 		DefaultBranch string `json:"default_branch"`
 	}
@@ -157,6 +152,9 @@ func (s *Service) prepareSkillDownload(repository string, extract bool) (*skillD
 			cleanupSkillDownload(dir)
 		}
 	}()
+	if progress != nil {
+		progress("downloading")
+	}
 	resp, err := s.skillGET(ctx, base+"/zipball/"+commit.SHA)
 	if err != nil {
 		return nil, err
@@ -176,8 +174,14 @@ func (s *Service) prepareSkillDownload(repository string, extract bool) (*skillD
 		return nil, errors.New("仓库压缩包超过 100 MiB，请使用较小的技能仓库")
 	}
 	repositoryDir := filepath.Join(dir, "repository")
-	if err := extractSkillArchive(archive, repositoryDir); err != nil {
+	if progress != nil {
+		progress("extracting")
+	}
+	if err := extractSkillArchive(ctx, archive, repositoryDir); err != nil {
 		return nil, err
+	}
+	if progress != nil {
+		progress("scanning")
 	}
 	root, err := os.OpenRoot(repositoryDir)
 	if err != nil {
@@ -189,6 +193,9 @@ func (s *Service) prepareSkillDownload(repository string, extract bool) (*skillD
 	if err != nil {
 		return nil, err
 	}
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
 	if len(entries) == 0 {
 		return nil, errors.New("仓库中未发现 SKILL.md，请检查仓库地址")
 	}
@@ -198,10 +205,6 @@ func (s *Service) prepareSkillDownload(repository string, extract bool) (*skillD
 		entries = []SkillEntry{{Name: name, Path: "."}}
 	}
 	download := &skillDownload{SkillPreview: SkillPreview{ID: newID(), Repository: repository, Revision: commit.SHA, Mode: mode, Candidates: entries}, directory: dir, created: time.Now()}
-	if s.skillDownloads == nil {
-		s.skillDownloads = map[string]*skillDownload{}
-	}
-	s.skillDownloads[download.ID] = download
 	success = true
 	return download, nil
 }
@@ -212,17 +215,56 @@ func cleanupSkillDownload(dir string) {
 	}
 }
 
-func (s *Service) PrepareSkillInstall(repository string, extract bool) (SkillPreview, error) {
+func (s *Service) PrepareSkillInstall(ctx context.Context, id, repository string, extract bool) (SkillPreview, error) {
+	if !validID(id) {
+		return SkillPreview{}, errors.New("下载标识无效")
+	}
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 	s.skillsMu.Lock()
-	defer s.skillsMu.Unlock()
-	download, err := s.prepareSkillDownload(repository, extract)
+	for key, download := range s.skillDownloads {
+		if time.Since(download.created) > 30*time.Minute {
+			s.removeSkillDownload(key)
+		}
+	}
+	if len(s.skillDownloads) >= 4 || s.skillDownloads[id] != nil {
+		s.skillsMu.Unlock()
+		return SkillPreview{}, errors.New("尚有未关闭的下载预览，请先关闭再试")
+	}
+	if s.skillDownloads == nil {
+		s.skillDownloads = map[string]*skillDownload{}
+	}
+	pending := &skillDownload{SkillPreview: SkillPreview{ID: id}, created: time.Now(), cancel: cancel}
+	s.skillDownloads[id] = pending
+	s.skillsMu.Unlock()
+	defer func() {
+		s.skillsMu.Lock()
+		defer s.skillsMu.Unlock()
+		if s.skillDownloads[id] == pending {
+			delete(s.skillDownloads, id)
+		}
+	}()
+	// 网络与解压不持有 Skills 锁，扫描和取消不必等待下载结束。
+	download, err := s.prepareSkillDownload(ctx, repository, extract, func(phase string) {
+		if s.skillProgress != nil {
+			s.skillProgress(SkillDownloadProgress{ID: id, Phase: phase})
+		}
+	})
 	if err != nil {
 		return SkillPreview{}, err
 	}
+	s.skillsMu.Lock()
+	defer s.skillsMu.Unlock()
+	if ctx.Err() != nil || s.skillDownloads[id] != pending {
+		cleanupSkillDownload(download.directory)
+		return SkillPreview{}, context.Canceled
+	}
+	download.ID = id
+	s.skillDownloads[id] = download
 	return download.SkillPreview, nil
 }
 
-func extractSkillArchive(archive, directory string) error {
+func extractSkillArchive(ctx context.Context, archive, directory string) error {
 	z, err := zip.OpenReader(archive)
 	if err != nil {
 		return fmt.Errorf("仓库压缩包无法读取：%w", err)
@@ -239,6 +281,9 @@ func extractSkillArchive(archive, directory string) error {
 	prefix := ""
 	var total uint64
 	for _, file := range z.File {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
 		name := strings.TrimSuffix(file.Name, "/")
 		if name == "" || strings.Contains(name, "\\") || path.Clean(name) != name || strings.HasPrefix(name, "/") {
 			return fmt.Errorf("压缩包含有越界或无效路径：%s", file.Name)
@@ -279,6 +324,9 @@ func extractSkillArchive(archive, directory string) error {
 	}
 	defer root.Close()
 	for _, file := range z.File {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
 		_, relative, _ := strings.Cut(strings.TrimSuffix(file.Name, "/"), "/")
 		if relative == "" {
 			continue

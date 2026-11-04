@@ -12,9 +12,12 @@ import type * as trylet$0 from "../../../../../trylet/internal/trylet/models.js"
 declare module "@wailsio/runtime" {
     namespace Events {
         interface CustomEvents {
-            "trylet:clipboard-count": trylet$0.ClipboardCount;
             "trylet:git-changed": string;
             "trylet:run": trylet$0.RunEvent;
+            "trylet:selection-count": trylet$0.SelectionCount;
+            "trylet:settings": trylet$0.Settings;
+            "trylet:skill-download": trylet$0.SkillDownloadProgress;
+            "trylet:window-mode": boolean;
         }
     }
 }

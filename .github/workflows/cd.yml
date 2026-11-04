@@ -58,6 +58,15 @@ jobs:
           Move-Item -LiteralPath bin/Trylet.exe -Destination (Join-Path bin $fileName)
           "file=bin/$fileName" >> $env:GITHUB_OUTPUT
 
+      - name: Frontend tests
+        run: npm --prefix frontend test
+
+      - name: Go tests
+        run: go test -count=1 ./...
+
+      - name: Go vet
+        run: go vet ./...
+
       - name: Upload build artifacts
         if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v7

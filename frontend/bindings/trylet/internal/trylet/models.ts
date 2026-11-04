@@ -9,16 +9,6 @@ export interface Bootstrap {
     "notice": string;
 }
 
-/**
- * ClipboardCount 是剪贴板文本的字符统计结果。
- */
-export interface ClipboardCount {
-    "hasText": boolean;
-    "withSpaces": number;
-    "withoutSpaces": number;
-    "error"?: string;
-}
-
 export interface Directory {
     "path": string;
     "names": string[] | null;
@@ -298,11 +288,25 @@ export interface RuntimeCandidate {
     "kind": string;
 }
 
+/**
+ * SelectionCount 是选中文字的字符统计结果。
+ */
+export interface SelectionCount {
+    "hasText": boolean;
+    "withSpaces": number;
+    "withoutSpaces": number;
+    "error"?: string;
+}
+
 export interface Settings {
     "theme": string;
     "gitDiffLayout": string;
     "autoTemplate": boolean;
     "shortcut": string;
+    "closeAction": string;
+    "rememberCloseAction": boolean;
+    "ballEnabled": boolean;
+    "ballFollowWindow": boolean;
     "runtimes": { [_ in string]?: string } | null;
     "customPaths": { [_ in string]?: string } | null;
     "repository": string;
@@ -315,6 +319,11 @@ export interface Settings {
 export interface SkillCustomLocation {
     "path": string;
     "project": string;
+}
+
+export interface SkillDownloadProgress {
+    "id": string;
+    "phase": string;
 }
 
 export interface SkillEntry {

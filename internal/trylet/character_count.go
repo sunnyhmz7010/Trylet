@@ -1,7 +1,7 @@
 package trylet
 
-// ClipboardCount 是剪贴板文本的字符统计结果。
-type ClipboardCount struct {
+// SelectionCount 是选中文字的字符统计结果。
+type SelectionCount struct {
 	HasText       bool   `json:"hasText"`
 	WithSpaces    int    `json:"withSpaces"`
 	WithoutSpaces int    `json:"withoutSpaces"`
@@ -9,8 +9,8 @@ type ClipboardCount struct {
 }
 
 // CountCharacters 按 Word 的纯文本统计口径计算字符数。
-func CountCharacters(text string) ClipboardCount {
-	count := ClipboardCount{HasText: true}
+func CountCharacters(text string) SelectionCount {
+	count := SelectionCount{HasText: text != ""}
 	for _, character := range text {
 		// 按 Word 的纯文本统计口径，段落、分页和零宽空格不计为字符。
 		switch character {

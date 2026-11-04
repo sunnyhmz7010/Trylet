@@ -49,8 +49,8 @@ export function NewDraft(): $CancellablePromise<$models.Draft> {
     return $Call.ByName("trylet/internal/trylet.Service.NewDraft");
 }
 
-export function PrepareSkillInstall(repository: string, extract: boolean): $CancellablePromise<$models.SkillPreview> {
-    return $Call.ByName("trylet/internal/trylet.Service.PrepareSkillInstall", repository, extract);
+export function PrepareSkillInstall(id: string, repository: string, extract: boolean): $CancellablePromise<$models.SkillPreview> {
+    return $Call.ByName("trylet/internal/trylet.Service.PrepareSkillInstall", id, repository, extract);
 }
 
 export function Publish(req: $models.PublishRequest): $CancellablePromise<$models.PublishResult> {

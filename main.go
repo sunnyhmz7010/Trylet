@@ -10,10 +10,8 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"runtime"
 	"sync"
 	"time"
-	"unsafe"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 	"github.com/wailsapp/wails/v3/pkg/events"
@@ -32,26 +30,31 @@ var instanceID = "trylet.desktop"
 
 func init() {
 	application.RegisterEvent[trylet.RunEvent]("trylet:run")
+	application.RegisterEvent[trylet.SkillDownloadProgress]("trylet:skill-download")
 	application.RegisterEvent[string]("trylet:git-changed")
-	application.RegisterEvent[trylet.ClipboardCount]("trylet:clipboard-count")
+	application.RegisterEvent[trylet.SelectionCount]("trylet:selection-count")
+	application.RegisterEvent[bool]("trylet:window-mode")
+	application.RegisterEvent[trylet.Settings]("trylet:settings")
 }
 
 type Desktop struct {
-	mu            sync.Mutex
-	app           *application.App
-	ball          *application.WebviewWindow
-	editor        *application.WebviewWindow
-	store         *trylet.Store
-	runner        *trylet.Runner
-	git           *trylet.GitReader
-	shortcut      string
-	notice        string
-	ready         bool
-	showRequested bool
-	moveTimer     *time.Timer
-	ballExpanded  bool
-	clipboardWake chan struct{}
-	clipboardStop chan struct{}
+	mu             sync.Mutex
+	app            *application.App
+	ball           *application.WebviewWindow
+	editor         *application.WebviewWindow
+	store          *trylet.Store
+	runner         *trylet.Runner
+	git            *trylet.GitReader
+	shortcut       string
+	notice         string
+	ready          bool
+	showRequested  bool
+	closeRequested bool
+	moveTimer      *time.Timer
+	ballWidth      int
+	ballReady      bool
+	selectionWake  chan struct{}
+	selectionStop  chan struct{}
 }
 
 func main() {
@@ -77,11 +80,22 @@ func main() {
 	}
 	runtimeDir := filepath.Join(root, trylet.RuntimeFolder)
 	store, err := trylet.NewStore(root, runtimeDir)
+	if err != nil && trylet.CanRestoreStoreBackup(root) {
+		message := "数据文件已损坏，是否从上一次自动备份恢复？\n\n恢复前会另存保留当前文件。备份可能不包含最后一次编辑。"
+		if w32.MessageBox(0, message, "恢复 Trylet 数据", w32.MB_YESNO|w32.MB_ICONWARNING|w32.MB_DEFBUTTON2) != w32.IDYES {
+			return
+		}
+		if _, restoreErr := trylet.RestoreStoreBackup(root); restoreErr != nil {
+			startupError(restoreErr)
+			return
+		}
+		store, err = trylet.NewStore(root, runtimeDir)
+	}
 	if err != nil {
 		startupError(err)
 		return
 	}
-	desktop := &Desktop{store: store, clipboardWake: make(chan struct{}, 1), clipboardStop: make(chan struct{})}
+	desktop := &Desktop{store: store, selectionWake: make(chan struct{}, 1), selectionStop: make(chan struct{})}
 	runner := trylet.NewRunner(runtimeDir, func(event trylet.RunEvent) {
 		desktop.mu.Lock()
 		editor := desktop.editor
@@ -91,7 +105,14 @@ func main() {
 		}
 	})
 	desktop.runner = runner
-	service := trylet.NewService(store, runner, desktop.applySettings)
+	service := trylet.NewService(store, runner, desktop.applySettings, func(progress trylet.SkillDownloadProgress) {
+		desktop.mu.Lock()
+		window := desktop.editor
+		desktop.mu.Unlock()
+		if window != nil {
+			window.EmitEvent("trylet:skill-download", progress)
+		}
+	})
 	gitReader := trylet.NewGitReader(store, runtimeDir, func(id string) {
 		desktop.mu.Lock()
 		window := desktop.editor
@@ -110,20 +131,13 @@ func main() {
 		Name: "Trylet", Description: "随手写，立即运行。", Icon: appIcon, LogLevel: slog.LevelWarn,
 		Windows: application.WindowsOptions{
 			DisableQuitOnLastWindowClosed: true, WebviewUserDataPath: filepath.Join(runtimeDir, "webview2"),
-			WndProcInterceptor: func(_ uintptr, msg uint32, _, _ uintptr) (uintptr, bool) {
-				if msg == w32.WM_CLIPBOARDUPDATE {
-					desktop.RefreshClipboard()
-				}
-				return 0, false
-			},
 		},
 		Logger:         slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelWarn})),
 		Services:       []application.Service{application.NewService(service), application.NewService(desktop), application.NewService(gitReader)},
 		Assets:         application.AssetOptions{Handler: application.AssetFileServerFS(webAssets)},
 		SingleInstance: &application.SingleInstanceOptions{UniqueID: instanceID, OnSecondInstanceLaunch: func(application.SecondInstanceData) { desktop.ShowEditor() }},
 		OnShutdown: func() {
-			close(desktop.clipboardStop)
-			w32.RemoveClipboardFormatListener(w32.HWND(desktop.ball.NativeWindow()))
+			close(desktop.selectionStop)
 			gitReader.Close()
 			if id := runner.ActiveID(); id != "" {
 				if err := runner.Stop(id); err != nil {
@@ -148,18 +162,15 @@ func main() {
 		return
 	}
 	desktop.app = app
-	desktop.ball = app.Window.NewWithOptions(application.WebviewWindowOptions{Name: "ball", Title: "Trylet", Width: 48, Height: 48, Frameless: true, AlwaysOnTop: true, DisableResize: true, URL: "/ball.html", BackgroundColour: application.NewRGB(244, 244, 246), Windows: application.WindowsWindow{HiddenOnTaskbar: true, DisableFramelessWindowDecorations: true}, DefaultContextMenuDisabled: true})
+	desktop.ball = app.Window.NewWithOptions(application.WebviewWindowOptions{Name: "ball", Title: "Trylet 悬浮窗", Width: 48, Height: 48, Hidden: true, Frameless: true, AlwaysOnTop: true, DisableResize: true, URL: "/ball.html", BackgroundColour: application.NewRGB(244, 244, 246), Windows: application.WindowsWindow{HiddenOnTaskbar: true, DisableFramelessWindowDecorations: true}, DefaultContextMenuDisabled: true})
 	desktop.ball.OnWindowEvent(events.Common.WindowRuntimeReady, func(*application.WindowEvent) {
 		log.Print("悬浮球界面就绪")
+		desktop.mu.Lock()
+		desktop.ballReady = true
+		desktop.mu.Unlock()
 		desktop.placeBall()
 		desktop.shapeBall()
-		desktop.ball.Show()
-		application.InvokeSync(func() {
-			if !w32.AddClipboardFormatListener(w32.HWND(desktop.ball.NativeWindow())) {
-				log.Print("监听剪贴板失败")
-			}
-		})
-		desktop.RefreshClipboard()
+		desktop.syncBall(store.Settings())
 	})
 	desktop.ball.OnWindowEvent(events.Common.WindowDidResize, func(*application.WindowEvent) { desktop.shapeBall() })
 	desktop.ball.OnWindowEvent(events.Common.WindowDidMove, func(*application.WindowEvent) {
@@ -173,20 +184,38 @@ func main() {
 	tray := app.SystemTray.New()
 	tray.SetIcon(appIcon)
 	tray.SetTooltip("Trylet · 随手写，立即运行")
-	tray.OnClick(desktop.ToggleEditor)
+	tray.OnClick(desktop.ShowEditor)
 	menu := app.NewMenu()
 	menu.Add("打开编辑器").OnClick(func(*application.Context) { desktop.ShowEditor() })
-	menu.Add("显示悬浮球").OnClick(func(*application.Context) { desktop.placeBall(); desktop.ball.Show() })
-	menu.Add("隐藏悬浮球").OnClick(func(*application.Context) { desktop.ball.Hide() })
+	ballVisibility := menu.Add("关闭悬浮窗").OnClick(func(*application.Context) {
+		settings := store.Settings()
+		settings.BallEnabled = !settings.BallEnabled
+		if err := service.SaveSettings(settings); err != nil {
+			w32.MessageBox(0, "保存悬浮窗设置失败："+err.Error(), "Trylet", w32.MB_OK|w32.MB_ICONERROR)
+			return
+		}
+		desktop.mu.Lock()
+		window := desktop.editor
+		desktop.mu.Unlock()
+		if window != nil {
+			window.EmitEvent("trylet:settings", store.Settings())
+		}
+	})
 	menu.AddSeparator()
 	menu.Add("退出 Trylet").OnClick(func(*application.Context) { desktop.requestQuit() })
 	tray.SetMenu(menu)
-	desktop.ball.OnWindowEvent(events.Common.WindowClosing, func(e *application.WindowEvent) { desktop.ball.Hide(); e.Cancel() })
+	tray.OnRightClick(func() {
+		if store.Settings().BallEnabled {
+			ballVisibility.SetLabel("关闭悬浮窗")
+		} else {
+			ballVisibility.SetLabel("开启悬浮窗")
+		}
+		tray.OpenMenu()
+	})
+	desktop.ball.RegisterHook(events.Common.WindowClosing, func(e *application.WindowEvent) { e.Cancel(); desktop.ball.Hide() })
 	app.Event.OnApplicationEvent(events.Common.ApplicationStarted, func(*application.ApplicationEvent) {
 		log.Print("桌面应用启动")
-		go desktop.watchClipboard()
-		desktop.placeBall()
-		desktop.ball.Show()
+		go desktop.watchSelection()
 		if err := desktop.applySettings(store.Settings()); err != nil {
 			desktop.mu.Lock()
 			desktop.notice = err.Error()
@@ -194,10 +223,7 @@ func main() {
 			log.Printf("快捷键：%v", err)
 		}
 	})
-	if len(os.Args) > 1 && os.Args[1] == "--editor" {
-		desktop.showRequested = true
-		desktop.createEditor()
-	}
+	desktop.ShowEditor()
 	log.Print("进入应用事件循环")
 	if err = app.Run(); err != nil {
 		startupError(err)
@@ -215,8 +241,14 @@ func (d *Desktop) createEditor() *application.WebviewWindow {
 	if d.editor != nil {
 		return d.editor
 	}
-	d.editor = d.app.Window.NewWithOptions(application.WebviewWindowOptions{Name: "editor", Title: "Trylet", Width: 720, Height: 560, MinWidth: 500, MinHeight: 380, Frameless: true, Hidden: true, BackgroundColour: application.NewRGB(244, 244, 246), DefaultContextMenuDisabled: true})
-	d.editor.RegisterHook(events.Common.WindowClosing, func(e *application.WindowEvent) { e.Cancel(); d.requestHide() })
+	d.editor = d.app.Window.NewWithOptions(application.WebviewWindowOptions{Name: "editor", Title: "Trylet", Width: 720, Height: 560, MinWidth: 500, MinHeight: 380, Frameless: true, Hidden: true, InitialPosition: application.WindowCentered, BackgroundColour: application.NewRGB(244, 244, 246), DefaultContextMenuDisabled: true})
+	d.editor.RegisterHook(events.Common.WindowClosing, func(e *application.WindowEvent) { e.Cancel(); d.CloseEditor() })
+	for _, event := range []events.WindowEventType{events.Common.WindowShow, events.Common.WindowHide, events.Common.WindowMinimise, events.Common.WindowUnMinimise, events.Common.WindowMaximise, events.Common.WindowUnMaximise, events.Common.WindowRestore} {
+		d.editor.OnWindowEvent(event, func(*application.WindowEvent) {
+			d.syncBall(d.store.Settings())
+			d.editor.EmitEvent("trylet:window-mode", d.editor.IsMaximised())
+		})
+	}
 	d.editor.OnWindowEvent(events.Common.WindowRuntimeReady, func(*application.WindowEvent) {
 		d.mu.Lock()
 		show := d.showRequested
@@ -234,28 +266,16 @@ func (d *Desktop) ShowEditor() {
 	d.showRequested = true
 	d.mu.Unlock()
 	window := d.createEditor()
-	if !window.IsVisible() {
-		screen, err := d.ball.GetScreen()
-		if err != nil || screen == nil {
-			screen = d.app.Screen.GetPrimary()
-		}
-		if screen != nil {
-			x, y := d.ball.Position()
-			w, h := window.Size()
-			area := screen.WorkArea
-			x = max(area.X+8, min(x-w-12, area.X+area.Width-w-8))
-			y = max(area.Y+8, min(y-32, area.Y+area.Height-h-8))
-			window.SetPosition(x, y)
-		}
-	}
 	window.Show()
+	window.UnMinimise()
 	window.Focus()
+	d.syncBall(d.store.Settings())
 }
 func (d *Desktop) ToggleEditor() {
 	d.mu.Lock()
 	window := d.editor
 	d.mu.Unlock()
-	if window != nil && window.IsVisible() {
+	if window != nil && window.IsVisible() && !window.IsMinimised() {
 		d.requestHide()
 	} else {
 		d.ShowEditor()
@@ -265,6 +285,12 @@ func (d *Desktop) SyncBallDPI() {
 	if d.ball != nil {
 		d.shapeBall()
 	}
+}
+func (d *Desktop) SetBallWidth(width int) {
+	d.mu.Lock()
+	d.ballWidth = max(48, width)
+	d.mu.Unlock()
+	d.shapeBall()
 }
 func (d *Desktop) requestHide() {
 	d.mu.Lock()
@@ -276,7 +302,7 @@ func (d *Desktop) requestHide() {
 	if ready {
 		window.EmitEvent("trylet:hide-requested")
 	} else {
-		window.Hide()
+		d.HideEditor()
 	}
 }
 func (d *Desktop) HideEditor() {
@@ -288,12 +314,98 @@ func (d *Desktop) HideEditor() {
 	if window != nil {
 		window.Hide()
 	}
+	d.syncBall(d.store.Settings())
+}
+
+func (d *Desktop) CloseEditor() {
+	settings := d.store.Settings()
+	if !settings.RememberCloseAction {
+		d.ShowEditor()
+		d.mu.Lock()
+		if !d.ready {
+			d.closeRequested = true
+			d.mu.Unlock()
+			return
+		}
+		window := d.editor
+		d.mu.Unlock()
+		window.EmitEvent("trylet:close-requested")
+		return
+	}
+	if settings.CloseAction == "quit" {
+		d.requestQuit()
+	} else {
+		d.requestHide()
+	}
+}
+
+func (d *Desktop) RememberCloseAction(action string) (trylet.Settings, error) {
+	if err := d.store.RememberCloseAction(action); err != nil {
+		return trylet.Settings{}, err
+	}
+	return d.store.Settings(), nil
+}
+
+func (d *Desktop) MinimiseEditor() {
+	d.mu.Lock()
+	window := d.editor
+	d.mu.Unlock()
+	if window != nil {
+		window.Minimise()
+		d.syncBall(d.store.Settings())
+	}
+}
+
+func (d *Desktop) ToggleWindowMode() bool {
+	d.mu.Lock()
+	window := d.editor
+	d.mu.Unlock()
+	if window == nil {
+		return false
+	}
+	if window.IsMaximised() {
+		window.UnMaximise()
+	} else {
+		window.Maximise()
+	}
+	return window.IsMaximised()
+}
+
+func (d *Desktop) syncBall(v trylet.Settings) {
+	d.mu.Lock()
+	ball, window, ready := d.ball, d.editor, d.ballReady
+	d.mu.Unlock()
+	if ball == nil || !ready {
+		return
+	}
+	visible := window != nil && window.IsVisible() && !window.IsMinimised()
+	if v.BallEnabled && (!v.BallFollowWindow || !visible) {
+		if !ball.IsVisible() {
+			application.InvokeSync(func() {
+				// 仅显示时禁止激活，随后恢复样式，保留悬浮窗的点击与拖动。
+				hwnd := w32.HWND(ball.NativeWindow())
+				style := w32.GetWindowLongPtr(hwnd, w32.GWL_EXSTYLE)
+				w32.SetWindowLongPtr(hwnd, w32.GWL_EXSTYLE, style|w32.WS_EX_NOACTIVATE)
+				ball.Show()
+				w32.SetWindowLongPtr(hwnd, w32.GWL_EXSTYLE, style)
+			})
+			d.RefreshSelection()
+		}
+	} else if ball.IsVisible() {
+		ball.Hide()
+	}
 }
 func (d *Desktop) EditorReady() string {
 	d.mu.Lock()
-	defer d.mu.Unlock()
 	d.ready = true
-	return d.notice
+	closeRequested := d.closeRequested
+	d.closeRequested = false
+	window, notice := d.editor, d.notice
+	d.mu.Unlock()
+	if closeRequested {
+		window.EmitEvent("trylet:close-requested")
+	}
+	return notice
 }
 func (d *Desktop) SetPinned(value bool) {
 	d.mu.Lock()
@@ -332,67 +444,28 @@ func (d *Desktop) ChooseGitRepository() (string, error) {
 func (d *Desktop) ChooseSkillsDirectory() (string, error) {
 	return d.app.Dialog.OpenFile().CanChooseDirectories(true).CanChooseFiles(false).CanCreateDirectories(false).SetTitle("选择项目或 Skills 目录").AttachToWindow(d.editor).PromptForSingleSelection()
 }
+
+func (d *Desktop) ExportDraft(id, language string) (string, error) {
+	extension := map[string]string{"c": ".c", "cpp": ".cpp", "python": ".py"}[language]
+	if extension == "" {
+		extension = ".txt"
+	}
+	dialog := d.app.Dialog.SaveFile()
+	dialog.SetOptions(&application.SaveFileDialogOptions{Title: "导出当前草稿", Filename: "main" + extension, CanCreateDirectories: true})
+	path, err := dialog.AddFilter("源码文件", "*"+extension).AttachToWindow(d.editor).PromptForSingleSelection()
+	if err != nil || path == "" {
+		return "", err
+	}
+	if err := d.store.ExportDraft(id, path); err != nil {
+		return "", fmt.Errorf("导出草稿失败：%w", err)
+	}
+	return path, nil
+}
 func (d *Desktop) CopyText(text string) error {
 	if !d.app.Clipboard.SetText(text) {
 		return fmt.Errorf("复制失败，请重试")
 	}
 	return nil
-}
-
-func (d *Desktop) RefreshClipboard() {
-	select {
-	case d.clipboardWake <- struct{}{}:
-	default:
-	}
-}
-
-func readClipboardCount() (trylet.ClipboardCount, error) {
-	runtime.LockOSThread()
-	defer runtime.UnlockOSThread()
-	for attempt := 0; !w32.OpenClipboard(0); attempt++ {
-		if attempt == 99 {
-			return trylet.ClipboardCount{}, fmt.Errorf("剪贴板被其他程序占用")
-		}
-		time.Sleep(10 * time.Millisecond)
-	}
-	defer w32.CloseClipboard()
-	if !w32.IsClipboardFormatAvailable(w32.CF_UNICODETEXT) {
-		return trylet.ClipboardCount{}, nil
-	}
-	handle := w32.GetClipboardData(w32.CF_UNICODETEXT)
-	kernel := windows.NewLazySystemDLL("kernel32.dll")
-	size, _, err := kernel.NewProc("GlobalSize").Call(uintptr(handle))
-	if size < 2 {
-		return trylet.ClipboardCount{}, fmt.Errorf("读取剪贴板文本：%w", err)
-	}
-	pointer := w32.GlobalLock(w32.HGLOBAL(handle))
-	// GlobalUnlock 返回 0 也可能表示成功；按实际分配长度读取，避免大段文本被截断。
-	defer w32.GlobalUnlock(w32.HGLOBAL(handle))
-	text := windows.UTF16ToString(unsafe.Slice((*uint16)(pointer), int(size/2)))
-	return trylet.CountCharacters(text), nil
-}
-
-func (d *Desktop) watchClipboard() {
-	for {
-		select {
-		case <-d.clipboardStop:
-			return
-		case <-d.clipboardWake:
-			count, err := readClipboardCount()
-			if err != nil {
-				count.Error = "读取剪贴板失败，请重新复制"
-				log.Printf("统计剪贴板字符：%v", err)
-			}
-			d.mu.Lock()
-			resize := d.ballExpanded != count.HasText
-			d.ballExpanded = count.HasText
-			d.mu.Unlock()
-			if resize {
-				d.shapeBall()
-			}
-			d.ball.EmitEvent("trylet:clipboard-count", count)
-		}
-	}
 }
 
 func (d *Desktop) OpenURL(raw string) error {
@@ -409,6 +482,7 @@ func (d *Desktop) applySettings(v trylet.Settings) (err error) {
 	defer func() {
 		if err == nil && d.ball != nil {
 			d.ball.EmitEvent("trylet:appearance", v.Theme)
+			d.syncBall(v)
 		}
 	}()
 	d.mu.Lock()
@@ -489,10 +563,7 @@ func (d *Desktop) shapeBall() {
 			return
 		}
 		d.mu.Lock()
-		width := 48
-		if d.ballExpanded {
-			width = 192
-		}
+		width := max(48, d.ballWidth)
 		d.mu.Unlock()
 		// 按所在屏幕校正 DIP，展开时保持右侧图标的位置。
 		size := int(math.Round(48 * float64(screen.ScaleFactor)))

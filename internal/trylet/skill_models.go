@@ -55,6 +55,11 @@ type SkillPreview struct {
 	Candidates []SkillEntry `json:"candidates"`
 }
 
+type SkillDownloadProgress struct {
+	ID    string `json:"id"`
+	Phase string `json:"phase"`
+}
+
 type SkillInstallResult struct {
 	SourcePath string `json:"sourcePath"`
 	Name       string `json:"name"`

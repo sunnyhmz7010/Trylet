@@ -10,7 +10,6 @@ export {
 
 export type {
     Bootstrap,
-    ClipboardCount,
     Directory,
     Draft,
     DraftInput,
@@ -45,8 +44,10 @@ export type {
     RunEvent,
     RunRequest,
     RuntimeCandidate,
+    SelectionCount,
     Settings,
     SkillCustomLocation,
+    SkillDownloadProgress,
     SkillEntry,
     SkillInstallResult,
     SkillInstallation,

@@ -31,6 +31,19 @@ export default function SettingsPanel(props: Props) {
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
   const [removing, setRemoving] = useState(false)
+  useEffect(() => {
+    setForm((current) => ({
+      ...current,
+      ballEnabled: props.settings.ballEnabled,
+    }))
+  }, [props.settings.ballEnabled])
+  useEffect(() => {
+    setForm((current) => ({
+      ...current,
+      closeAction: props.settings.closeAction,
+      rememberCloseAction: props.settings.rememberCloseAction,
+    }))
+  }, [props.settings.closeAction, props.settings.rememberCloseAction])
   const repository = form.repository
     .trim()
     .replace(/^https:\/\/github\.com\//, '')
@@ -104,7 +117,7 @@ export default function SettingsPanel(props: Props) {
             </select>
           </div>
           <div className="settings-divider"/>
-          <div className="section-label">编辑与窗口</div>
+          <h2>编辑</h2>
           <label className="check-field">
             <input
               type="checkbox"
@@ -123,6 +136,27 @@ export default function SettingsPanel(props: Props) {
             />
             <small>留空可关闭；若已被其他程序占用，会保留原来的快捷键。</small>
           </div>
+          <div className="settings-divider"/>
+          <h2>主窗口</h2>
+          <p className="section-description">启动时打开主窗口；右上角可最小化，或切换大小窗口。</p>
+          <div className="field">
+            <label htmlFor="close-action">关闭窗口时</label>
+            <select id="close-action" className="native-select" value={form.rememberCloseAction ? form.closeAction || 'background' : 'ask'} onChange={e=>setForm({...form,rememberCloseAction:e.target.value!=='ask',closeAction:e.target.value==='ask'?form.closeAction:e.target.value})}>
+              <option value="ask">每次询问</option><option value="background">最小化到托盘（后台运行）</option><option value="quit">直接退出应用</option>
+            </select>
+            <small>首次关闭时询问，勾选“记住我的选择”后按默认行为执行；选择“每次询问”可恢复提示。后台运行保留当前任务，退出前会保存草稿并确认停止任务。</small>
+          </div>
+          <div className="settings-divider"/>
+          <h2>悬浮窗</h2>
+          <p className="section-description">独立于主窗口的快捷入口，点击可打开主窗口并恢复最小化。</p>
+          <label className="check-field">
+            <input type="checkbox" checked={form.ballEnabled} onChange={e=>setForm({...form,ballEnabled:e.target.checked})}/>
+            开启悬浮窗
+          </label>
+          <label className="check-field">
+            <input type="checkbox" checked={form.ballFollowWindow} disabled={!form.ballEnabled} onChange={e=>setForm({...form,ballFollowWindow:e.target.checked})}/>
+            联动主窗口：主窗口显示时隐藏，最小化或后台运行时显示
+          </label>
           </section>
           <section hidden={category!=='runtimes'} aria-label="运行环境设置">
           <div className="section-label">

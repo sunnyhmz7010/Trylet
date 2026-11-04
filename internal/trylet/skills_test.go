@@ -19,11 +19,13 @@ import (
 )
 
 type skillTestRemote struct {
-	mu       sync.Mutex
-	files    map[string]string
-	revision string
-	fail     bool
-	private  bool
+	mu         sync.Mutex
+	files      map[string]string
+	revision   string
+	fail       bool
+	private    bool
+	zipStarted chan struct{}
+	zipRelease <-chan struct{}
 }
 
 func skillTestArchive(t *testing.T, files map[string]string) []byte {
@@ -52,7 +54,7 @@ func skillTestService(t *testing.T) (*Service, *skillTestRemote, SkillLocation) 
 	if err != nil {
 		t.Fatal(err)
 	}
-	s := NewService(store, nil, nil)
+	s := NewService(store, nil, nil, nil)
 	s.skillHome = filepath.Join(dir, "user")
 	remote := &skillTestRemote{revision: strings.Repeat("a", 40), files: map[string]string{"skills/alpha/SKILL.md": "alpha v1", "skills/alpha/scripts/run.py": "print(1)", "skills/beta/SKILL.md": "beta v1", "shared.txt": "shared"}}
 	server := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -72,6 +74,14 @@ func skillTestService(t *testing.T) (*Service, *skillTestRemote, SkillLocation) 
 		case "/repos/acme/catalog/commits/main":
 			fmt.Fprintf(w, `{"sha":%q}`, remote.revision)
 		case "/repos/acme/catalog/zipball/" + remote.revision:
+			if remote.zipStarted != nil {
+				close(remote.zipStarted)
+				select {
+				case <-remote.zipRelease:
+				case <-r.Context().Done():
+					return
+				}
+			}
 			w.Header().Set("Content-Type", "application/zip")
 			_, _ = w.Write(skillTestArchive(t, remote.files))
 		default:
@@ -99,7 +109,7 @@ func skillTestService(t *testing.T) (*Service, *skillTestRemote, SkillLocation) 
 
 func skillTestInstall(t *testing.T, s *Service, location SkillLocation, extract bool, paths ...string) []SkillInstallResult {
 	t.Helper()
-	preview, err := s.PrepareSkillInstall("https://github.com/acme/catalog.git", extract)
+	preview, err := s.PrepareSkillInstall(context.Background(), newID(), "https://github.com/acme/catalog.git", extract)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -133,7 +143,7 @@ func TestSkillsLocationsScanAndSelectedInstall(t *testing.T) {
 	if _, err := os.Stat(location.Path); !os.IsNotExist(err) {
 		t.Fatal("浏览不应创建目录")
 	}
-	preview, err := s.PrepareSkillInstall("acme/catalog", true)
+	preview, err := s.PrepareSkillInstall(context.Background(), newID(), "acme/catalog", true)
 	if err != nil || len(preview.Candidates) != 2 {
 		t.Fatalf("识别嵌套技能：%+v %v", preview, err)
 	}
@@ -495,7 +505,7 @@ func TestSkillsUnboundDeleteFailureReportsRemainingPath(t *testing.T) {
 func TestSkillsPrivateRepositoryUsesExistingToken(t *testing.T) {
 	s, remote, location := skillTestService(t)
 	remote.private = true
-	if _, err := s.PrepareSkillInstall("acme/catalog", true); err == nil || !strings.Contains(err.Error(), "私有仓库") {
+	if _, err := s.PrepareSkillInstall(context.Background(), newID(), "acme/catalog", true); err == nil || !strings.Contains(err.Error(), "私有仓库") {
 		t.Fatalf("未认证 404 应保留鉴权可能：%v", err)
 	}
 	s.publisher.token = func() (string, error) { return "local-test-token", nil }
@@ -542,7 +552,7 @@ func TestSkillArchiveRejectsUnsafePathsAndLinks(t *testing.T) {
 			if err := os.WriteFile(archive, buffer.Bytes(), 0600); err != nil {
 				t.Fatal(err)
 			}
-			if err := extractSkillArchive(archive, filepath.Join(root, "output")); err == nil {
+			if err := extractSkillArchive(context.Background(), archive, filepath.Join(root, "output")); err == nil {
 				t.Fatal("应拒绝不安全压缩包")
 			}
 			if _, err := os.Stat(filepath.Join(root, "output")); !os.IsNotExist(err) {

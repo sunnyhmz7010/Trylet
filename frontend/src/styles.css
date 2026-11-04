@@ -172,6 +172,20 @@ input:focus-visible {
   color: var(--primary);
   background: var(--active-fill);
 }
+.window-controls {
+  display: flex;
+  gap: 4px;
+  --wails-draggable: no-drag;
+}
+.window-close:hover {
+  background: var(--destructive);
+  color: var(--primary-foreground);
+}
+.app-shell > .boot-screen {
+  flex: 1;
+  min-height: 0;
+  height: auto;
+}
 .workspace {
   display: flex;
   flex: 1;

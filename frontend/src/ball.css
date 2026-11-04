@@ -6,11 +6,16 @@ body {
   overflow: hidden;
   background: #f4f4f6;
 }
-#ball {
+body {
   display: flex;
   justify-content: flex-end;
+}
+#ball {
+  display: flex;
+  flex-shrink: 0;
+  justify-content: flex-end;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
   width: 48px;
   height: 100%;
   padding: 7.5px;
@@ -28,7 +33,7 @@ body {
   --wails-draggable: drag;
 }
 #ball.counting {
-  width: 192px;
+  width: max-content;
 }
 .ball-icon {
   display: flex;
@@ -38,10 +43,10 @@ body {
 }
 #ball-counts {
   display: grid;
-  flex: 1;
-  grid-template-columns: auto 1fr;
-  gap: 1px 8px;
-  padding-left: 6px;
+  flex: 0 0 auto;
+  grid-template-columns: max-content max-content;
+  gap: 1px 6px;
+  padding-left: 4px;
   font: 11px/15px "Segoe UI", "Microsoft YaHei UI", sans-serif;
   white-space: nowrap;
   pointer-events: none;
@@ -66,7 +71,8 @@ body {
   background: #ddd9ff;
 }
 #ball:focus-visible {
-  border: 2px solid #4f46e5;
+  outline: 2px solid #4f46e5;
+  outline-offset: -2px;
 }
 #ball svg {
   width: 100%;

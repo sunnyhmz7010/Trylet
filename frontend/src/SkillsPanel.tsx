@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { Events } from '@wailsio/runtime'
 import { AlertCircle, Check, ChevronDown, ChevronRight, Download, FolderOpen, Link2, LoaderCircle, Plus, RefreshCw, Trash2 } from 'lucide-react'
 import * as Backend from '../bindings/trylet/internal/trylet/service'
 import * as Desktop from '../bindings/trylet/desktop'
-import type { SkillInstallation, SkillInstallResult, SkillLocation, SkillPreferences, SkillPreview, SkillUpdateResult, SkillWorkspace } from '../bindings/trylet/internal/trylet/models'
+import type { SkillDownloadProgress, SkillInstallation, SkillInstallResult, SkillLocation, SkillPreferences, SkillPreview, SkillUpdateResult, SkillWorkspace } from '../bindings/trylet/internal/trylet/models'
 import { Button } from './components/ui/button'
 import { Input } from './components/ui/input'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from './components/ui/dialog'
-import { errorText } from './lib/language'
+import { errorText, sessionID } from './lib/language'
 import './skills.css'
 
 const toolNames: Record<string, string> = { agents: '共享 · .agents', codex: 'Codex · .codex', claude: 'Claude Code · .claude', custom: '自定义' }
@@ -192,21 +193,69 @@ function DownloadSkills({ location, onClose, onChanged, onNotice }: { location: 
   const [results, setResults] = useState<SkillInstallResult[]>([])
   const [busy, setBusy] = useState<'preview' | 'install' | 'reset' | ''>('')
   const [error, setError] = useState('')
+  const [progress, setProgress] = useState('')
+  const [cancelling, setCancelling] = useState(false)
   const previewRef = useRef('')
-  useEffect(() => () => {
-    if (previewRef.current) void Backend.DiscardSkillPreview(previewRef.current).catch((failure) => console.error('清理 Skills 下载预览失败', failure))
+  const request = useRef<ReturnType<typeof Backend.PrepareSkillInstall> | null>(null)
+  const mounted = useRef(true)
+  useEffect(() => Events.On('trylet:skill-download', (event) => {
+    const data = event.data as SkillDownloadProgress
+    if (data.id !== previewRef.current) return
+    const phases: Record<string, string> = { connecting: '正在连接 GitHub…', downloading: '正在下载仓库…', extracting: '正在解压仓库…', scanning: '正在识别 Skills…' }
+    setProgress(phases[data.phase] ?? '')
+  }), [])
+  useEffect(() => {
+    mounted.current = true
+    return () => {
+      mounted.current = false
+      void request.current?.cancel()
+      if (previewRef.current) void Backend.DiscardSkillPreview(previewRef.current).catch((failure) => console.error('清理 Skills 下载预览失败', failure))
+    }
   }, [])
   const prepare = async () => {
-    if (busy) return
-    setBusy('preview'); setError('')
+    if (busy || cancelling) return
+    setBusy('preview'); setError(''); setProgress('')
+    const id = sessionID()
+    previewRef.current = id
+    const pending = Backend.PrepareSkillInstall(id, repository, extract)
+    request.current = pending
     try {
-      const next = await Backend.PrepareSkillInstall(repository, extract)
-      previewRef.current = next.id
+      const next = await pending
+      if (!mounted.current || previewRef.current !== id) return
       setPreview(next)
       setSelected(next.mode === 'repository' ? ['.'] : [])
       setResults([])
-    } catch (failure) { setError(errorText(failure)) }
-    finally { setBusy('') }
+      setProgress('')
+    } catch (failure) {
+      if (mounted.current && previewRef.current === id) {
+        previewRef.current = ''
+        void Backend.DiscardSkillPreview(id).catch((cleanupError) => console.error('清理失败的 Skills 下载预览', cleanupError))
+        setError(errorText(failure)); setProgress('')
+      }
+    } finally {
+      if (request.current === pending) {
+        request.current = null
+        if (mounted.current) setBusy('')
+      }
+    }
+  }
+  const cancelDownload = async (close = false) => {
+    if (cancelling || busy === 'install' || busy === 'reset') return
+    const id = previewRef.current
+    previewRef.current = ''
+    setCancelling(true)
+    try {
+      await request.current?.cancel()
+      if (id) await Backend.DiscardSkillPreview(id)
+      if (mounted.current) {
+        setProgress('已取消下载')
+        if (close) onClose()
+      }
+    } catch (failure) {
+      if (mounted.current) { previewRef.current = id; setError(errorText(failure)) }
+    } finally {
+      if (mounted.current) { setBusy(''); setCancelling(false) }
+    }
   }
   const install = async () => {
     if (!preview || busy || selected.length === 0) return
@@ -235,8 +284,10 @@ function DownloadSkills({ location, onClose, onChanged, onNotice }: { location: 
   }
   const completed = new Set(results.filter((item) => !item.error).map((item) => item.sourcePath))
   const available = preview?.candidates?.filter((item) => !completed.has(item.path)) ?? []
-  return <Dialog open onOpenChange={(open) => { if (!open && !busy) onClose() }}>
-    <DialogContent className="skills-dialog" showCloseButton={!busy} onEscapeKeyDown={(event) => { if (busy) event.preventDefault() }}>
+  const canClose = !cancelling && busy !== 'install' && busy !== 'reset'
+  const close = () => { if (canClose) { if (busy === 'preview') void cancelDownload(true); else onClose() } }
+  return <Dialog open onOpenChange={(open) => { if (!open) close() }}>
+    <DialogContent className="skills-dialog" showCloseButton={canClose} onEscapeKeyDown={(event) => { if (!canClose) event.preventDefault() }}>
       <DialogTitle>下载 Skills</DialogTitle>
       <DialogDescription className="skill-full-path">安装到 {location.path}</DialogDescription>
       <form className="skills-download-form" onSubmit={(event) => { event.preventDefault(); void (preview ? install() : prepare()) }}>
@@ -256,8 +307,9 @@ function DownloadSkills({ location, onClose, onChanged, onNotice }: { location: 
             </div>
           </>}
           {error && <p className="form-error skills-download-error" role="alert"><AlertCircle size={13}/>{error}</p>}
+          {progress && !error && <p className="skills-help" role="status">{cancelling ? '正在取消下载…' : progress}</p>}
         </div>
-        <div className="dialog-footer"><Button type="button" variant="outline" disabled={!!busy} onClick={onClose}>取消</Button><Button type="submit" disabled={!!busy || (!preview && !repository.trim()) || (!!preview && !selected.length)}>{busy && <LoaderCircle size={13} className="animate-spin"/>}{busy === 'preview' ? '下载并识别中…' : busy === 'install' ? '安装中…' : busy === 'reset' ? '正在清理预览…' : preview ? `安装 ${selected.length} 项` : '下载并识别'}</Button></div>
+        <div className="dialog-footer"><Button type="button" variant="outline" disabled={!canClose} onClick={() => busy === 'preview' ? void cancelDownload() : onClose()}>{cancelling ? '正在取消…' : busy === 'preview' ? '取消下载' : '取消'}</Button><Button type="submit" disabled={!!busy || cancelling || (!preview && !repository.trim()) || (!!preview && !selected.length)}>{busy && <LoaderCircle size={13} className="animate-spin"/>}{busy === 'preview' ? '下载并识别中…' : busy === 'install' ? '安装中…' : busy === 'reset' ? '正在清理预览…' : preview ? `安装 ${selected.length} 项` : '下载并识别'}</Button></div>
       </form>
     </DialogContent>
   </Dialog>

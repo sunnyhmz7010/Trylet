@@ -21,10 +21,11 @@ type Service struct {
 	skillsMu         sync.Mutex
 	skillHome        string
 	skillDownloads   map[string]*skillDownload
+	skillProgress    func(SkillDownloadProgress)
 }
 
-func NewService(store *Store, runner *Runner, settingsChanged func(Settings) error) *Service {
-	s := &Service{store: store, runner: runner, settingsChanged: settingsChanged}
+func NewService(store *Store, runner *Runner, settingsChanged func(Settings) error, skillProgress func(SkillDownloadProgress)) *Service {
+	s := &Service{store: store, runner: runner, settingsChanged: settingsChanged, skillProgress: skillProgress}
 	s.publisher = NewPublisher(store.readToken)
 	return s
 }
@@ -76,6 +77,9 @@ func (s *Service) SaveSettings(v Settings) error {
 	}
 	if v.GitDiffLayout != "" && v.GitDiffLayout != "split" && v.GitDiffLayout != "unified" {
 		return errors.New("差异展示设置无效")
+	}
+	if v.CloseAction != "" && v.CloseAction != "background" && v.CloseAction != "quit" {
+		return errors.New("窗口关闭方式无效")
 	}
 	if v.Runtimes == nil {
 		v.Runtimes = map[string]string{}

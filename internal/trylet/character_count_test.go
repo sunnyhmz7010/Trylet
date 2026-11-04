@@ -2,7 +2,7 @@ package trylet
 
 import "testing"
 
-func TestClipboardCharacterCountsMatchWord(t *testing.T) {
+func TestSelectionCharacterCountsMatchWord(t *testing.T) {
 	// 预期值取自 Word 的字符数统计，含标点，不将 CRLF 计为两个字符。
 	tests := []struct {
 		name, text    string
@@ -22,7 +22,7 @@ func TestClipboardCharacterCountsMatchWord(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			count := CountCharacters(test.text)
-			if !count.HasText || count.WithSpaces != test.with || count.WithoutSpaces != test.without {
+			if count.HasText != (test.text != "") || count.WithSpaces != test.with || count.WithoutSpaces != test.without {
 				t.Fatalf("得到 %+v，预期计空格 %d，不计空格 %d", count, test.with, test.without)
 			}
 		})

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type ComponentType } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ComponentType } from 'react'
 import { Events } from '@wailsio/runtime'
 import appLogo from '../../build/icon.svg'
 import {
@@ -9,6 +9,8 @@ import {
   Github,
   GitBranch,
   LoaderCircle,
+  Maximize2,
+  Minimize2,
   Minus,
   Pin,
   Play,
@@ -47,11 +49,8 @@ import {
   SelectValue,
 } from './components/ui/select'
 import { Input } from './components/ui/input'
-import Editor from './Editor'
-import SettingsPanel from './SettingsPanel'
 import { SettingsContext } from './SettingsContext'
 import { watchAppearance } from './appearance'
-import PublishDialog from './PublishDialog'
 import type { TerminalHandle } from './Terminal'
 import {
   errorText,
@@ -83,6 +82,13 @@ export default function App() {
   const [saveStatus, setSaveStatus] = useState('已保存')
   const [activeView, setActiveView] = useState<'editor' | 'git' | 'skills' | 'settings'>('editor')
   const [settingsCategory, setSettingsCategory] = useState('general')
+  const [Editor, setEditor] = useState<typeof import('./Editor').default | null>(null)
+  const [SettingsView, setSettingsView] = useState<typeof import('./SettingsPanel').default | null>(null)
+  const [settingsLoadError, setSettingsLoadError] = useState('')
+  useEffect(() => {
+    if (activeView !== 'settings' || SettingsView || settingsLoadError) return
+    void import('./SettingsPanel').then((module) => setSettingsView(() => module.default)).catch((failure) => setSettingsLoadError(errorText(failure)))
+  }, [activeView, SettingsView, settingsLoadError])
   const activeViewRef = useRef(activeView)
   activeViewRef.current = activeView
   const [GitView, setGitView] = useState<ComponentType<{active:boolean}> | null>(null)
@@ -98,15 +104,27 @@ export default function App() {
     void import('./SkillsPanel').then((module) => setSkillsView(() => module.default)).catch((failure) => setSkillsLoadError(errorText(failure)))
   }, [activeView, SkillsView, skillsLoadError])
   const [publishDraft, setPublishDraft] = useState<Draft | null>(null)
+  const [PublishView, setPublishView] = useState<typeof import('./PublishDialog').default | null>(null)
+  const [publishLoadError, setPublishLoadError] = useState('')
+  useEffect(() => {
+    if (!publishDraft || PublishView || publishLoadError) return
+    void import('./PublishDialog').then((module) => setPublishView(() => module.default)).catch((failure) => setPublishLoadError(errorText(failure)))
+  }, [publishDraft, PublishView, publishLoadError])
   const [pending, setPending] = useState<PendingAction | null>(null)
   const [languageAction, setLanguageAction] = useState<'run' | 'publish' | 'template' | null>(null)
   const [manualLanguage, setManualLanguage] = useState<Language>('python')
   const [rename, setRename] = useState<string | null>(null)
   const renameOwner = useRef('')
   const [switching, setSwitching] = useState(false)
+  const [exporting, setExporting] = useState(false)
   const transitionLock = useRef(false)
   const detectionGeneration = useRef(0)
   const [pinned, setPinned] = useState(false)
+  const [largeWindow, setLargeWindow] = useState(false)
+  const [closePrompt, setClosePrompt] = useState(false)
+  const [rememberClose, setRememberClose] = useState(false)
+  const [closeBusy, setCloseBusy] = useState(false)
+  const [closeError, setCloseError] = useState('')
   const [Terminal, setTerminal] = useState<TerminalComponent | null>(null)
   const [terminalOpen, setTerminalOpen] = useState(false)
   const [terminalHeight, setTerminalHeight] = useState(190)
@@ -210,7 +228,9 @@ export default function App() {
   const boot = useCallback(async () => {
     setBootError('')
     try {
-      const data = await Backend.Bootstrap()
+      // 草稿读取与编辑器模块并行，避免语法和编辑器代码阻塞本机数据请求。
+      const [data, editor] = await Promise.all([Backend.Bootstrap(), import('./Editor')])
+      setEditor(() => editor.default)
       draftRef.current = data.draft
       setDraft(data.draft)
       setSettings(data.settings)
@@ -243,11 +263,22 @@ export default function App() {
       void handlers.current.hide()
     })
     const quit = Events.On('trylet:quit-requested', () => handlers.current.quit())
+    const close = Events.On('trylet:close-requested', () => {
+      if (document.querySelector('[role="dialog"]')) return
+      setRememberClose(false)
+      setCloseError('')
+      setClosePrompt(true)
+    })
+    const mode = Events.On('trylet:window-mode', (event) => setLargeWindow(event.data))
+    const preferences = Events.On('trylet:settings', (event) => setSettings(event.data))
     void boot()
     return () => {
       stopRun()
       hide()
       quit()
+      close()
+      mode()
+      preferences()
     }
   }, [boot, updatePhase])
 
@@ -261,7 +292,7 @@ export default function App() {
     return () => clearTimeout(timer)
   }, [draft?.code, draft?.language, draft?.title, draft?.id, flush])
 
-  const language = draft ? resolvedLanguage(draft.language, draft.code) : null
+  const language = useMemo(() => draft ? resolvedLanguage(draft.language, draft.code) : null, [draft?.language, draft?.code])
   const available = runtimes.filter((item) => item.language === language)
   const selectedRuntime =
     available.find((item) => item.id === settings?.runtimes?.[language ?? '']) ??
@@ -297,6 +328,10 @@ export default function App() {
       setError('')
     } catch (failure) {
       setError(errorText(failure))
+      if (action.kind === 'quit') {
+        setCloseError(errorText(failure))
+        setClosePrompt(true)
+      }
     } finally {
       transitionLock.current = false
       setSwitching(false)
@@ -318,6 +353,30 @@ export default function App() {
       await Desktop.HideEditor()
     } catch (failure) {
       setError(errorText(failure))
+    }
+  }
+  const chooseClose = async (action: 'background' | 'quit') => {
+    if (closeBusy) return
+    if (action === 'quit' && phaseRef.current === 'preparing') {
+      setCloseError('正在准备运行，请稍候再退出。')
+      return
+    }
+    setCloseBusy(true)
+    setCloseError('')
+    try {
+      if (rememberClose) setSettings(await Desktop.RememberCloseAction(action))
+      if (action === 'background') {
+        await flush()
+        await Desktop.HideEditor()
+        setClosePrompt(false)
+      } else {
+        setClosePrompt(false)
+        requestAction({ kind: 'quit' })
+      }
+    } catch (failure) {
+      setCloseError(errorText(failure))
+    } finally {
+      setCloseBusy(false)
     }
   }
   const onTerminalReady = useCallback((handle: TerminalHandle) => {
@@ -423,6 +482,21 @@ export default function App() {
       setError(errorText(failure))
     }
   }
+  const exportDraft = async () => {
+    if (exporting || transitionLock.current) return
+    setExporting(true)
+    try {
+      const snapshot = await flush()
+      if (snapshot) {
+        const path = await Desktop.ExportDraft(snapshot.id, resolvedLanguage(snapshot.language, snapshot.code) ?? 'auto')
+        if (path) setSaveStatus('已导出')
+      }
+    } catch (failure) {
+      setError(errorText(failure))
+    } finally {
+      setExporting(false)
+    }
+  }
   handlers.current = {
     hide,
     quit: () => requestAction({ kind: 'quit' }),
@@ -509,8 +583,54 @@ export default function App() {
     target.addEventListener('pointercancel', done)
   }
 
-  if (!draft || !settings)
+  const closeDialog = (
+    <Dialog open={closePrompt} onOpenChange={(open) => { if (!closeBusy) setClosePrompt(open) }}>
+      <DialogContent className="dialog-content" aria-describedby="close-description">
+        <div className="dialog-heading">
+          <DialogTitle>关闭 Trylet 时要怎么做？</DialogTitle>
+          <DialogDescription id="close-description">
+            退出应用会结束后台进程；最小化到托盘会继续在后台运行。
+          </DialogDescription>
+        </div>
+        <div className="dialog-scroll">
+          <label className="check-field">
+            <input type="checkbox" checked={rememberClose} disabled={closeBusy} onChange={(event) => setRememberClose(event.target.checked)} />
+            记住我的选择，下次不再询问
+          </label>
+          {closeError && <p className="form-error" role="alert">{closeError}</p>}
+        </div>
+        <div className="dialog-footer">
+          <Button variant="outline" disabled={closeBusy} onClick={() => void chooseClose('background')}>最小化到托盘</Button>
+          <Button variant="destructive" disabled={closeBusy} onClick={() => void chooseClose('quit')}>退出应用</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+
+  const windowControls = (
+    <div className="window-controls" aria-label="窗口操作">
+      <button className="icon-button" aria-label="最小化" title="最小化到任务栏" onClick={() => {
+        void Desktop.MinimiseEditor().catch((failure) => setError(errorText(failure)))
+      }}><Minus size={17} /></button>
+      <button className="icon-button" aria-label={largeWindow ? '还原小窗口' : '切换到大窗口'} title={largeWindow ? '还原小窗口' : '大窗口（最大化）'} onClick={() => {
+        void Desktop.ToggleWindowMode().then(setLargeWindow).catch((failure) => setError(errorText(failure)))
+      }}>{largeWindow ? <Minimize2 size={15} /> : <Maximize2 size={15} />}</button>
+      <button className="icon-button window-close" aria-label="关闭窗口" title="关闭窗口" onClick={() => {
+        if (!settings) {
+          setRememberClose(false)
+          setCloseError('')
+          setClosePrompt(true)
+          return
+        }
+        void Desktop.CloseEditor().catch((failure) => setError(errorText(failure)))
+      }}><X size={17} /></button>
+    </div>
+  )
+
+  if (!draft || !settings || !Editor)
     return (
+      <div className="app-shell">
+      <header className="app-navigation"><div className="top-spacer" />{windowControls}</header>
       <div className="boot-screen">
         <img src={appLogo} width={32} height={32} alt="" />
         <span>Trylet</span>
@@ -524,6 +644,8 @@ export default function App() {
         ) : (
           <p>正在恢复你的草稿…</p>
         )}
+      </div>
+      {closeDialog}
       </div>
     )
   return (
@@ -558,15 +680,7 @@ export default function App() {
         >
           <Pin size={15} />
         </button>
-        <button
-          className="icon-button"
-          aria-label="收起窗口"
-          title="收起窗口"
-          onClick={() => void hide()}
-        >
-          <Minus size={17} />
-        </button>
-
+        {windowControls}
       </header>
       {error && (
         <div className="notice" role="alert">
@@ -630,6 +744,10 @@ export default function App() {
               重命名练习
             </DropdownMenuItem>
             <DropdownMenuSeparator />
+            <DropdownMenuItem disabled={switching || exporting} onSelect={() => void exportDraft()}>
+              导出当前草稿…
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
             {history.map((item) => (
               <DropdownMenuItem
                 key={item.id}
@@ -661,6 +779,7 @@ export default function App() {
             language={language}
             locked={switching}
             onChange={(value) => updateDraft({ code: value })}
+            onError={setError}
           />
           {!draft.code && <div className="editor-hint">选择语言可填入模板 · Ctrl+Enter 运行</div>}
         </div>
@@ -792,7 +911,7 @@ export default function App() {
         {SkillsView ? <SkillsView active={activeView==='skills'}/> : <div className="panel-loading">{skillsLoadError ? <><span>{skillsLoadError}</span><Button variant="outline" onClick={()=>setSkillsLoadError('')}>重试</Button></> : <><LoaderCircle size={18} className="animate-spin"/>正在加载 Skills…</>}</div>}
       </section>
       <section id="panel-settings" role="tabpanel" aria-labelledby="tab-settings" className="settings-page" hidden={activeView!=='settings'}>
-        <SettingsPanel
+        {SettingsView ? <SettingsView
           active={activeView==='settings'}
           category={settingsCategory}
           onCategoryChange={setSettingsCategory}
@@ -816,16 +935,23 @@ export default function App() {
               void publish(value, hasToken)
             }
           }}
-        />
+        /> : <div className="panel-loading">{settingsLoadError ? <><span role="alert">{settingsLoadError}</span><Button variant="outline" onClick={() => setSettingsLoadError('')}>重试</Button></> : <><LoaderCircle size={18} className="animate-spin"/>正在加载设置…</>}</div>}
       </section>
-      {publishDraft && (
-        <PublishDialog
+      {closeDialog}
+      {publishDraft && (PublishView ? (
+        <PublishView
           draft={publishDraft}
           settings={settings}
           onClose={() => setPublishDraft(null)}
           onPublished={published}
         />
-      )}
+      ) : <Dialog open onOpenChange={(open) => { if (!open) setPublishDraft(null) }}>
+        <DialogContent className="dialog-content">
+          <div className="dialog-heading"><DialogTitle>发布到 GitHub</DialogTitle><DialogDescription>{publishLoadError ? '发布界面加载失败，请重试。' : '正在加载发布界面…'}</DialogDescription></div>
+          {publishLoadError && <div className="dialog-scroll"><p className="form-error" role="alert">{publishLoadError}</p></div>}
+          <div className="dialog-footer"><Button variant="outline" onClick={() => setPublishDraft(null)}>取消</Button>{publishLoadError && <Button onClick={() => setPublishLoadError('')}>重试</Button>}</div>
+        </DialogContent>
+      </Dialog>)}
       <Dialog
         open={pending !== null}
         onOpenChange={(open) => {

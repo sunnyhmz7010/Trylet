@@ -110,7 +110,7 @@ func TestPortableStoreAndPublicationPreserved(t *testing.T) {
 		t.Fatal("同一数据文件未完整恢复历史与设置")
 	}
 	files, err := os.ReadDir(s.root)
-	if err != nil || len(files) != 1 || files[0].Name() != "Trylet.json" {
+	if err != nil || len(files) != 2 || files[0].Name() != "Trylet.backup.json" || files[1].Name() != "Trylet.json" {
 		t.Fatalf("出现额外持久文件：%v %+v", err, files)
 	}
 	path := filepath.Join(s.root, "Trylet.json")
@@ -173,8 +173,10 @@ func TestPortableStoreFailedWritePreservesState(t *testing.T) {
 		t.Fatal("写入失败破坏了上一份完整数据")
 	}
 	files, _ := os.ReadDir(s.root)
-	if len(files) != 1 {
-		t.Fatal("失败后遗留了临时保存文件")
+	for _, file := range files {
+		if file.Name() != "Trylet.json" && file.Name() != "Trylet.backup.json" {
+			t.Fatal("失败后遗留了临时保存文件")
+		}
 	}
 }
 
@@ -184,7 +186,7 @@ func TestPortableTokenEncryptionAndRemoval(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	service := NewService(s, NewRunner(s.root, func(RunEvent) {}), nil)
+	service := NewService(s, NewRunner(s.root, func(RunEvent) {}), nil, nil)
 	const fakeToken = "trylet-local-test-token-not-a-real-secret"
 	if err = service.SetToken(fakeToken); err != nil {
 		t.Fatal(err)
@@ -204,7 +206,7 @@ func TestPortableTokenEncryptionAndRemoval(t *testing.T) {
 	if _, err = reloaded.readToken(); err == nil {
 		t.Fatal("无效密文必须报错")
 	}
-	if _, err = NewService(reloaded, NewRunner(s.root, func(RunEvent) {}), nil).Bootstrap(); err != nil {
+	if _, err = NewService(reloaded, NewRunner(s.root, func(RunEvent) {}), nil, nil).Bootstrap(); err != nil {
 		t.Fatal("失效令牌不应阻止读取本地草稿")
 	}
 	if err = service.RemoveToken(); err != nil {
@@ -215,7 +217,7 @@ func TestPortableTokenEncryptionAndRemoval(t *testing.T) {
 		t.Fatal("令牌移除后仍在持久文件中")
 	}
 	files, _ := os.ReadDir(s.root)
-	if len(files) != 1 || files[0].Name() != "Trylet.json" {
+	if len(files) != 2 || files[0].Name() != "Trylet.backup.json" || files[1].Name() != "Trylet.json" {
 		t.Fatal("令牌保存生成了额外文件")
 	}
 }

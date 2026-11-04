@@ -2,23 +2,25 @@ import { useEffect, useRef } from 'react'
 import { EditorView, basicSetup } from 'codemirror'
 import { Compartment, EditorState } from '@codemirror/state'
 import { placeholder } from '@codemirror/view'
-import { cpp } from '@codemirror/lang-cpp'
-import { python } from '@codemirror/lang-python'
 import { codeHighlighting, codeTheme } from './codeAppearance'
 import { copyHighlightedHTML } from './editorClipboard'
+import { errorText } from './lib/language'
 
 type Props = {
   value: string
   language: string | null
   locked: boolean
   onChange: (value: string) => void
+  onError: (message: string) => void
 }
 
-export default function Editor({ value, language, locked, onChange }: Props) {
+export default function Editor({ value, language, locked, onChange, onError }: Props) {
   const mount = useRef<HTMLDivElement>(null)
   const view = useRef<EditorView | null>(null)
   const callback = useRef(onChange)
   callback.current = onChange
+  const reportError = useRef(onError)
+  reportError.current = onError
   const languageConfig = useRef(new Compartment())
   const readOnlyConfig = useRef(new Compartment())
   const themeConfig = useRef(new Compartment())
@@ -32,9 +34,7 @@ export default function Editor({ value, language, locked, onChange }: Props) {
           codeHighlighting,
           themeConfig.current.of(codeTheme()),
           placeholder('在这里写几行代码，试试你的想法。'),
-          languageConfig.current.of(
-            language === 'python' ? python() : language === 'c' || language === 'cpp' ? cpp() : [],
-          ),
+          languageConfig.current.of([]),
           readOnlyConfig.current.of([
             EditorState.readOnly.of(locked),
             EditorView.editable.of(!locked),
@@ -70,11 +70,22 @@ export default function Editor({ value, language, locked, onChange }: Props) {
       instance.dispatch({ changes: { from: 0, to: instance.state.doc.length, insert: value } })
   }, [value])
   useEffect(() => {
-    view.current?.dispatch({
-      effects: languageConfig.current.reconfigure(
-        language === 'python' ? python() : language === 'c' || language === 'cpp' ? cpp() : [],
-      ),
+    const instance = view.current
+    if (!instance) return
+    let current = true
+    instance.dispatch({ effects: languageConfig.current.reconfigure([]) })
+    const support = language === 'python'
+      ? import('@codemirror/lang-python').then((module) => module.python())
+      : language === 'c' || language === 'cpp'
+        ? import('@codemirror/lang-cpp').then((module) => module.cpp())
+        : null
+    if (support) void support.then((extension) => {
+      // 切换语言或草稿后，旧请求不能覆盖当前语法配置。
+      if (current) instance.dispatch({ effects: languageConfig.current.reconfigure(extension) })
+    }).catch((failure) => {
+      if (current) reportError.current(`加载语法支持失败：${errorText(failure)}`)
     })
+    return () => { current = false }
   }, [language])
   useEffect(() => {
     view.current?.dispatch({

@@ -9,6 +9,7 @@ export default defineConfig({
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
   server: { host: '127.0.0.1', strictPort: true },
   build: {
+    manifest: true,
     rollupOptions: {
       input: {
         editor: fileURLToPath(new URL('./index.html', import.meta.url)),

@@ -1,6 +1,7 @@
 package trylet
 
 import (
+	"bytes"
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
@@ -35,7 +36,7 @@ type Store struct {
 }
 
 func NewStore(root, tempDir string) (*Store, error) {
-	s := &Store{root: root, tempDir: tempDir, state: diskState{Version: 1, Settings: Settings{AutoTemplate: true, Shortcut: "Ctrl+Alt+Space", Runtimes: map[string]string{}, CustomPaths: map[string]string{}}, Drafts: map[string]Draft{}}}
+	s := &Store{root: root, tempDir: tempDir, state: diskState{Version: 1, Settings: Settings{AutoTemplate: true, Shortcut: "Ctrl+Alt+Space", CloseAction: "background", BallEnabled: true, BallFollowWindow: true, Runtimes: map[string]string{}, CustomPaths: map[string]string{}}, Drafts: map[string]Draft{}}}
 	err := readJSON(filepath.Join(root, "Trylet.json"), &s.state)
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
 		return nil, fmt.Errorf("读取同级数据文件失败，原文件已保留：%w", err)
@@ -64,14 +65,6 @@ func newID() string {
 }
 
 func validID(id string) bool { b, err := hex.DecodeString(id); return err == nil && len(b) == 12 }
-
-func atomicJSON(path, tempDir string, value any) error {
-	b, err := json.MarshalIndent(value, "", "  ")
-	if err != nil {
-		return err
-	}
-	return atomicWrite(path, tempDir, append(b, '\n'))
-}
 
 func atomicWrite(path, tempDir string, data []byte) error {
 	f, err := os.CreateTemp(tempDir, ".Trylet-save-*")
@@ -135,7 +128,46 @@ func (s *Store) persist(d Draft) error {
 }
 
 func (s *Store) save() error {
-	return atomicJSON(filepath.Join(s.root, "Trylet.json"), s.tempDir, s.state)
+	data, err := json.MarshalIndent(s.state, "", "  ")
+	if err != nil {
+		return err
+	}
+	data = append(data, '\n')
+	path := filepath.Join(s.root, "Trylet.json")
+	previous, err := os.ReadFile(path)
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		return err
+	}
+	if err == nil {
+		if bytes.Equal(previous, data) {
+			return nil
+		}
+		var saved diskState
+		if err := json.Unmarshal(previous, &saved); err != nil || saved.Version != 1 {
+			return errors.New("同级数据文件已被外部修改为无效内容，已保留原文件和备份")
+		}
+		// 备份不保留令牌，避免移除凭据后仍能从旧副本恢复。
+		saved.Token = nil
+		backup, err := json.MarshalIndent(saved, "", "  ")
+		if err != nil {
+			return err
+		}
+		// 先保留上一份完整数据，备份失败时不替换当前文件。
+		if err := atomicWrite(filepath.Join(s.root, "Trylet.backup.json"), s.tempDir, append(backup, '\n')); err != nil {
+			return fmt.Errorf("保存数据备份失败：%w", err)
+		}
+	}
+	return atomicWrite(path, s.tempDir, data)
+}
+
+func (s *Store) ExportDraft(id, path string) error {
+	s.mu.Lock()
+	draft, err := s.load(id)
+	s.mu.Unlock()
+	if err != nil {
+		return err
+	}
+	return atomicWrite(path, filepath.Dir(path), []byte(draft.Code))
 }
 
 func (s *Store) Current() (Draft, error) {
@@ -189,12 +221,15 @@ func (s *Store) SaveDraft(in DraftInput) (Draft, error) {
 	if len(in.Code) > 1024*1024 {
 		return d, errors.New("单份练习最多支持 1 MiB 源码")
 	}
-	d.Code = strings.ReplaceAll(in.Code, "\r\n", "\n")
-	d.Language = in.Language
-	d.Title = strings.TrimSpace(in.Title)
-	if d.Title == "" {
-		d.Title = "未命名练习"
+	code := strings.ReplaceAll(in.Code, "\r\n", "\n")
+	title := strings.TrimSpace(in.Title)
+	if title == "" {
+		title = "未命名练习"
 	}
+	if d.Code == code && d.Language == in.Language && d.Title == title {
+		return d, nil
+	}
+	d.Code, d.Language, d.Title = code, in.Language, title
 	d.UpdatedAt = time.Now().Format(time.RFC3339Nano)
 	return d, s.persist(d)
 }
@@ -266,6 +301,22 @@ func (s *Store) SaveBallPosition(x, y int) error {
 	s.state.Settings.BallX = x
 	s.state.Settings.BallY = y
 	s.state.Settings.BallPlaced = true
+	if err := s.save(); err != nil {
+		s.state.Settings = old
+		return err
+	}
+	return nil
+}
+
+func (s *Store) RememberCloseAction(action string) error {
+	if action != "background" && action != "quit" {
+		return errors.New("窗口关闭方式无效")
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	old := s.state.Settings
+	s.state.Settings.CloseAction = action
+	s.state.Settings.RememberCloseAction = true
 	if err := s.save(); err != nil {
 		s.state.Settings = old
 		return err
