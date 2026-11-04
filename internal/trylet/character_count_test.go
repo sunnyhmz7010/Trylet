@@ -1,4 +1,4 @@
-package main
+package trylet
 
 import "testing"
 
@@ -21,7 +21,7 @@ func TestClipboardCharacterCountsMatchWord(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			count := countCharacters(test.text)
+			count := CountCharacters(test.text)
 			if !count.HasText || count.WithSpaces != test.with || count.WithoutSpaces != test.without {
 				t.Fatalf("得到 %+v，预期计空格 %d，不计空格 %d", count, test.with, test.without)
 			}

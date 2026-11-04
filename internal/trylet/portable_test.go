@@ -1,4 +1,4 @@
-package main
+package trylet
 
 import (
 	"bufio"
@@ -20,21 +20,21 @@ func TestPortableRuntimeEnvironmentAndOwnership(t *testing.T) {
 	if err := os.WriteFile(data, []byte("preserve"), 0600); err != nil {
 		t.Fatal(err)
 	}
-	first, err := prepareRuntime(root)
+	first, err := PrepareRuntime(root)
 	if err != nil {
 		t.Fatal(err)
 	}
-	dir := filepath.Join(root, runtimeFolder)
+	dir := filepath.Join(root, RuntimeFolder)
 	for _, key := range []string{"TEMP", "TMP", "TMPDIR", "WEBVIEW2_USER_DATA_FOLDER"} {
 		t.Setenv(key, os.Getenv(key))
 	}
-	if err = setRuntimeEnvironment(dir); err != nil || os.TempDir() != dir || os.Getenv("WEBVIEW2_USER_DATA_FOLDER") != filepath.Join(dir, "webview2") {
+	if err = SetRuntimeEnvironment(dir); err != nil || os.TempDir() != dir || os.Getenv("WEBVIEW2_USER_DATA_FOLDER") != filepath.Join(dir, "webview2") {
 		t.Fatal("临时目录或 WebView2 未固定在 EXE 同级", err)
 	}
 	if err = os.WriteFile(filepath.Join(dir, ".Trylet-save-interrupted"), []byte("old"), 0600); err != nil {
 		t.Fatal(err)
 	}
-	second, err := prepareRuntime(root)
+	second, err := PrepareRuntime(root)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -58,7 +58,7 @@ func TestPortableRuntimeEnvironmentAndOwnership(t *testing.T) {
 
 func TestPortableRuntimePreservesUnownedPath(t *testing.T) {
 	root := t.TempDir()
-	dir := filepath.Join(root, runtimeFolder)
+	dir := filepath.Join(root, RuntimeFolder)
 	if err := os.Mkdir(dir, 0700); err != nil {
 		t.Fatal(err)
 	}
@@ -66,7 +66,7 @@ func TestPortableRuntimePreservesUnownedPath(t *testing.T) {
 	if err := os.WriteFile(path, []byte("keep"), 0600); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := prepareRuntime(root); err == nil {
+	if _, err := PrepareRuntime(root); err == nil {
 		t.Fatal("不应清理没有本应用归属标记的目录")
 	}
 	if b, err := os.ReadFile(path); err != nil || string(b) != "keep" {
@@ -76,11 +76,11 @@ func TestPortableRuntimePreservesUnownedPath(t *testing.T) {
 
 func TestPortableCleanupWaitsForReleasedFiles(t *testing.T) {
 	root := t.TempDir()
-	owner, err := prepareRuntime(root)
+	owner, err := PrepareRuntime(root)
 	if err != nil {
 		t.Fatal(err)
 	}
-	dir := filepath.Join(root, runtimeFolder)
+	dir := filepath.Join(root, RuntimeFolder)
 	name, _ := windows.UTF16PtrFromString(filepath.Join(dir, "locked-cache"))
 	handle, err := windows.CreateFile(name, windows.GENERIC_READ|windows.GENERIC_WRITE, 0, nil, windows.CREATE_ALWAYS, windows.FILE_ATTRIBUTE_NORMAL, 0)
 	if err != nil {
@@ -109,7 +109,7 @@ func TestPortableCleanupWaitsForReleasedFiles(t *testing.T) {
 
 func TestPortableCleanupWaitsForParentExit(t *testing.T) {
 	root := t.TempDir()
-	owner, err := prepareRuntime(root)
+	owner, err := PrepareRuntime(root)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -153,7 +153,7 @@ func TestPortableCleanupWaitsForParentExit(t *testing.T) {
 	}
 	t.Cleanup(func() { _ = cleanup.Process.Kill() })
 	time.Sleep(150 * time.Millisecond)
-	if _, err = os.Stat(filepath.Join(root, runtimeFolder)); err != nil {
+	if _, err = os.Stat(filepath.Join(root, RuntimeFolder)); err != nil {
 		t.Fatal("父进程仍存活时提前清理了目录")
 	}
 	_ = parent.Process.Kill()
@@ -161,7 +161,7 @@ func TestPortableCleanupWaitsForParentExit(t *testing.T) {
 	if err = cleanup.Wait(); err != nil {
 		t.Fatal("退出后清理失败", err)
 	}
-	if _, err = os.Stat(filepath.Join(root, runtimeFolder)); !os.IsNotExist(err) {
+	if _, err = os.Stat(filepath.Join(root, RuntimeFolder)); !os.IsNotExist(err) {
 		t.Fatal("工作目录未删除", err)
 	}
 	if b, err := os.ReadFile(data); err != nil || string(b) != "preserve" {
@@ -173,7 +173,7 @@ func TestPortableSubprocess(t *testing.T) {
 	root := os.Getenv("TRYLET_TEST_ROOT")
 	switch os.Getenv("TRYLET_TEST_MODE") {
 	case "parent":
-		name, _ := windows.UTF16PtrFromString(filepath.Join(root, runtimeFolder, "locked-cache"))
+		name, _ := windows.UTF16PtrFromString(filepath.Join(root, RuntimeFolder, "locked-cache"))
 		handle, err := windows.CreateFile(name, windows.GENERIC_READ|windows.GENERIC_WRITE, 0, nil, windows.CREATE_ALWAYS, windows.FILE_ATTRIBUTE_NORMAL, 0)
 		if err != nil {
 			t.Fatal(err)
@@ -184,7 +184,7 @@ func TestPortableSubprocess(t *testing.T) {
 			time.Sleep(time.Second)
 		}
 	case "cleanup":
-		if err := runCleanupMode(root, []string{os.Getenv("TRYLET_TEST_PID"), os.Getenv("TRYLET_TEST_OWNER")}); err != nil {
+		if err := RunCleanupMode(root, []string{os.Getenv("TRYLET_TEST_PID"), os.Getenv("TRYLET_TEST_OWNER")}); err != nil {
 			t.Fatal(err)
 		}
 	}

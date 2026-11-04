@@ -10,6 +10,7 @@ export {
 
 export type {
     Bootstrap,
+    ClipboardCount,
     Directory,
     Draft,
     DraftInput,

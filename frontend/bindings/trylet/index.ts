@@ -5,7 +5,3 @@ import * as Desktop from "./desktop.js";
 export {
     Desktop
 };
-
-export type {
-    ClipboardCount
-} from "./models.js";

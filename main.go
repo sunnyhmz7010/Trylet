@@ -33,7 +33,7 @@ var instanceID = "trylet.desktop"
 func init() {
 	application.RegisterEvent[trylet.RunEvent]("trylet:run")
 	application.RegisterEvent[string]("trylet:git-changed")
-	application.RegisterEvent[ClipboardCount]("trylet:clipboard-count")
+	application.RegisterEvent[trylet.ClipboardCount]("trylet:clipboard-count")
 }
 
 type Desktop struct {
@@ -69,13 +69,13 @@ func main() {
 	}
 	root := filepath.Dir(executable)
 	if len(os.Args) > 1 && os.Args[1] == "--trylet-cleanup" {
-		if err = runCleanupMode(root, os.Args[2:]); err != nil {
+		if err = trylet.RunCleanupMode(root, os.Args[2:]); err != nil {
 			log.Print(err)
 			os.Exit(1)
 		}
 		return
 	}
-	runtimeDir := filepath.Join(root, runtimeFolder)
+	runtimeDir := filepath.Join(root, trylet.RuntimeFolder)
 	store, err := trylet.NewStore(root, runtimeDir)
 	if err != nil {
 		startupError(err)
@@ -133,17 +133,17 @@ func main() {
 			desktop.savePosition()
 		},
 	})
-	owner, err := prepareRuntime(root)
+	owner, err := trylet.PrepareRuntime(root)
 	if err != nil {
 		startupError(fmt.Errorf("无法在 EXE 同级准备运行目录，不会改用其他目录：%w", err))
 		return
 	}
 	defer func() {
-		if err := startCleanup(executable, owner); err != nil {
+		if err := trylet.StartCleanup(executable, owner); err != nil {
 			w32.MessageBox(0, "未能启动临时目录清理，下次启动时会重试："+err.Error(), "Trylet", w32.MB_OK|w32.MB_ICONERROR)
 		}
 	}()
-	if err = setRuntimeEnvironment(runtimeDir); err != nil {
+	if err = trylet.SetRuntimeEnvironment(runtimeDir); err != nil {
 		startupError(err)
 		return
 	}
@@ -339,31 +339,6 @@ func (d *Desktop) CopyText(text string) error {
 	return nil
 }
 
-type ClipboardCount struct {
-	HasText       bool   `json:"hasText"`
-	WithSpaces    int    `json:"withSpaces"`
-	WithoutSpaces int    `json:"withoutSpaces"`
-	Error         string `json:"error,omitempty"`
-}
-
-func countCharacters(text string) ClipboardCount {
-	count := ClipboardCount{HasText: true}
-	for _, character := range text {
-		// 按 Word 的纯文本统计口径，段落、分页和零宽空格不计为字符。
-		switch character {
-		case '\r', '\n', '\f', '\u200b', '\ufeff':
-			continue
-		}
-		count.WithSpaces++
-		switch character {
-		case ' ', '\t', '\v', '\u00a0', '\u2005', '\u3000':
-			continue
-		}
-		count.WithoutSpaces++
-	}
-	return count
-}
-
 func (d *Desktop) RefreshClipboard() {
 	select {
 	case d.clipboardWake <- struct{}{}:
@@ -371,30 +346,30 @@ func (d *Desktop) RefreshClipboard() {
 	}
 }
 
-func readClipboardCount() (ClipboardCount, error) {
+func readClipboardCount() (trylet.ClipboardCount, error) {
 	runtime.LockOSThread()
 	defer runtime.UnlockOSThread()
 	for attempt := 0; !w32.OpenClipboard(0); attempt++ {
 		if attempt == 99 {
-			return ClipboardCount{}, fmt.Errorf("剪贴板被其他程序占用")
+			return trylet.ClipboardCount{}, fmt.Errorf("剪贴板被其他程序占用")
 		}
 		time.Sleep(10 * time.Millisecond)
 	}
 	defer w32.CloseClipboard()
 	if !w32.IsClipboardFormatAvailable(w32.CF_UNICODETEXT) {
-		return ClipboardCount{}, nil
+		return trylet.ClipboardCount{}, nil
 	}
 	handle := w32.GetClipboardData(w32.CF_UNICODETEXT)
 	kernel := windows.NewLazySystemDLL("kernel32.dll")
 	size, _, err := kernel.NewProc("GlobalSize").Call(uintptr(handle))
 	if size < 2 {
-		return ClipboardCount{}, fmt.Errorf("读取剪贴板文本：%w", err)
+		return trylet.ClipboardCount{}, fmt.Errorf("读取剪贴板文本：%w", err)
 	}
 	pointer := w32.GlobalLock(w32.HGLOBAL(handle))
 	// GlobalUnlock 返回 0 也可能表示成功；按实际分配长度读取，避免大段文本被截断。
 	defer w32.GlobalUnlock(w32.HGLOBAL(handle))
 	text := windows.UTF16ToString(unsafe.Slice((*uint16)(pointer), int(size/2)))
-	return countCharacters(text), nil
+	return trylet.CountCharacters(text), nil
 }
 
 func (d *Desktop) watchClipboard() {

@@ -88,8 +88,7 @@ Skills 下载使用 GitHub ZIP 快照，无需 Git；公开仓库无需令牌，
 ```text
 Trylet/
 ├── main.go                  # 桌面窗口、托盘和快捷键
-├── portable.go              # 同级运行目录与退出清理
-├── internal/trylet/         # 草稿、运行环境、执行、Git 与发布
+├── internal/trylet/         # 草稿、运行环境、退出清理、字符统计、执行、Git 与发布
 ├── frontend/src/            # 编辑器、Git、设置和悬浮球
 ├── frontend/bindings/       # Wails 生成的类型与接口
 ├── build/                  # 图标和 Windows 资源

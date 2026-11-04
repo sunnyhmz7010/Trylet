@@ -9,6 +9,16 @@ export interface Bootstrap {
     "notice": string;
 }
 
+/**
+ * ClipboardCount 是剪贴板文本的字符统计结果。
+ */
+export interface ClipboardCount {
+    "hasText": boolean;
+    "withSpaces": number;
+    "withoutSpaces": number;
+    "error"?: string;
+}
+
 export interface Directory {
     "path": string;
     "names": string[] | null;

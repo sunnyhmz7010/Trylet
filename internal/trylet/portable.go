@@ -1,4 +1,4 @@
-package main
+package trylet
 
 import (
 	"crypto/rand"
@@ -18,7 +18,8 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-const runtimeFolder = ".Trylet-runtime"
+// RuntimeFolder 是 EXE 同级的临时运行目录名。
+const RuntimeFolder = ".Trylet-runtime"
 
 func withRuntimeLock(root string, action func() error) error {
 	// Windows mutex 的所有权属于线程，获取与释放必须保持在同一 OS 线程。
@@ -45,14 +46,15 @@ func withRuntimeLock(root string, action func() error) error {
 	return action()
 }
 
-func prepareRuntime(root string) (string, error) {
+// PrepareRuntime 准备运行目录并返回本次会话的归属标记。
+func PrepareRuntime(root string) (string, error) {
 	var id [12]byte
 	if _, err := rand.Read(id[:]); err != nil {
 		return "", err
 	}
 	owner := hex.EncodeToString(id[:])
 	err := withRuntimeLock(root, func() error {
-		dir := filepath.Join(root, runtimeFolder)
+		dir := filepath.Join(root, RuntimeFolder)
 		if info, err := os.Lstat(dir); err == nil {
 			if !info.IsDir() || info.Mode()&os.ModeSymlink != 0 {
 				return errors.New("同级运行路径被其他文件或链接占用，已保留原内容")
@@ -80,7 +82,7 @@ func prepareRuntime(root string) (string, error) {
 }
 
 func removeRuntime(root, owner string) error {
-	dir := filepath.Join(root, runtimeFolder)
+	dir := filepath.Join(root, RuntimeFolder)
 	info, err := os.Lstat(dir)
 	if errors.Is(err, os.ErrNotExist) {
 		return nil
@@ -131,7 +133,8 @@ func removeRuntime(root, owner string) error {
 	}
 }
 
-func setRuntimeEnvironment(dir string) error {
+// SetRuntimeEnvironment 将临时文件和 WebView2 缓存集中到运行目录。
+func SetRuntimeEnvironment(dir string) error {
 	for _, key := range []string{"TEMP", "TMP", "TMPDIR"} {
 		if err := os.Setenv(key, dir); err != nil {
 			return err
@@ -140,7 +143,8 @@ func setRuntimeEnvironment(dir string) error {
 	return os.Setenv("WEBVIEW2_USER_DATA_FOLDER", filepath.Join(dir, "webview2"))
 }
 
-func startCleanup(executable, owner string) error {
+// StartCleanup 启动独立进程，等待主进程退出后清理本次运行目录。
+func StartCleanup(executable, owner string) error {
 	command := exec.Command(executable, "--trylet-cleanup", strconv.Itoa(os.Getpid()), owner)
 	command.SysProcAttr = &syscall.SysProcAttr{HideWindow: true, CreationFlags: 0x08000000}
 	if err := command.Start(); err != nil {
@@ -149,7 +153,8 @@ func startCleanup(executable, owner string) error {
 	return command.Process.Release()
 }
 
-func runCleanupMode(root string, args []string) error {
+// RunCleanupMode 处理清理子进程的参数并执行目录清理。
+func RunCleanupMode(root string, args []string) error {
 	if len(args) != 2 {
 		return errors.New("清理参数无效")
 	}
