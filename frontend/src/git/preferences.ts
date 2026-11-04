@@ -1,4 +1,4 @@
-import * as Git from '../../bindings/trylet/internal/trylet/gitreader'
+import * as Git from '../../bindings/trylet/internal/git/gitreader'
 
 let cache: Record<string,string> = {}
 let queue = Promise.resolve()

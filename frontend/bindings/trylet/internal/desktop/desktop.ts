@@ -7,7 +7,7 @@ import { Call as $Call, CancellablePromise as $CancellablePromise } from "@wails
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
-import * as trylet$0 from "../trylet/models.js";
+import * as store$0 from "../store/models.js";
 
 export function Appearance(): $CancellablePromise<string> {
     return $Call.ByName("trylet/internal/desktop.Desktop.Appearance");
@@ -57,7 +57,7 @@ export function RefreshSelection(): $CancellablePromise<void> {
     return $Call.ByName("trylet/internal/desktop.Desktop.RefreshSelection");
 }
 
-export function RememberCloseAction(action: string): $CancellablePromise<trylet$0.Settings> {
+export function RememberCloseAction(action: string): $CancellablePromise<store$0.Settings> {
     return $Call.ByName("trylet/internal/desktop.Desktop.RememberCloseAction", action);
 }
 

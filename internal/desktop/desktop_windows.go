@@ -16,18 +16,26 @@ import (
 	"github.com/wailsapp/wails/v3/pkg/events"
 	"github.com/wailsapp/wails/v3/pkg/w32"
 	"golang.org/x/sys/windows"
-	"trylet/internal/trylet"
+
+	appservice "trylet/internal/app"
+	gitrepo "trylet/internal/git"
+	githubapi "trylet/internal/github"
+	"trylet/internal/portable"
+	execution "trylet/internal/runner"
+	"trylet/internal/skills"
+	storage "trylet/internal/store"
+	"trylet/internal/textstats"
 )
 
 var instanceID = "trylet.desktop"
 
 func init() {
-	application.RegisterEvent[trylet.RunEvent]("trylet:run")
-	application.RegisterEvent[trylet.SkillDownloadProgress]("trylet:skill-download")
+	application.RegisterEvent[execution.RunEvent]("trylet:run")
+	application.RegisterEvent[skills.SkillDownloadProgress]("trylet:skill-download")
 	application.RegisterEvent[string]("trylet:git-changed")
-	application.RegisterEvent[trylet.SelectionCount]("trylet:selection-count")
+	application.RegisterEvent[textstats.SelectionCount]("trylet:selection-count")
 	application.RegisterEvent[bool]("trylet:window-mode")
-	application.RegisterEvent[trylet.Settings]("trylet:settings")
+	application.RegisterEvent[storage.Settings]("trylet:settings")
 }
 
 type Desktop struct {
@@ -35,9 +43,9 @@ type Desktop struct {
 	app            *application.App
 	ball           *application.WebviewWindow
 	editor         *application.WebviewWindow
-	store          *trylet.Store
-	runner         *trylet.Runner
-	git            *trylet.GitReader
+	store          *storage.Store
+	runner         *execution.Runner
+	git            *gitrepo.GitReader
 	shortcut       string
 	notice         string
 	ready          bool
@@ -53,7 +61,7 @@ type Desktop struct {
 // Run 启动桌面应用，并处理同一可执行文件的辅助模式。
 func Run(assets fs.FS, appIcon []byte) {
 	if len(os.Args) > 1 && os.Args[1] == "--trylet-lfs-clean" {
-		if err := trylet.GitLFSClean(os.Stdin, os.Stdout); err != nil {
+		if err := gitrepo.GitLFSClean(os.Stdin, os.Stdout); err != nil {
 			log.Print(err)
 			os.Exit(1)
 		}
@@ -66,31 +74,31 @@ func Run(assets fs.FS, appIcon []byte) {
 	}
 	root := filepath.Dir(executable)
 	if len(os.Args) > 1 && os.Args[1] == "--trylet-cleanup" {
-		if err = trylet.RunCleanupMode(root, os.Args[2:]); err != nil {
+		if err = portable.RunCleanupMode(root, os.Args[2:]); err != nil {
 			log.Print(err)
 			os.Exit(1)
 		}
 		return
 	}
-	runtimeDir := filepath.Join(root, trylet.RuntimeFolder)
-	store, err := trylet.NewStore(root, runtimeDir)
-	if err != nil && trylet.CanRestoreStoreBackup(root) {
+	runtimeDir := filepath.Join(root, portable.RuntimeFolder)
+	store, err := storage.NewStore(root, runtimeDir)
+	if err != nil && storage.CanRestoreStoreBackup(root) {
 		message := "数据文件已损坏，是否从上一次自动备份恢复？\n\n恢复前会另存保留当前文件。备份可能不包含最后一次编辑。"
 		if w32.MessageBox(0, message, "恢复 Trylet 数据", w32.MB_YESNO|w32.MB_ICONWARNING|w32.MB_DEFBUTTON2) != w32.IDYES {
 			return
 		}
-		if _, restoreErr := trylet.RestoreStoreBackup(root); restoreErr != nil {
+		if _, restoreErr := storage.RestoreStoreBackup(root); restoreErr != nil {
 			startupError(restoreErr)
 			return
 		}
-		store, err = trylet.NewStore(root, runtimeDir)
+		store, err = storage.NewStore(root, runtimeDir)
 	}
 	if err != nil {
 		startupError(err)
 		return
 	}
 	desktop := &Desktop{store: store, selectionWake: make(chan struct{}, 1), selectionStop: make(chan struct{})}
-	runner := trylet.NewRunner(runtimeDir, func(event trylet.RunEvent) {
+	runner := execution.NewRunner(runtimeDir, func(event execution.RunEvent) {
 		desktop.mu.Lock()
 		editor := desktop.editor
 		desktop.mu.Unlock()
@@ -99,7 +107,8 @@ func Run(assets fs.FS, appIcon []byte) {
 		}
 	})
 	desktop.runner = runner
-	service := trylet.NewService(store, runner, desktop.applySettings, func(progress trylet.SkillDownloadProgress) {
+	service := appservice.NewService(store, runner, desktop.applySettings)
+	skillService := skills.NewService(store, githubapi.NewPublisher(store.ReadToken, "https://api.github.com"), func(progress skills.SkillDownloadProgress) {
 		desktop.mu.Lock()
 		window := desktop.editor
 		desktop.mu.Unlock()
@@ -107,7 +116,7 @@ func Run(assets fs.FS, appIcon []byte) {
 			window.EmitEvent("trylet:skill-download", progress)
 		}
 	})
-	gitReader := trylet.NewGitReader(store, runtimeDir, func(id string) {
+	gitReader := gitrepo.NewGitReader(store, runtimeDir, func(id string) {
 		desktop.mu.Lock()
 		window := desktop.editor
 		desktop.mu.Unlock()
@@ -127,7 +136,7 @@ func Run(assets fs.FS, appIcon []byte) {
 			DisableQuitOnLastWindowClosed: true, WebviewUserDataPath: filepath.Join(runtimeDir, "webview2"),
 		},
 		Logger:         slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelWarn})),
-		Services:       []application.Service{application.NewService(service), application.NewService(desktop), application.NewService(gitReader)},
+		Services:       []application.Service{application.NewService(service), application.NewService(desktop), application.NewService(gitReader), application.NewService(skillService)},
 		Assets:         application.AssetOptions{Handler: application.AssetFileServerFS(webAssets)},
 		SingleInstance: &application.SingleInstanceOptions{UniqueID: instanceID, OnSecondInstanceLaunch: func(application.SecondInstanceData) { desktop.ShowEditor() }},
 		OnShutdown: func() {
@@ -141,17 +150,17 @@ func Run(assets fs.FS, appIcon []byte) {
 			desktop.savePosition()
 		},
 	})
-	owner, err := trylet.PrepareRuntime(root)
+	owner, err := portable.PrepareRuntime(root)
 	if err != nil {
 		startupError(fmt.Errorf("无法在 EXE 同级准备运行目录，不会改用其他目录：%w", err))
 		return
 	}
 	defer func() {
-		if err := trylet.StartCleanup(executable, owner); err != nil {
+		if err := portable.StartCleanup(executable, owner); err != nil {
 			w32.MessageBox(0, "未能启动临时目录清理，下次启动时会重试："+err.Error(), "Trylet", w32.MB_OK|w32.MB_ICONERROR)
 		}
 	}()
-	if err = trylet.SetRuntimeEnvironment(runtimeDir); err != nil {
+	if err = portable.SetRuntimeEnvironment(runtimeDir); err != nil {
 		startupError(err)
 		return
 	}
@@ -265,6 +274,7 @@ func (d *Desktop) ShowEditor() {
 	window.Focus()
 	d.syncBall(d.store.Settings())
 }
+
 func (d *Desktop) ToggleEditor() {
 	d.mu.Lock()
 	window := d.editor
@@ -275,17 +285,20 @@ func (d *Desktop) ToggleEditor() {
 		d.ShowEditor()
 	}
 }
+
 func (d *Desktop) SyncBallDPI() {
 	if d.ball != nil {
 		d.shapeBall()
 	}
 }
+
 func (d *Desktop) SetBallWidth(width int) {
 	d.mu.Lock()
 	d.ballWidth = max(48, width)
 	d.mu.Unlock()
 	d.shapeBall()
 }
+
 func (d *Desktop) requestHide() {
 	d.mu.Lock()
 	window, ready := d.editor, d.ready
@@ -299,6 +312,7 @@ func (d *Desktop) requestHide() {
 		d.HideEditor()
 	}
 }
+
 func (d *Desktop) HideEditor() {
 	d.git.SetVisible(false)
 	d.mu.Lock()
@@ -333,9 +347,9 @@ func (d *Desktop) CloseEditor() {
 	}
 }
 
-func (d *Desktop) RememberCloseAction(action string) (trylet.Settings, error) {
+func (d *Desktop) RememberCloseAction(action string) (storage.Settings, error) {
 	if err := d.store.RememberCloseAction(action); err != nil {
-		return trylet.Settings{}, err
+		return storage.Settings{}, err
 	}
 	return d.store.Settings(), nil
 }
@@ -365,7 +379,7 @@ func (d *Desktop) ToggleWindowMode() bool {
 	return window.IsMaximised()
 }
 
-func (d *Desktop) syncBall(v trylet.Settings) {
+func (d *Desktop) syncBall(v storage.Settings) {
 	d.mu.Lock()
 	ball, window, ready := d.ball, d.editor, d.ballReady
 	d.mu.Unlock()
@@ -389,6 +403,7 @@ func (d *Desktop) syncBall(v trylet.Settings) {
 		ball.Hide()
 	}
 }
+
 func (d *Desktop) EditorReady() string {
 	d.mu.Lock()
 	d.ready = true
@@ -401,6 +416,7 @@ func (d *Desktop) EditorReady() string {
 	}
 	return notice
 }
+
 func (d *Desktop) SetPinned(value bool) {
 	d.mu.Lock()
 	window := d.editor
@@ -409,6 +425,7 @@ func (d *Desktop) SetPinned(value bool) {
 		window.SetAlwaysOnTop(value)
 	}
 }
+
 func (d *Desktop) Quit() error {
 	if id := d.runner.ActiveID(); id != "" {
 		if err := d.runner.Stop(id); err != nil {
@@ -418,6 +435,7 @@ func (d *Desktop) Quit() error {
 	d.app.Quit()
 	return nil
 }
+
 func (d *Desktop) requestQuit() {
 	d.mu.Lock()
 	ready := d.ready
@@ -432,9 +450,11 @@ func (d *Desktop) requestQuit() {
 	d.mu.Unlock()
 	window.EmitEvent("trylet:quit-requested")
 }
+
 func (d *Desktop) ChooseGitRepository() (string, error) {
 	return d.app.Dialog.OpenFile().CanChooseDirectories(true).CanChooseFiles(false).CanCreateDirectories(false).SetTitle("打开 Git 仓库").AttachToWindow(d.editor).PromptForSingleSelection()
 }
+
 func (d *Desktop) ChooseSkillsDirectory() (string, error) {
 	return d.app.Dialog.OpenFile().CanChooseDirectories(true).CanChooseFiles(false).CanCreateDirectories(false).SetTitle("选择项目或 Skills 目录").AttachToWindow(d.editor).PromptForSingleSelection()
 }
@@ -455,6 +475,7 @@ func (d *Desktop) ExportDraft(id, language string) (string, error) {
 	}
 	return path, nil
 }
+
 func (d *Desktop) CopyText(text string) error {
 	if !d.app.Clipboard.SetText(text) {
 		return fmt.Errorf("复制失败，请重试")
@@ -472,7 +493,7 @@ func (d *Desktop) OpenURL(raw string) error {
 
 func (d *Desktop) Appearance() string { return d.store.Settings().Theme }
 
-func (d *Desktop) applySettings(v trylet.Settings) (err error) {
+func (d *Desktop) applySettings(v storage.Settings) (err error) {
 	defer func() {
 		if err == nil && d.ball != nil {
 			d.ball.EmitEvent("trylet:appearance", v.Theme)

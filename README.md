@@ -92,8 +92,20 @@ Skills 下载使用 GitHub ZIP 快照，无需 Git；公开仓库无需令牌，
 ```text
 Trylet/
 ├── cmd/trylet/              # 可执行入口与生成的 Windows 资源
-├── internal/desktop/        # 桌面窗口、托盘、快捷键与 Windows 选区监听
-├── internal/trylet/         # 草稿、运行环境、退出清理、字符统计、执行、Git 与发布
+├── internal/
+│   ├── app/                # 草稿、设置、运行与发布的应用协调
+│   ├── desktop/            # 窗口、托盘、快捷键与 Windows 选区监听
+│   ├── git/                # 本地仓库、差异、历史、监听与安全快进
+│   ├── github/             # GitHub API、文件发布与仓库下载
+│   ├── runner/             # 环境检测、编译、ConPTY 执行与进程回收
+│   ├── skills/             # 技能扫描、安装、更新与下载取消
+│   ├── store/              # JSON 持久化、备份恢复与 Windows 凭据加密
+│   ├── portable/           # 同级运行目录与退出清理
+│   ├── textstats/          # 选中文字的字符统计
+│   ├── identity/           # 标识生成与校验
+│   ├── language/           # 支持的源码语言与扩展名
+│   ├── process/            # Windows 隐藏进程与 Job Object
+│   └── testutil/           # 跨模块测试使用的本地文件与 Git 夹具
 ├── frontend/embed.go        # 嵌入构建后的前端资源
 ├── frontend/src/            # 编辑器、Git、设置和悬浮球
 ├── frontend/bindings/       # Wails 生成的类型与接口

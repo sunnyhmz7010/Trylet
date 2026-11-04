@@ -22,16 +22,11 @@ import {
   Trash2,
   X,
 } from 'lucide-react'
-import * as Backend from '../bindings/trylet/internal/trylet/service'
+import * as Backend from '../bindings/trylet/internal/app/service'
 import * as Desktop from '../bindings/trylet/internal/desktop/desktop'
-import type {
-  Draft,
-  DraftSummary,
-  PublishRecord,
-  RunEvent,
-  RuntimeCandidate,
-  Settings,
-} from '../bindings/trylet/internal/trylet/models'
+import type { Draft, DraftSummary, Settings } from '../bindings/trylet/internal/store/models'
+import type { PublishRecord } from '../bindings/trylet/internal/github/models'
+import type { RunEvent, RuntimeCandidate } from '../bindings/trylet/internal/runner/models'
 import { Button } from './components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from './components/ui/dialog'
 import {

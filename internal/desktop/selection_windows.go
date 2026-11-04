@@ -10,10 +10,10 @@ import (
 	"unicode/utf16"
 	"unsafe"
 
-	"trylet/internal/trylet"
-
 	"github.com/wailsapp/wails/v3/pkg/w32"
 	"golang.org/x/sys/windows"
+
+	"trylet/internal/textstats"
 )
 
 // COM 虚表下标对应 Windows SDK 的 UIAutomationClient.h，兼容 x64 / ARM64。
@@ -59,14 +59,14 @@ func newSelectionAutomation() (*selectionObject, error) {
 	return automation, nil
 }
 
-func readSelectionCount(automation, walker *selectionObject) (trylet.SelectionCount, error) {
+func readSelectionCount(automation, walker *selectionObject) (textstats.SelectionCount, error) {
 	foreground := w32.GetForegroundWindow()
 	if foreground == 0 {
-		return trylet.SelectionCount{}, nil
+		return textstats.SelectionCount{}, nil
 	}
 	var element *selectionObject
 	if err := automation.call(8, uintptr(unsafe.Pointer(&element))); err != nil {
-		return trylet.SelectionCount{}, fmt.Errorf("读取焦点控件：%w", err)
+		return textstats.SelectionCount{}, fmt.Errorf("读取焦点控件：%w", err)
 	}
 	defer func() {
 		if element != nil {
@@ -77,65 +77,65 @@ func readSelectionCount(automation, walker *selectionObject) (trylet.SelectionCo
 	for element != nil {
 		var password int32
 		if err := element.call(35, uintptr(unsafe.Pointer(&password))); err != nil {
-			return trylet.SelectionCount{}, fmt.Errorf("读取控件类型：%w", err)
+			return textstats.SelectionCount{}, fmt.Errorf("读取控件类型：%w", err)
 		}
 		if password != 0 {
-			return trylet.SelectionCount{}, nil
+			return textstats.SelectionCount{}, nil
 		}
 		var pattern *selectionObject
 		err := element.call(14, 10014, uintptr(unsafe.Pointer(&textPatternID)), uintptr(unsafe.Pointer(&pattern)))
 		if err != nil && !errors.Is(err, syscall.Errno(0x80040204)) && !errors.Is(err, syscall.Errno(0x80004002)) {
-			return trylet.SelectionCount{}, fmt.Errorf("读取文字选区接口：%w", err)
+			return textstats.SelectionCount{}, fmt.Errorf("读取文字选区接口：%w", err)
 		}
 		if pattern != nil {
 			defer pattern.release()
 			count, err := countSelectedRanges(pattern)
 			if foreground != w32.GetForegroundWindow() {
-				return trylet.SelectionCount{}, nil
+				return textstats.SelectionCount{}, nil
 			}
 			return count, err
 		}
 		// 浏览器等应用的焦点可能位于文字节点，向上找到所属文字容器。
 		var parent *selectionObject
 		if err := walker.call(3, uintptr(unsafe.Pointer(element)), uintptr(unsafe.Pointer(&parent))); err != nil {
-			return trylet.SelectionCount{}, fmt.Errorf("读取文字容器：%w", err)
+			return textstats.SelectionCount{}, fmt.Errorf("读取文字容器：%w", err)
 		}
 		element.release()
 		element = parent
 	}
-	return trylet.SelectionCount{}, nil
+	return textstats.SelectionCount{}, nil
 }
 
-func countSelectedRanges(pattern *selectionObject) (trylet.SelectionCount, error) {
+func countSelectedRanges(pattern *selectionObject) (textstats.SelectionCount, error) {
 	var ranges *selectionObject
 	if err := pattern.call(5, uintptr(unsafe.Pointer(&ranges))); err != nil {
-		return trylet.SelectionCount{}, fmt.Errorf("读取选区：%w", err)
+		return textstats.SelectionCount{}, fmt.Errorf("读取选区：%w", err)
 	}
 	if ranges == nil {
-		return trylet.SelectionCount{}, nil
+		return textstats.SelectionCount{}, nil
 	}
 	defer ranges.release()
 	var length int32
 	if err := ranges.call(3, uintptr(unsafe.Pointer(&length))); err != nil {
-		return trylet.SelectionCount{}, fmt.Errorf("读取选区数量：%w", err)
+		return textstats.SelectionCount{}, fmt.Errorf("读取选区数量：%w", err)
 	}
 	oleaut := windows.NewLazySystemDLL("oleaut32.dll")
-	count := trylet.SelectionCount{}
+	count := textstats.SelectionCount{}
 	for index := int32(0); index < length; index++ {
 		var selected *selectionObject
 		if err := ranges.call(4, uintptr(index), uintptr(unsafe.Pointer(&selected))); err != nil {
-			return trylet.SelectionCount{}, fmt.Errorf("读取选区范围：%w", err)
+			return textstats.SelectionCount{}, fmt.Errorf("读取选区范围：%w", err)
 		}
 		var text *uint16
 		// -1 表示完整选区；退化为光标的空范围返回空文本，自动触发收起。
 		err := selected.call(12, ^uintptr(0), uintptr(unsafe.Pointer(&text)))
 		selected.release()
 		if err != nil {
-			return trylet.SelectionCount{}, fmt.Errorf("读取选中文字：%w", err)
+			return textstats.SelectionCount{}, fmt.Errorf("读取选中文字：%w", err)
 		}
 		if text != nil {
 			textLength, _, _ := oleaut.NewProc("SysStringLen").Call(uintptr(unsafe.Pointer(text)))
-			part := trylet.CountCharacters(string(utf16.Decode(unsafe.Slice(text, int(textLength)))))
+			part := textstats.CountCharacters(string(utf16.Decode(unsafe.Slice(text, int(textLength)))))
 			oleaut.NewProc("SysFreeString").Call(uintptr(unsafe.Pointer(text)))
 			count.HasText = count.HasText || part.HasText
 			count.WithSpaces += part.WithSpaces
@@ -175,7 +175,7 @@ func (d *Desktop) watchSelection() {
 	defer walker.release()
 	ticker := time.NewTicker(150 * time.Millisecond)
 	defer ticker.Stop()
-	previous := trylet.SelectionCount{}
+	previous := textstats.SelectionCount{}
 	lastError := ""
 	for {
 		force := false
@@ -186,7 +186,7 @@ func (d *Desktop) watchSelection() {
 			force = true
 		case <-ticker.C:
 		}
-		count := trylet.SelectionCount{}
+		count := textstats.SelectionCount{}
 		var readErr error
 		if d.ball.IsVisible() {
 			count, readErr = readSelectionCount(automation, walker)

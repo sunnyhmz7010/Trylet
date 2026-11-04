@@ -7,16 +7,25 @@ import type { Events } from "@wailsio/runtime";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
-import type * as trylet$0 from "../../../../../trylet/internal/trylet/models.js";
+import type * as runner$0 from "../../../../../trylet/internal/runner/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import type * as skills$0 from "../../../../../trylet/internal/skills/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import type * as store$0 from "../../../../../trylet/internal/store/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import type * as textstats$0 from "../../../../../trylet/internal/textstats/models.js";
 
 declare module "@wailsio/runtime" {
     namespace Events {
         interface CustomEvents {
             "trylet:git-changed": string;
-            "trylet:run": trylet$0.RunEvent;
-            "trylet:selection-count": trylet$0.SelectionCount;
-            "trylet:settings": trylet$0.Settings;
-            "trylet:skill-download": trylet$0.SkillDownloadProgress;
+            "trylet:run": runner$0.RunEvent;
+            "trylet:selection-count": textstats$0.SelectionCount;
+            "trylet:settings": store$0.Settings;
+            "trylet:skill-download": skills$0.SkillDownloadProgress;
             "trylet:window-mode": boolean;
         }
     }
