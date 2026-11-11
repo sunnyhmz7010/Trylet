@@ -4,6 +4,8 @@
 /bin/
 /release/
 /Trylet.json
+/Trylet.backup.json
+/Trylet.corrupt-*.json
 /.Trylet-runtime/
 /.Trylet-save-*
 *.log

@@ -1,0 +1,7 @@
+.app-toast-viewport { position:fixed; z-index:200; right:16px; bottom:16px; display:flex; flex-direction:column; gap:8px; width:min(400px,calc(100vw - 32px)); max-height:calc(100dvh - 32px); overflow:auto; margin:0; padding:0; list-style:none; outline:none; pointer-events:none; }
+.app-toast { display:flex; align-items:flex-start; gap:9px; padding:12px; border:1px solid var(--border); border-radius:9px; background:var(--card); color:var(--foreground); box-shadow:0 4px 20px #0002; pointer-events:auto; font-size:12px; line-height:1.6; }
+.app-toast > svg { flex-shrink:0; margin-top:2px; color:var(--success); }
+.app-toast[data-kind=error] > svg,.app-toast[data-kind=warning] > svg { color:var(--destructive); }
+.app-toast > [data-radix-toast-announce-exclude] { flex-shrink:0; }
+.app-toast > div { flex:1; min-width:0; white-space:pre-wrap; overflow-wrap:anywhere; }
+.app-toast .icon-button { flex-shrink:0; margin-left:auto; }

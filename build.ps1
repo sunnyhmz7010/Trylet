@@ -12,14 +12,14 @@ try {
     }
     npm --prefix frontend ci --prefer-offline --no-audit --no-fund
     if ($LASTEXITCODE -ne 0) { throw '前端依赖安装失败' }
-    go run github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0 generate bindings -ts -i -names
+    go run github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0 generate bindings -ts -i -names ./cmd/trylet
     if ($LASTEXITCODE -ne 0) { throw 'Wails 接口生成失败' }
     npm --prefix frontend run build
     if ($LASTEXITCODE -ne 0) { throw '前端构建失败' }
-    go run github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0 generate syso -manifest build/app.manifest -icon build/icon.ico -arch $targetArchitecture
+    go run github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0 generate syso -manifest build/app.manifest -icon build/icon.ico -arch $targetArchitecture -out "cmd/trylet/rsrc_windows_$targetArchitecture.syso"
     if ($LASTEXITCODE -ne 0) { throw 'Windows 资源生成失败' }
     New-Item -ItemType Directory -Force -Path bin | Out-Null
-    go build -tags production -trimpath -ldflags '-H windowsgui -s -w' -o bin/Trylet.exe .
+    go build -tags production -trimpath -ldflags '-H windowsgui -s -w' -o bin/Trylet.exe ./cmd/trylet
     if ($LASTEXITCODE -ne 0) { throw '桌面应用构建失败' }
     Write-Host ('已生成：' + (Join-Path $PSScriptRoot 'bin\Trylet.exe'))
     if ($Run) { Start-Process -FilePath (Join-Path $PSScriptRoot 'bin\Trylet.exe') -WindowStyle Hidden }

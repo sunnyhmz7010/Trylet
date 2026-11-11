@@ -1,0 +1,69 @@
+package skills
+
+import (
+	storage "trylet/internal/store"
+)
+
+type SkillLocation struct {
+	ID       string `json:"id"`
+	Scope    string `json:"scope"`
+	Tool     string `json:"tool"`
+	Path     string `json:"path"`
+	Exists   bool   `json:"exists"`
+	ReadOnly bool   `json:"readOnly"`
+}
+
+type SkillWorkspace struct {
+	Preferences storage.SkillPreferences `json:"preferences"`
+	Locations   []SkillLocation          `json:"locations"`
+}
+
+type SkillEntry struct {
+	Name string `json:"name"`
+	Path string `json:"path"`
+}
+
+type SkillInstallation struct {
+	ID         string       `json:"id"`
+	LocationID string       `json:"locationID"`
+	Name       string       `json:"name"`
+	Path       string       `json:"path"`
+	Skills     []SkillEntry `json:"skills"`
+	Repository string       `json:"repository"`
+	SourcePath string       `json:"sourcePath"`
+	Mode       string       `json:"mode"`
+	Revision   string       `json:"revision"`
+	ReadOnly   bool         `json:"readOnly"`
+	Linked     bool         `json:"linked"`
+	Missing    bool         `json:"missing"`
+	Issue      string       `json:"issue"`
+}
+
+type SkillPreview struct {
+	ID         string       `json:"id"`
+	Repository string       `json:"repository"`
+	Revision   string       `json:"revision"`
+	Mode       string       `json:"mode"`
+	Candidates []SkillEntry `json:"candidates"`
+}
+
+type SkillDownloadProgress struct {
+	ID    string `json:"id"`
+	Phase string `json:"phase"`
+}
+
+type SkillInstallResult struct {
+	SourcePath string `json:"sourcePath"`
+	Name       string `json:"name"`
+	Path       string `json:"path"`
+	Error      string `json:"error"`
+	Warning    string `json:"warning"`
+}
+
+type SkillUpdateResult struct {
+	NeedsConfirmation bool     `json:"needsConfirmation"`
+	Confirmation      string   `json:"confirmation"`
+	Changes           []string `json:"changes"`
+	Message           string   `json:"message"`
+	Warning           string   `json:"warning"`
+}
