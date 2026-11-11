@@ -88,7 +88,9 @@ textarea {
   --wails-draggable: no-drag;
 }
 button:focus-visible,
-input:focus-visible {
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
@@ -113,7 +115,7 @@ input:focus-visible {
 .language-trigger {
   min-width: 113px;
   height: 30px;
-  border: 1px solid var(--border);
+  border: 0.5px solid var(--border);
   border-radius: 6px;
   background: var(--card);
   padding: 0 9px;
@@ -193,7 +195,7 @@ input:focus-visible {
   flex-direction: column;
   margin: 0 10px;
   overflow: hidden;
-  border: 1px solid var(--border);
+  border: 0.5px solid var(--border);
   border-radius: 9px;
   background: var(--card);
 }
@@ -254,7 +256,7 @@ input:focus-visible {
   bottom: 17px;
   left: 51px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
   pointer-events: none;
 }
 .footer {
@@ -275,7 +277,7 @@ input:focus-visible {
   padding: 4px 0;
   background: transparent;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
 }
 .environment span {
   max-width: 160px;
@@ -293,14 +295,16 @@ input:focus-visible {
   background: var(--success);
 }
 .footer-status {
+  min-width: 0;
   flex: 1;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
 }
 .footer-actions {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 7px;
@@ -314,7 +318,7 @@ input:focus-visible {
   border-radius: 6px !important;
 }
 .shortcut {
-  font-size: 10px;
+  font-size: 12px;
   opacity: 0.65;
   font-weight: 400;
   margin-left: 5px;
@@ -348,7 +352,7 @@ input:focus-visible {
   height: 5px;
   min-height: 5px;
   cursor: row-resize;
-  border-top: 1px solid var(--border);
+  border-top: 0.5px solid var(--border);
   background: var(--card);
 }
 .resize-handle:hover {
@@ -361,12 +365,12 @@ input:focus-visible {
   align-items: center;
   gap: 8px;
   padding: 0 12px;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
 }
 .terminal-header strong {
   color: var(--foreground);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
 }
 .terminal-header .icon-button {
@@ -409,7 +413,7 @@ input:focus-visible {
 }
 .dialog-heading {
   padding: 19px 22px 15px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 0.5px solid var(--border);
 }
 .dialog-heading h2 {
   font-size: 16px;
@@ -433,7 +437,7 @@ input:focus-visible {
   align-items: center;
   gap: 8px;
   padding: 13px 22px;
-  border-top: 1px solid var(--border);
+  border-top: 0.5px solid var(--border);
   background: var(--card);
 }
 .field {
@@ -451,7 +455,7 @@ input:focus-visible {
 .field small,
 .help {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.65;
 }
 .field input {
@@ -490,7 +494,7 @@ input:focus-visible {
   height: 14px;
 }
 .runtime-row {
-  border: 1px solid var(--border);
+  border: 0.5px solid var(--border);
   border-radius: 7px;
   padding: 10px;
   margin-bottom: 9px;
@@ -502,12 +506,12 @@ input:focus-visible {
   margin-top: 5px;
   color: var(--muted);
   font-family: Consolas, monospace;
-  font-size: 10px;
+  font-size: 12px;
   overflow-wrap: anywhere;
 }
 .native-select {
   height: 32px;
-  border: 1px solid var(--border);
+  border: 0.5px solid var(--border);
   background: var(--card);
   color: var(--foreground);
   border-radius: 6px;
@@ -536,7 +540,7 @@ input:focus-visible {
   gap: 8px;
 }
 .directory-box {
-  border: 1px solid var(--border);
+  border: 0.5px solid var(--border);
   border-radius: 7px;
   overflow: hidden;
   min-height: 120px;
@@ -547,9 +551,9 @@ input:focus-visible {
   flex-wrap: wrap;
   gap: 3px;
   padding: 8px 10px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 0.5px solid var(--border);
   background: var(--background);
-  font-size: 11px;
+  font-size: 12px;
 }
 .breadcrumbs button {
   background: none;
@@ -587,7 +591,7 @@ input:focus-visible {
   color: var(--muted);
 }
 .directory-empty {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
   padding: 15px 10px;
 }
@@ -603,7 +607,7 @@ input:focus-visible {
   padding: 9px 11px;
   background: var(--background);
   border-radius: 6px;
-  font-size: 11px;
+  font-size: 12px;
   overflow-wrap: anywhere;
   color: var(--muted);
   line-height: 1.7;
@@ -615,8 +619,8 @@ input:focus-visible {
 }
 .diff-caption {
   display: flex;
-  border-bottom: 1px solid var(--border);
-  font-size: 11px;
+  border-bottom: 0.5px solid var(--border);
+  font-size: 12px;
   color: var(--muted);
 }
 .diff-caption span {
@@ -625,7 +629,7 @@ input:focus-visible {
 }
 .diff-mount {
   height: 230px;
-  border: 1px solid var(--border);
+  border: 0.5px solid var(--border);
   border-radius: 6px;
   overflow: auto;
 }
@@ -633,7 +637,7 @@ input:focus-visible {
   height: 100%;
 }
 .diff-mount .cm-editor {
-  font-size: 11px;
+  font-size: 12px;
   height: 100%;
 }
 .diff-mount .cm-scroller {
@@ -672,8 +676,11 @@ input:focus-visible {
   line-height: 1.7;
 }
 .history-date {
+  display: inline-flex;
+  gap: 8px;
+  flex-shrink: 0;
   margin-left: auto;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
 }
 .history-item {
@@ -736,16 +743,22 @@ input:focus-visible {
 }
 
 [hidden] { display:none !important; }
-.app-navigation { height:43px; min-height:43px; display:flex; align-items:center; gap:4px; padding:5px 12px 0; --wails-draggable:drag; user-select:none; }
-.app-tabs { display:flex; align-self:stretch; align-items:flex-end; gap:5px; --wails-draggable:no-drag; }
-.folder-tab { position:relative; display:grid; place-items:center; width:49px; height:31px; padding:0; border:1px solid var(--border); border-bottom:0; border-radius:7px 7px 0 0; background:var(--secondary); color:var(--muted); }
-.folder-tab::before { content:''; position:absolute; top:-5px; left:-1px; width:22px; height:5px; border:1px solid var(--border); border-bottom:0; border-radius:4px 4px 0 0; background:inherit; }
-.folder-tab:hover { color:var(--foreground); background:var(--background); }
-.folder-tab[aria-selected=true] { background:var(--card); color:var(--primary); height:34px; }
-.folder-tab:focus-visible { outline-offset:-3px; }
+/* 文字导航始终可见；保留右侧空白作为窗口拖拽区域。 */
+.app-navigation { height:48px; min-height:48px; display:flex; align-items:center; gap:4px; padding:0 12px; --wails-draggable:drag; user-select:none; }
+.app-tabs { display:flex; align-items:center; gap:4px; flex-shrink:0; --wails-draggable:no-drag; }
+.folder-tab { display:inline-flex; align-items:center; justify-content:center; gap:6px; height:32px; padding:0 10px; border:0.5px solid transparent; border-radius:6px; background:transparent; color:var(--muted); font-size:12px; font-weight:500; white-space:nowrap; }
+.folder-tab svg { flex-shrink:0; }
+.folder-tab:hover { color:var(--foreground); background:var(--secondary); }
+.folder-tab[aria-selected=true] { background:var(--active-fill); color:var(--primary); }
+.folder-tab:focus-visible { outline-offset:2px; }
+@media (max-width:570px) {
+  .app-navigation { padding:0 8px; }
+  .app-tabs { gap:2px; }
+  .folder-tab { padding:0 7px; gap:5px; }
+}
 .editor-page { display:flex; flex:1; min-height:0; flex-direction:column; }
-.page-toolbar { height:var(--toolbar-height); min-height:var(--toolbar-height); padding:0 12px; display:flex; align-items:center; gap:9px; background:var(--background); color:var(--muted); }
-.page-footer { height:var(--footer-height); min-height:var(--footer-height); display:flex; align-items:center; gap:8px; padding:0 12px; background:var(--background); color:var(--muted); }
+.page-toolbar { flex-shrink:0; height:var(--toolbar-height); min-height:var(--toolbar-height); padding:0 12px; display:flex; align-items:center; gap:9px; background:var(--background); color:var(--muted); }
+.page-footer { flex-shrink:0; height:var(--footer-height); min-height:var(--footer-height); display:flex; align-items:center; gap:8px; padding:0 12px; background:var(--background); color:var(--muted); }
 .section-tabs { display:flex; gap:4px; min-width:0; }
 .section-tabs button { height:28px; padding:0 10px; border:1px solid transparent; border-radius:var(--control-radius); background:transparent; color:var(--muted); font-size:12px; white-space:nowrap; }
 .section-tabs button:hover { background:var(--secondary); color:var(--foreground); }

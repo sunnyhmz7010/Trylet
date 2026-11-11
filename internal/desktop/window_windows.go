@@ -16,7 +16,7 @@ func (d *Desktop) createEditor() *application.WebviewWindow {
 	if d.editor != nil {
 		return d.editor
 	}
-	d.editor = d.app.Window.NewWithOptions(application.WebviewWindowOptions{Name: "editor", Title: "Trylet", Width: 720, Height: 560, MinWidth: 480, MinHeight: 380, Frameless: true, Hidden: true, InitialPosition: application.WindowCentered, BackgroundColour: application.NewRGB(244, 244, 246), DefaultContextMenuDisabled: true})
+	d.editor = d.app.Window.NewWithOptions(application.WebviewWindowOptions{Name: "editor", Title: "Trylet", Width: 480, Height: 380, MinWidth: 480, MinHeight: 380, Frameless: true, Hidden: true, InitialPosition: application.WindowCentered, BackgroundColour: application.NewRGB(244, 244, 246), DefaultContextMenuDisabled: true})
 	d.editor.RegisterHook(events.Common.WindowClosing, func(e *application.WindowEvent) { e.Cancel(); d.CloseEditor() })
 	for _, event := range []events.WindowEventType{events.Common.WindowShow, events.Common.WindowHide, events.Common.WindowMinimise, events.Common.WindowUnMinimise, events.Common.WindowMaximise, events.Common.WindowUnMaximise, events.Common.WindowRestore} {
 		d.editor.OnWindowEvent(event, func(*application.WindowEvent) {

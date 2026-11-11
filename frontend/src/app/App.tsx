@@ -102,6 +102,7 @@ export default function App() {
           {([{view:'editor',label:'编辑器',Icon:Code2},{view:'git',label:'Git',Icon:GitBranch},{view:'skills',label:'Skills',Icon:Puzzle},{view:'settings',label:'设置',Icon:Settings2}] as const).map(({view,label,Icon}) => (
             <button key={view} id={'tab-'+view} className="folder-tab" role="tab" aria-label={label} title={label} aria-selected={activeView===view} aria-controls={'panel-'+view} tabIndex={activeView===view?0:-1} onClick={() => {cancelContinuation();setActiveView(view)}}>
               <Icon size={17} aria-hidden="true"/>
+              <span>{label}</span>
             </button>
           ))}
         </div>

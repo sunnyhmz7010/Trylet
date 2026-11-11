@@ -44,7 +44,7 @@ typography:
     fontWeight: 500
   caption:
     fontFamily: '"Segoe UI", "Microsoft YaHei UI", sans-serif'
-    fontSize: "11px"
+    fontSize: "12px"
     fontWeight: 400
     lineHeight: 1.65
   code:
@@ -116,19 +116,18 @@ components:
   app-navigation:
     backgroundColor: "{colors.background}"
     textColor: "{colors.muted}"
-    padding: "5px 12px 0"
-    height: "43px"
+    padding: "0 12px"
+    height: "48px"
   folder-tab:
-    backgroundColor: "{colors.secondary}"
+    backgroundColor: "transparent"
     textColor: "{colors.muted}"
-    rounded: "7px 7px 0 0"
-    padding: "0"
-    width: "49px"
-    height: "31px"
+    rounded: "6px"
+    padding: "0 10px"
+    height: "32px"
   folder-tab-selected:
-    backgroundColor: "{colors.card}"
+    backgroundColor: "{colors.active-fill}"
     textColor: "{colors.primary}"
-    height: "34px"
+    height: "32px"
   toolbar:
     backgroundColor: "{colors.background}"
     textColor: "{colors.muted}"
@@ -228,9 +227,9 @@ Trylet 是围绕单文件代码编辑与本地 Git 只读浏览的紧凑桌面�
 
 ## Layout
 
-主窗口初始尺寸（720×560px），最小尺寸（500×380px）；悬浮球窗口（48×48 DIP）。这是当前桌面表面的实现尺寸，不要求未来所有表面采用同一构图。
+主窗口默认以最小尺寸（480×380px）打开；悬浮球窗口（48×48 DIP）。这是当前桌面表面的实现尺寸，不要求未来所有表面采用同一构图。
 
-主窗口以垂直弹性布局排列公共导航和当前页面。公共导航高（43px），内边距（5px 12px 0），左侧是 editor / Git / Skills / settings 四枚文件夹标签，右侧是置顶与收起；标签规格见 app-navigation、folder-tab 和 folder-tab-selected。
+主窗口以垂直弹性布局排列公共导航和当前页面。公共导航高（48px），内边距（0 12px），左侧是编辑器 / Git / Skills / 设置四枚图文标签，右侧是置顶与收起；标签规格见 app-navigation、folder-tab 和 folder-tab-selected。
 
 编辑器、Git 和设置统一使用（41px）页内工具栏、左右各（10px）边距的细边框工作面及（49px）底栏；工作面圆角见 workspace。编辑器底栏保留环境、保存状态、发布与运行，Git 底栏显示仓库路径与更改数量，设置底栏保留保存反馈、取消与保存设置。
 
@@ -238,7 +237,7 @@ Git 页工具栏保留项目、分支与刷新等浏览操作，更改列表位�
 
 终端在编辑器工作区下方展开，初始高（190px），通过顶部拖动条调整，并为代码区保留空间。发布等对话框限制在视口内，最大宽（600px）、宽度为视口减（32px），最大高为动态视口减（28px）；标题和操作区固定，正文独立滚动。
 
-窄于或等于（570px）时隐藏运行快捷键文字，缩短草稿、环境与状态文本的可用宽度，设置工作面内边距降至（16px），对话框标题、正文水平内边距降至（16px）。公共导航保持四枚图标标签。Skills 页加入前的原生视觉检查覆盖（720×560px）编辑器与设置浅色、编辑器/终端/设置/Git 深色，以及（500×560px）Git 自动统一差异和设置页无溢出；最大化（1707×1019px）验证 Git 左右对照，随后在设置保存统一差异并返回 Git，展示立即同步。独立收尾审查给出 ship，无必须修复项；该判断仅覆盖本轮截图与操作范围，不代表完整验收。系统动态主题、（500×380px）最小高度及多屏尚未测试，改名前的历史 DPI 截图不构成本轮验收。
+窄于或等于（570px）时隐藏运行快捷键文字，缩短草稿、环境与状态文本的可用宽度，设置工作面内边距降至（16px），对话框标题、正文水平内边距降至（16px）。公共导航保持四枚图文标签，缩小标签间距和水平内边距以保留窗口控制区。Skills 页加入前的原生视觉检查覆盖（720×560px）编辑器与设置浅色、编辑器/终端/设置/Git 深色，以及（500×560px）Git 自动统一差异和设置页无溢出；最大化（1707×1019px）验证 Git 左右对照，随后在设置保存统一差异并返回 Git，展示立即同步。独立收尾审查给出 ship，无必须修复项；该判断仅覆盖本轮截图与操作范围，不代表完整验收。系统动态主题、（500×380px）最小高度及多屏尚未测试，改名前的历史 DPI 截图不构成本轮验收。
 
 间距以小步长组织，常用值见 frontmatter；少量（7px、9px）用于控件局部，不将其伪装成统一的四像素网格。
 

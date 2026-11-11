@@ -91,11 +91,11 @@ export default function EditorWorkspace({ draft, drafts, commands, execution, ac
                   <FolderClock size={13} />
                   <span className="history-name">{item.title}</span>
                   <span className="history-date">
-                    {languageNames[item.language]} ·{' '}
-                    {new Date(item.updatedAt).toLocaleTimeString('zh-CN', {
+                    <span>{languageNames[item.language]}</span>
+                    <span>{new Date(item.updatedAt).toLocaleTimeString('zh-CN', {
                       hour: '2-digit',
                       minute: '2-digit',
-                    })}
+                    })}</span>
                   </span>
                 </div>
               </DropdownMenuItem>
@@ -114,7 +114,7 @@ export default function EditorWorkspace({ draft, drafts, commands, execution, ac
             onChange={(value) => updateDraft({ code: value })}
             onError={setError}
           />
-          {!draft.code && <div className="editor-hint">选择语言可填入模板 · Ctrl+Enter 运行</div>}
+          {!draft.code && <div className="editor-hint">选择语言可填入模板，Ctrl+Enter 运行</div>}
         </div>
         {Terminal && (
           <section
@@ -166,7 +166,7 @@ export default function EditorWorkspace({ draft, drafts, commands, execution, ac
         <button
           className="environment"
           title={
-            selectedRuntime ? `${selectedRuntime.name} · ${selectedRuntime.path}` : '选择本机环境'
+            selectedRuntime ? `${selectedRuntime.name}：${selectedRuntime.path}` : '选择本机环境'
           }
           onClick={() => {onSettings()}}
         >
@@ -185,7 +185,7 @@ export default function EditorWorkspace({ draft, drafts, commands, execution, ac
                   : '自动识别语言'}
           </span>
         </button>
-        {drafts.saveError ? <button className="text-action footer-status" title={drafts.saveError} disabled={switching || saveStatus === '保存中'} onClick={() => void drafts.flush().catch((failure) => setError(errorText(failure)))}>{saveStatus === '保存中' ? '正在重试保存…' : '保存失败 · 重试'}</button> : <span className="footer-status">{saveStatus}</span>}
+        {drafts.saveError ? <button className="text-action footer-status" title={drafts.saveError} disabled={switching || saveStatus === '保存中'} onClick={() => void drafts.flush().catch((failure) => setError(errorText(failure)))}>{saveStatus === '保存中' ? '正在重试保存…' : '保存失败，重试'}</button> : <span className="footer-status">{saveStatus}</span>}
         {Terminal && !terminalOpen && (
           <button
             className="icon-button"

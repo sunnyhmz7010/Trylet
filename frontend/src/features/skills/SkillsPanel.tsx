@@ -162,7 +162,7 @@ export default function SkillsPanel({ active }: { active: boolean }) {
       <label htmlFor="skills-location">安装位置</label>
       <select id="skills-location" className="native-select" value={location?.path ?? ''} disabled={contextBusy || busy.size > 0 || batchBusy || !location} onChange={(event) => void changeContext({ location: event.target.value })}>
         {!location && <option value="">请先选择项目</option>}
-        {workspace.locations?.filter((item) => item.scope === workspace.preferences.scope).map((item) => <option key={item.id} value={item.path}>{toolNames[item.tool]}{item.tool === 'custom' ? ` · ${item.path}` : ''}</option>)}
+        {workspace.locations?.filter((item) => item.scope === workspace.preferences.scope).map((item) => <option key={item.id} value={item.path}>{toolNames[item.tool]}{item.tool === 'custom' ? `：${item.path}` : ''}</option>)}
       </select>
       <DropdownMenu><DropdownMenuTrigger className="icon-button" aria-label="管理安装位置" disabled={contextBusy || busy.size > 0 || batchBusy}><MoreHorizontal size={15}/></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem disabled={workspace.preferences.scope === 'project' && !workspace.preferences.project} onSelect={() => void chooseDirectory(true)}><Plus size={14}/>添加自定义目录</DropdownMenuItem></DropdownMenuContent></DropdownMenu>
     </div>
@@ -187,7 +187,7 @@ export default function SkillsPanel({ active }: { active: boolean }) {
               <button className="skill-name" type="button" aria-expanded={expanded.has(item.id)} onClick={() => setExpanded((current) => { const next = new Set(current); if (next.has(item.id)) next.delete(item.id); else next.add(item.id); return next })}>
                 {expanded.has(item.id) ? <ChevronDown size={13}/> : <ChevronRight size={13}/>}<strong>{item.name}</strong>{item.linked && <Link2 size={13} aria-label="链接目录"/>}
               </button>
-              <span className="skill-state">{item.readOnly ? '系统内置 · 只读' : item.linked ? '链接' : item.missing ? '目录缺失' : item.mode === 'git' ? `Git 克隆 · 包含 ${item.skills?.length ?? 0} 个技能` : item.mode === 'repository' ? `整仓库 · 包含 ${item.skills?.length ?? 0} 个技能` : `${item.skills?.length ?? 0} 个技能`}</span>
+              <span className="skill-state">{item.readOnly ? '系统内置（只读）' : item.linked ? '链接' : item.missing ? '目录缺失' : item.mode === 'git' ? `Git 克隆，包含 ${item.skills?.length ?? 0} 个技能` : item.mode === 'repository' ? `整仓库，包含 ${item.skills?.length ?? 0} 个技能` : `${item.skills?.length ?? 0} 个技能`}</span>
               <div className="skill-actions" hidden={batchMode}>
                 {!item.readOnly && <><Button variant="ghost" size="xs" disabled={!item.repository || item.linked || (item.mode === 'git' && item.missing) || busy.size > 0 || batchBusy} title={item.mode === 'git' ? '快进更新当前 Git 分支，保留本地改动' : item.repository ? '从来源仓库更新' : '未绑定仓库，无法更新'} onClick={() => void update(item)}>{busy.has(item.id) ? <LoaderCircle size={12} className="animate-spin"/> : <RefreshCw size={12}/>}更新</Button>
                   <DropdownMenu><DropdownMenuTrigger className="icon-button" aria-label={`${item.name} 的更多操作`} disabled={busy.size > 0 || batchBusy}><MoreHorizontal size={15}/></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem variant="destructive" onSelect={() => setDeleteItem(item)}><Trash2 size={13}/>{item.linked ? '移除链接' : item.missing ? '移除记录' : '删除安装'}</DropdownMenuItem></DropdownMenuContent></DropdownMenu></>}
