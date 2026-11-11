@@ -5,3 +5,6 @@
 .app-toast > [data-radix-toast-announce-exclude] { flex-shrink:0; }
 .app-toast > div { flex:1; min-width:0; white-space:pre-wrap; overflow-wrap:anywhere; }
 .app-toast .icon-button { flex-shrink:0; margin-left:auto; }
+
+.app-toast details { margin-top:4px; }
+.app-toast details p { max-height:160px; overflow:auto; margin:6px 0 0; }

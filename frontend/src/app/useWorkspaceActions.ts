@@ -35,7 +35,10 @@ export function useWorkspaceActions(
       await performDraftTransition(action, {
         save: flush,
         stop: async () => { if (activeRun.current) await Backend.StopRun(activeRun.current) },
-        quit: Desktop.Quit,
+        quit: async (rememberClose) => {
+          if (rememberClose) setSettings(await Desktop.RememberCloseAction('quit'))
+          await Desktop.Quit()
+        },
         create: Backend.NewDraft,
         load: Backend.LoadDraft,
         activate: (value) => { hydrateDraft(value); execution.reset() },
@@ -54,6 +57,10 @@ export function useWorkspaceActions(
     }
   }
   const requestAction = (action: PendingAction) => {
+    if (action.kind === 'quit' && document.querySelector('[data-operation-busy="true"]')) {
+      setError('当前任务尚未完成，请等待当前项完成或停止后续任务后再退出。')
+      return
+    }
     if (transitionLock.current) return
     if (phaseRef.current === 'preparing') {
       setError(action.kind === 'quit' ? '正在准备运行，请稍候再退出。' : '正在准备运行，请稍候再切换练习。')
@@ -62,7 +69,7 @@ export function useWorkspaceActions(
     if (activeRun.current) setPending(action)
     else void executeAction(action)
   }
-  const windowActions = useWindowActions(flush, () => requestAction({ kind: 'quit' }),
+  const windowActions = useWindowActions(flush, (rememberClose = false) => requestAction({ kind: 'quit', rememberClose }),
     () => phaseRef.current !== 'preparing' && !transitionLock.current,
     settings, setSettings, setError)
   useWorkspaceShortcuts({ activeView, run, publish, hide: windowActions.hide,

@@ -21,7 +21,7 @@ export default function DraftDialogs({ drafts, commands, switching, run, publish
           if (!open) setLanguageAction(null)
         }}
       >
-        <DialogContent className="dialog-content">
+        <DialogContent size="sm" className="dialog-content">
           <div className="dialog-heading">
             <DialogTitle>选择这份练习的语言</DialogTitle>
             <DialogDescription>
@@ -67,7 +67,7 @@ export default function DraftDialogs({ drafts, commands, switching, run, publish
           if (!open) setRename(null)
         }}
       >
-        <DialogContent className="dialog-content">
+        <DialogContent size="sm" className="dialog-content">
           <div className="dialog-heading">
             <DialogTitle>重命名练习</DialogTitle>
             <DialogDescription>这个名称用于在近期历史中找到练习。</DialogDescription>

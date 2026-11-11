@@ -37,7 +37,7 @@
 .skills-empty { display:flex; min-height:160px; height:100%; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:20px; text-align:center; color:var(--muted); font-size:12px; }
 .skills-empty strong { color:var(--foreground); font-weight:500; }
 .skills-empty svg { color:var(--muted); }
-.skills-dialog[data-slot=dialog-content] { display:flex; flex-direction:column; gap:12px; width:min(600px,calc(100vw - 32px)); max-width:none; max-height:calc(100dvh - 48px); padding:20px 22px 0; border-radius:12px; overflow:hidden; }
+.skills-dialog[data-slot=dialog-content] { display:flex; flex-direction:column; gap:12px; max-height:calc(100dvh - 48px); padding:20px 22px 0; border-radius:12px; overflow:hidden; }
 .skills-dialog [data-slot=dialog-title] { font-size:16px; line-height:1.3; padding-right:18px; }
 .skills-dialog [data-slot=dialog-description] { font-size:12px; line-height:1.6; }
 .skills-download-form { display:flex; min-height:0; flex-direction:column; }
@@ -78,3 +78,17 @@
 .skills-install-mode legend { font-size:12px; margin-bottom:8px; }
 .skills-result { font-size:12px; line-height:1.6; margin:0 0 10px; }
 .skill-changes { padding-left:18px; font-size:12px; overflow-wrap:anywhere; }
+
+.skills-bulk-bar { display:flex; align-items:center; flex-wrap:wrap; gap:8px; padding:8px 12px; border-bottom:1px solid var(--border); font-size:12px; }
+.skills-bulk-bar label { display:flex; align-items:center; gap:6px; }
+.skills-bulk-bar input,.skill-row-heading > input { accent-color:var(--primary); width:15px; height:15px; flex-shrink:0; }
+.batch-task-body progress { width:100%; height:7px; accent-color:var(--primary); }
+.batch-summary { font-size:12px; font-variant-numeric:tabular-nums; }
+.batch-results { list-style:none; margin:8px 0 0; padding:0; font-size:12px; }
+.batch-results li { padding:8px 0; border-bottom:1px solid var(--border); }
+.batch-results li > div { display:flex; justify-content:space-between; gap:12px; }
+.batch-results strong { overflow-wrap:anywhere; }
+.batch-results p { color:var(--muted); margin:4px 0 0; overflow-wrap:anywhere; white-space:pre-wrap; }
+.batch-results [data-status=failed],.batch-results .batch-warning { color:var(--destructive); }
+.skill-issue { margin:6px 0 0 20px; font-size:11px; color:var(--destructive); }
+.skill-issue p { max-height:120px; overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere; }

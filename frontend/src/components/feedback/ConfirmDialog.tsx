@@ -9,7 +9,7 @@ export function ConfirmDialog({ open, title, description, children, busy = false
   cancelLabel = '取消', destructive = false, onCancel, onConfirm }: Props) {
   const cancel = useRef<HTMLButtonElement>(null)
   return <Dialog open={open} onOpenChange={(value) => { if (!value && !busy) onCancel() }}>
-    <DialogContent className="dialog-content" showCloseButton={!busy}
+    <DialogContent data-operation-busy={busy} size="sm" className="dialog-content" showCloseButton={!busy}
       onOpenAutoFocus={(event) => { event.preventDefault(); cancel.current?.focus() }}
       onEscapeKeyDown={(event) => { if (busy) event.preventDefault() }}>
       <div className="dialog-heading"><DialogTitle>{title}</DialogTitle><DialogDescription>{description}</DialogDescription></div>

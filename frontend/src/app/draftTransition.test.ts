@@ -44,4 +44,13 @@ describe('草稿切换与退出', () => {
     await pending
     expect(operations.quit).toHaveBeenCalledOnce()
   })
+  it('记住退出选择仅在保存与停止成功后交给退出步骤', async () => {
+    const { operations } = setup()
+    operations.save.mockRejectedValueOnce(new Error('保存失败'))
+    await expect(performDraftTransition({ kind: 'quit', rememberClose: true }, operations)).rejects.toThrow('保存失败')
+    expect(operations.quit).not.toHaveBeenCalled()
+    await performDraftTransition({ kind: 'quit', rememberClose: true }, operations)
+    expect(operations.quit).toHaveBeenCalledWith(true)
+  })
+
 })

@@ -112,7 +112,7 @@ export default function InstallSkillsDialog({ location, onClose, onChanged }: { 
   const canClose = !cancelling && busy !== 'install' && busy !== 'reset'
   const close = () => { if (canClose) { if (previewRef.current) void cancelDownload(true); else onClose() } }
   return <Dialog open onOpenChange={(open) => { if (!open) close() }}>
-    <DialogContent className="skills-dialog" showCloseButton={canClose} onEscapeKeyDown={(event) => { if (!canClose) event.preventDefault() }}>
+    <DialogContent size="md" data-operation-busy={!canClose} className="skills-dialog" showCloseButton={canClose} onEscapeKeyDown={(event) => { if (!canClose) event.preventDefault() }}>
       <DialogTitle>安装 Skill</DialogTitle>
       <DialogDescription className="skill-full-path">安装到 {location.path}</DialogDescription>
       <ol className="skills-steps" aria-label="安装步骤">{['输入来源', '选择技能', '安装结果'].map((label, index) => <li key={label} aria-current={(results.length ? 2 : preview ? 1 : 0) === index ? 'step' : undefined}>{index + 1}. {label}</li>)}</ol>

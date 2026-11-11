@@ -6,9 +6,9 @@ import type { WorkspaceActions } from './useWorkspaceActions'
 export function CloseDialog({ actions }: { actions: WindowActions }) {
   const { closePrompt, setClosePrompt, closeBusy, rememberClose, setRememberClose, closeError, chooseClose } = actions
   return     <Dialog open={closePrompt} onOpenChange={(open) => { if (!closeBusy) setClosePrompt(open) }}>
-      <DialogContent className="dialog-content" aria-describedby="close-description" showCloseButton={!closeBusy} onEscapeKeyDown={(event) => { if (closeBusy) event.preventDefault() }}>
+      <DialogContent size="sm" className="dialog-content" aria-describedby="close-description" showCloseButton={!closeBusy} onEscapeKeyDown={(event) => { if (closeBusy) event.preventDefault() }}>
         <div className="dialog-heading">
-          <DialogTitle>关闭 Trylet 时要怎么做？</DialogTitle>
+          <DialogTitle>关闭 Trylet</DialogTitle>
           <DialogDescription id="close-description">
             退出应用会结束后台进程；最小化到托盘会继续在后台运行。
           </DialogDescription>

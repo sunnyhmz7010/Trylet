@@ -149,8 +149,9 @@ export function useExecution(
     } catch (failure) {
       activeRun.current = ''
       updatePhase('failed')
+      setTerminalOpen(true)
       setRunMessage(errorText(failure))
-      setError(errorText(failure))
+      if (!terminal.current) setError(errorText(failure))
     }
   }
   const resizeTerminal = (event: React.PointerEvent<HTMLDivElement>) => {

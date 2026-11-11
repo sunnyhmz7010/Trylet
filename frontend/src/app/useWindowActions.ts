@@ -7,7 +7,7 @@ import { errorText } from '../lib/language'
 // 窗口只依赖保存和退出意图，不持有编辑器、运行或发布会话。
 export function useWindowActions(
   flush: () => Promise<unknown>,
-  requestQuit: () => void,
+  requestQuit: (rememberClose?: boolean) => void,
   canQuit: () => boolean,
   settings: Settings | null,
   setSettings: Dispatch<SetStateAction<Settings | null>>,
@@ -41,14 +41,14 @@ export function useWindowActions(
     setCloseBusy(true)
     setCloseError('')
     try {
-      if (rememberClose) setSettings(await Desktop.RememberCloseAction(action))
       if (action === 'background') {
         await flush()
+        if (rememberClose) setSettings(await Desktop.RememberCloseAction(action))
         await Desktop.HideEditor()
         setClosePrompt(false)
       } else {
         setClosePrompt(false)
-        requestQuit()
+        requestQuit(rememberClose)
       }
     } catch (failure) {
       setCloseError(errorText(failure))

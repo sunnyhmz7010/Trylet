@@ -12,6 +12,7 @@ export function useDraft(setError: ErrorHandler) {
   const draftRef = useRef<Draft | null>(null)
   const [history, setHistory] = useState<DraftSummary[]>([])
   const [saveStatus, setSaveStatus] = useState('已保存')
+  const [saveError, setSaveError] = useState('')
   const [exporting, setExporting] = useState(false)
   const exportLock = useRef(false)
   const transitionLock = useRef(false)
@@ -53,6 +54,7 @@ export function useDraft(setError: ErrorHandler) {
             const recovered = saveFailure.current
             setError((current) => current === recovered ? '' : current)
             saveFailure.current = ''
+            setSaveError('')
           }
           setHistory((items) => [
             {
@@ -69,6 +71,7 @@ export function useDraft(setError: ErrorHandler) {
         if (queuedVersion.current === revision) queuedVersion.current = savedVersion.current
         setSaveStatus('保存失败')
         saveFailure.current = errorText(failure)
+        setSaveError(saveFailure.current)
         setError(saveFailure.current)
         throw failure
       }
@@ -94,6 +97,7 @@ export function useDraft(setError: ErrorHandler) {
     savedVersion.current = 0
     setDraft(value)
     setSaveStatus('已保存')
+    setSaveError('')
   }
   const restore = useCallback((value: Draft, items: DraftSummary[]) => {
     draftRef.current = value
@@ -130,7 +134,7 @@ export function useDraft(setError: ErrorHandler) {
       .catch((failure) => setError(errorText(failure)))
   }
   return {
-    draft, draftRef, history, saveStatus, language, transitionLock, exporting,
+    draft, draftRef, history, saveStatus, saveError, language, transitionLock, exporting,
     restore, hydrateDraft, updateDraft, flush, refreshHistory, exportDraft, published,
   }
 }

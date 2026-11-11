@@ -7,6 +7,7 @@ import * as Desktop from '../../../bindings/trylet/internal/desktop/desktop'
 import type { RuntimeCandidate } from '../../../bindings/trylet/internal/runner/models'
 import type { Settings } from '../../../bindings/trylet/internal/store/models'
 import './settings.css'
+import { ConfirmDialog } from '../../components/feedback/ConfirmDialog'
 import { useFeedback, useNoticeError } from '../../components/feedback/FeedbackProvider'
 import { errorText, languageNames } from '../../lib/language'
 
@@ -32,6 +33,11 @@ export default function SettingsPanel(props: Props) {
   const [hasToken, setHasToken] = useState(props.tokenSet)
   const setError = useNoticeError()
   const [saving, setSaving] = useState(false)
+  const saveLock = useRef(false)
+  const [saveError, setSaveError] = useState('')
+  const [discard, setDiscard] = useState(false)
+  const dirty = !!token || JSON.stringify(form) !== JSON.stringify(props.settings)
+  const leave = () => { setForm(structuredClone(props.settings)); setToken(''); setError(''); setSaveError(''); setDiscard(false); props.onClose() }
   const [removing, setRemoving] = useState(false)
   useEffect(() => {
     setForm((current) => ({
@@ -59,6 +65,9 @@ export default function SettingsPanel(props: Props) {
     void Desktop.OpenURL(url.toString()).catch((failure) => setError(errorText(failure)))
   }
   const save = async () => {
+    if (saveLock.current || removing) return
+    saveLock.current = true
+    setSaveError('')
     setSaving(true)
     setError('')
     try {
@@ -81,8 +90,9 @@ export default function SettingsPanel(props: Props) {
       props.onSaved(value, tokenSet)
       notify('设置已保存')
     } catch (failure) {
-      setError(errorText(failure))
+      setSaveError(errorText(failure))
     } finally {
+      saveLock.current = false
       setSaving(false)
     }
   }
@@ -90,7 +100,7 @@ export default function SettingsPanel(props: Props) {
   saveRef.current = save
   useEffect(() => {
     const key = (event: KeyboardEvent) => {
-      if (props.active && !event.isComposing && event.ctrlKey && event.key.toLowerCase() === 's') {
+      if (props.active && !event.defaultPrevented && !event.repeat && !event.isComposing && event.keyCode !== 229 && !event.altKey && !event.metaKey && !document.querySelector('[role="dialog"]') && event.ctrlKey && event.key.toLowerCase() === 's') {
         event.preventDefault()
         if (!saving && !removing) void saveRef.current()
       }
@@ -99,7 +109,7 @@ export default function SettingsPanel(props: Props) {
     return () => window.removeEventListener('keydown',key)
   },[props.active,saving,removing])
   return (
-    <section className="settings-inline" aria-label="设置">
+    <section className="settings-inline" aria-label="设置" data-operation-busy={saving || removing}>
         <header className="page-toolbar">
           <nav className="section-tabs" aria-label="设置分类">
             {[['general','常规'],['runtimes','运行环境'],['git','Git 浏览'],['github','GitHub 发布']].map(([id,label]) =>
@@ -313,17 +323,19 @@ export default function SettingsPanel(props: Props) {
           </div>
           </section>
           </fieldset>
+          {saveError && <p className="form-error" role="alert">设置未保存：{saveError}</p>}
         </div>
         <footer className="page-footer settings-footer">
           <span className="settings-feedback">保存后对所有工作区生效</span>
-          <Button variant="outline" disabled={saving || removing} onClick={() => {setForm(structuredClone(props.settings));setToken('');setError('');props.onClose()}}>
-            取消
+          <Button variant="outline" disabled={saving || removing} onClick={() => dirty ? setDiscard(true) : leave()}>
+            返回编辑器
           </Button>
           <Button disabled={saving || removing} onClick={() => void save()}>
             {saving && <LoaderCircle size={13} className="animate-spin" />}
             {saving ? '保存中…' : '保存设置'}
           </Button>
         </footer>
+      <ConfirmDialog open={discard} title="放弃未保存的设置？" description="返回编辑器会丢弃本次修改。也可以继续编辑并保存。" confirmLabel="放弃修改并返回" cancelLabel="继续编辑" onCancel={() => setDiscard(false)} onConfirm={leave}/>
     </section>
   )
 }

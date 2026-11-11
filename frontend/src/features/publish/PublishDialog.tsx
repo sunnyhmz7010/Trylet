@@ -51,7 +51,10 @@ export default function PublishDialog({ draft, settings, onClose, onPublished }:
   const [repositoryError, setRepositoryError] = useState('')
   const [directoryError, setDirectoryError] = useState('')
   const [error, setError] = useState('')
+  const [filenameError, setFilenameError] = useState('')
+  const [folderError, setFolderError] = useState('')
   const [busy, setBusy] = useState(false)
+  const uploadLock = useRef(false)
   const [conflict, setConflict] = useState<PublishResult | null>(null)
   const [result, setResult] = useState<PublishResult | null>(null)
   const nameInput = useRef<HTMLInputElement>(null)
@@ -119,11 +122,14 @@ export default function PublishDialog({ draft, settings, onClose, onPublished }:
   }, [filename])
 
   const upload = async (confirmed = false, sha = '') => {
-    if (busy) return
+    if (uploadLock.current) return
     if (!filename || /[/\\]/.test(filename)) {
-      setError('文件名不能为空，也不能包含目录分隔符。')
+      setFilenameError('文件名不能为空，也不能包含目录分隔符。')
+      nameInput.current?.focus()
       return
     }
+    setFilenameError('')
+    uploadLock.current = true
     setBusy(true)
     setError('')
     try {
@@ -145,6 +151,7 @@ export default function PublishDialog({ draft, settings, onClose, onPublished }:
     } catch (failure) {
       setError(errorText(failure))
     } finally {
+      uploadLock.current = false
       setBusy(false)
     }
   }
@@ -152,11 +159,12 @@ export default function PublishDialog({ draft, settings, onClose, onPublished }:
   const addFolder = () => {
     const name = newFolder.trim()
     if (!name || /[/\\:\r\n]/.test(name) || name === '.' || name === '..') {
-      setError('请输入有效的单级目录名。')
+      setFolderError('请输入有效的单级目录名。')
       return
     }
     setDirectory([directory, name].filter(Boolean).join('/'))
     setNewFolder('')
+    setFolderError('')
     setError('')
   }
   const openURL = (value: string) => {
@@ -170,7 +178,7 @@ export default function PublishDialog({ draft, settings, onClose, onPublished }:
         if (!open && !busy) onClose()
       }}
     >
-      <DialogContent className="dialog-content" showCloseButton={!busy} onEscapeKeyDown={(event) => { if (busy) event.preventDefault() }}>
+      <DialogContent data-operation-busy={busy} size={conflict ? 'lg' : 'md'} className="dialog-content" showCloseButton={!busy} onEscapeKeyDown={(event) => { if (busy) event.preventDefault() }}>
         <div className="dialog-heading">
           <DialogTitle>
             {result ? '练习已同步' : conflict ? '目标文件已有不同内容' : '发布到 GitHub'}
@@ -331,7 +339,9 @@ export default function PublishDialog({ draft, settings, onClose, onPublished }:
                     value={newFolder}
                     placeholder="新建目录"
                     disabled={busy}
-                    onChange={(e) => setNewFolder(e.target.value)}
+                    aria-invalid={!!folderError}
+                    aria-describedby={folderError ? 'publish-folder-error' : undefined}
+                    onChange={(e) => { setNewFolder(e.target.value); setFolderError('') }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault()
@@ -358,6 +368,7 @@ export default function PublishDialog({ draft, settings, onClose, onPublished }:
                   </Button>
                 </div>
               </div>
+              {folderError && <p id="publish-folder-error" className="form-error" role="alert">{folderError}</p>}
               <div className="field">
                 <label htmlFor="publish-filename">文件名</label>
                 <Input
@@ -365,9 +376,12 @@ export default function PublishDialog({ draft, settings, onClose, onPublished }:
                   ref={nameInput}
                   value={filename}
                   disabled={busy}
-                  onChange={(e) => setFilename(e.target.value)}
+                  aria-invalid={!!filenameError}
+                  aria-describedby={filenameError ? 'publish-filename-error' : undefined}
+                  onChange={(e) => { setFilename(e.target.value); setFilenameError('') }}
                 />
               </div>
+              {filenameError && <p id="publish-filename-error" className="form-error" role="alert">{filenameError}</p>}
               <div className="field">
                 <label htmlFor="publish-message">提交说明</label>
                 <Input

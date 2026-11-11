@@ -1,9 +1,9 @@
-export type PendingAction = { kind: 'new' } | { kind: 'quit' } | { kind: 'load'; id: string }
+export type PendingAction = { kind: 'new' } | { kind: 'quit'; rememberClose?: boolean } | { kind: 'load'; id: string }
 
 type TransitionOperations<T> = {
   save: () => Promise<unknown>
   stop: () => Promise<unknown>
-  quit: () => Promise<unknown>
+  quit: (rememberClose: boolean) => Promise<unknown>
   create: () => Promise<T>
   load: (id: string) => Promise<T>
   activate: (draft: T) => void
@@ -15,7 +15,7 @@ export async function performDraftTransition<T>(action: PendingAction, operation
   await operations.save()
   await operations.stop()
   if (action.kind === 'quit') {
-    await operations.quit()
+    await operations.quit(!!action.rememberClose)
     return
   }
   const draft = action.kind === 'new' ? await operations.create() : await operations.load(action.id)

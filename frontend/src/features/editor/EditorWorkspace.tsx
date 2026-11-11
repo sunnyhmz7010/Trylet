@@ -185,7 +185,7 @@ export default function EditorWorkspace({ draft, drafts, commands, execution, ac
                   : '自动识别语言'}
           </span>
         </button>
-        <span className="footer-status">{saveStatus}</span>
+        {drafts.saveError ? <button className="text-action footer-status" title={drafts.saveError} disabled={switching || saveStatus === '保存中'} onClick={() => void drafts.flush().catch((failure) => setError(errorText(failure)))}>{saveStatus === '保存中' ? '正在重试保存…' : '保存失败 · 重试'}</button> : <span className="footer-status">{saveStatus}</span>}
         {Terminal && !terminalOpen && (
           <button
             className="icon-button"

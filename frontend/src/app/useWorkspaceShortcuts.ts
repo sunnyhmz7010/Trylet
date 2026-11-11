@@ -14,7 +14,7 @@ export function useWorkspaceShortcuts(actions: Shortcuts) {
   latest.current = actions
   useEffect(() => {
     const key = (event: KeyboardEvent) => {
-      if (event.defaultPrevented || event.repeat || event.isComposing || document.querySelector('[role="dialog"]')) return
+      if (event.defaultPrevented || event.repeat || event.isComposing || event.keyCode === 229 || event.altKey || event.metaKey || document.querySelector('[role="dialog"]')) return
       if (latest.current.activeView !== 'editor') return
       if (event.ctrlKey && event.key === 'Enter') {
         event.preventDefault()
@@ -37,7 +37,10 @@ export function useWorkspaceShortcuts(actions: Shortcuts) {
         void latest.current.hide()
       }
     }
+    // CodeMirror 会消费 Ctrl+Enter（插入空行）；应用命令须在编辑器处理前接管。
+    const command = (event: KeyboardEvent) => { if (event.ctrlKey) key(event) }
+    window.addEventListener('keydown', command, true)
     window.addEventListener('keydown', key)
-    return () => window.removeEventListener('keydown', key)
+    return () => { window.removeEventListener('keydown', command, true); window.removeEventListener('keydown', key) }
   }, [])
 }
